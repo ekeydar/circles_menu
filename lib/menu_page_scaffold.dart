@@ -44,50 +44,62 @@ class _MenuPageScaffoldState extends State<MenuPageScaffold> {
               child: Text('loading...'),
             ),
       floatingActionButton: _ready
-          ? Row(
-              children: [
-                FloatingActionButton(
-                  onPressed: () {
-                    dataList.clear();
-                    _dumpOpDataList();
-                    setState(() {
+          ? Padding(
+            padding: const EdgeInsets.only(left: 16.0, right: 16.0),
+            child: Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0, right: 8),
+                    child: FloatingActionButton(
+                      onPressed: () {
+                        dataList.clear();
+                        _dumpOpDataList();
+                        setState(() {
 
-                    });
-                  },
-                  backgroundColor: Colors.red,
-                  child: Icon(Icons.delete),
-                ),
-                FloatingActionButton(
-                  onPressed: () {
-                    int index = dataList.length;
-                    dataList.add(
-                      OpData(
-                          text: 'balloon ${index+1}',
-                          x: 100 + index*100,
-                          y: 100,
-                          radius: 100,
-                      )
-                    );
-                    _dumpOpDataList();
-                    setState(() {
+                        });
+                      },
+                      backgroundColor: Colors.red,
+                      child: Icon(Icons.delete),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0, right: 8),
+                    child: FloatingActionButton(
+                      onPressed: () {
+                        int index = dataList.length;
+                        dataList.add(
+                          OpData(
+                              text: 'balloon ${index+1}',
+                              x: 100 + index*10,
+                              y: 100,
+                              radius: 100,
+                          )
+                        );
+                        _dumpOpDataList();
+                        setState(() {
 
-                    });
-                  },
-                  backgroundColor: Colors.green,
-                  child: Icon(Icons.add),
-                ),
-                FloatingActionButton(
-                  onPressed: () {
-                    debugPrint('size = ${MediaQuery.of(context).size}');
-                    for (var d in dataList) {
-                      debugPrint('${d.text}: ${d.x} ${d.y}');
-                    }
-                  },
-                  backgroundColor: Colors.green,
-                  child: Icon(Icons.bug_report_outlined),
-                )
-              ],
-            )
+                        });
+                      },
+                      backgroundColor: Colors.green,
+                      child: Icon(Icons.add),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0, right: 8),
+                    child: FloatingActionButton(
+                      onPressed: () {
+                        debugPrint('size = ${MediaQuery.of(context).size}');
+                        for (var d in dataList) {
+                          debugPrint('${d.text}: ${d.x} ${d.y}');
+                        }
+                      },
+                      backgroundColor: Colors.green,
+                      child: Icon(Icons.bug_report_outlined),
+                    ),
+                  )
+                ],
+              ),
+          )
           : null,
     );
   }

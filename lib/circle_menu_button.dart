@@ -5,8 +5,9 @@ class CircleMenuButton extends StatefulWidget {
   final OpData data;
   final VoidCallback? onPressed;
   final VoidCallback onChange;
+  final ScrollController controller;
 
-  CircleMenuButton({Key? key, required this.data, required this.onPressed, required this.onChange})
+  CircleMenuButton({Key? key, required this.data, required this.onPressed, required this.onChange, required this.controller})
       : super(key: key);
 
   @override
@@ -51,9 +52,9 @@ class _CircleMenuButtonState extends State<CircleMenuButton> {
         childWhenDragging: Container(),
         onDragEnd: (details) {
           setState(() {
-            debugPrint('offset = ${details.offset}');
-            cx = details.offset.dx;
+            cx = details.offset.dx + widget.controller.offset;;
             cy = details.offset.dy;
+            debugPrint('cx = $cx');
             widget.data.x = cx;
             widget.data.y = cy;
             widget.onChange();

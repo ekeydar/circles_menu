@@ -46,10 +46,23 @@ class OpData {
 }
 
 class _CirclesMenuState extends State<CirclesMenu> {
+  ScrollController _controller = ScrollController();
+  double xOffset = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.addListener(() {
+      xOffset = _controller.offset;
+    });
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
+      controller: _controller,
       child: Container(
         color: Colors.red.withAlpha(100),
         width: 2000,
@@ -61,6 +74,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
                         data: d,
                         onPressed: widget.onPressed,
                         onChange: widget.onChange,
+                        controller: _controller,
                       ),
                     )
                     .toList()),
