@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 class CircleMenuButton extends StatefulWidget {
   final OpData data;
   final VoidCallback? onPressed;
+  final VoidCallback onChange;
 
-  CircleMenuButton({Key? key, required this.data, required this.onPressed}) : super(key: key);
+  CircleMenuButton({Key? key, required this.data, required this.onPressed, required this.onChange})
+      : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _CircleMenuButtonState();
@@ -35,20 +37,26 @@ class _CircleMenuButtonState extends State<CircleMenuButton> {
             radius: this.radius,
             child: widget.data.widget,
             onPressed: null,
+            fillColor: widget.data.fillColor,
+            borderColor: widget.data.borderColor,
           ),
         ),
         child: CircleButton(
           radius: this.radius,
-            child: widget.data.widget,
-            onPressed: widget.onPressed,
+          child: widget.data.widget,
+          onPressed: widget.onPressed,
+          fillColor: widget.data.fillColor,
+          borderColor: widget.data.borderColor,
         ),
         childWhenDragging: Container(),
         onDragEnd: (details) {
           setState(() {
+            debugPrint('offset = ${details.offset}');
             cx = details.offset.dx;
             cy = details.offset.dy;
             widget.data.x = cx;
             widget.data.y = cy;
+            widget.onChange();
           });
         },
       ),
@@ -60,15 +68,27 @@ class CircleButton extends StatelessWidget {
   final double radius;
   final Widget child;
   final VoidCallback? onPressed;
-  CircleButton({required this.radius, required this.child, required this.onPressed});
+  final Color fillColor;
+  final Color? borderColor;
+
+  CircleButton(
+      {required this.radius,
+      required this.child,
+      required this.onPressed,
+      required this.fillColor,
+      required this.borderColor});
+
   @override
   Widget build(BuildContext context) {
     return Container(
       width: radius,
       height: radius,
       child: new RawMaterialButton(
-        fillColor: Colors.blue,
-        shape: new CircleBorder(),
+        fillColor: fillColor,
+        shape: new CircleBorder(
+            side: borderColor != null
+                ? BorderSide(color: borderColor!, width: 3,)
+                : BorderSide.none),
         elevation: 0.0,
         child: child,
         onPressed: onPressed,

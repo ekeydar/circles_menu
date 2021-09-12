@@ -1,10 +1,16 @@
-import 'dart:convert';
-
 import 'package:anim1/circle_menu_button.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/rendering.dart';
+
+const String spKey = 'circleButtons';
 
 class CirclesMenu extends StatefulWidget {
+  final List<OpData> dataList;
+  final VoidCallback onPressed;
+  final VoidCallback onChange;
+
+  CirclesMenu({Key? key, required this.dataList, required this.onPressed, required this.onChange});
+
   @override
   State<StatefulWidget> createState() => _CirclesMenuState();
 }
@@ -13,109 +19,52 @@ class OpData {
   double x;
   double y;
   double radius;
-  final bool isAdd;
-  final String? text;
+  final String text;
 
-  OpData(
-      {required this.x,
-      required this.y,
-      required this.radius,
-      required this.text,
-      required this.isAdd});
+  Map<String, dynamic> toMap() {
+    return {'x': x, 'y': y, 'radius': radius, 'text': text};
+  }
+
+  OpData({
+    required this.x,
+    required this.y,
+    required this.radius,
+    required this.text,
+  });
 
   Widget get widget {
-    if (this.isAdd) {
-      return Icon(
-        Icons.add,
-        color: Colors.white,
-      );
-    }
     return Text(
-      this.text!,
+      this.text,
       textAlign: TextAlign.center,
       style: TextStyle(color: Colors.white),
     );
   }
+
+  Color get fillColor => Colors.blue;
+
+  Color? get borderColor => null;
 }
 
 class _CirclesMenuState extends State<CirclesMenu> {
-  bool _ready = false;
-  late List<OpData> dataList;
-
-  @override
-  void initState() {
-    super.initState();
-    _buildOpDataList();
-  }
-
   @override
   Widget build(BuildContext context) {
-    debugPrint('ready = $_ready');
-    if (_ready) {
-      return Stack(
-        children: dataList
-            .map((d) => CircleMenuButton(
-          data: d,
-          onPressed: () {
-            _handleButton(d);
-          },
-        ))
-            .toList()
-      );
-    } else {
-      return Center(
-        child: Text('loading'),
-      );
-    }
-  }
-
-  void _handleButton(OpData data) {
-    if (data.isAdd) {
-      dataList.add(
-        OpData(
-          x: data.x + data.radius,
-          y: data.y,
-          radius: data.radius,
-          text: 'זמני',
-          isAdd: false,
-        )
-      );
-      setState(() {
-
-      });
-    }
-  }
-
-  Future<void> _buildOpDataList() async {
-    SharedPreferences sp = await SharedPreferences.getInstance();
-    String? text = sp.getString('circleButtons');
-    if (text == null) {
-      dataList = [
-        OpData(
-          x: 100,
-          y: 100,
-          radius: 100,
-          isAdd: true,
-          text: null,
-        )
-      ];
-    } else {
-      List<Map<String, dynamic>> dataMaps = jsonDecode(text);
-      dataList = dataMaps
-          .map(
-            (m) =>
-            OpData(
-              x: m['x'],
-              y: m['y'],
-              radius: m['radius'],
-              isAdd: m['isAdd'],
-              text: m['text'],
-            ),
-      )
-          .toList();
-    }
-    setState(() {
-        _ready = true;
-    });
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Container(
+        color: Colors.red.withAlpha(100),
+        width: 2000,
+        child: Stack(
+            clipBehavior: Clip.none,
+            children: widget.dataList
+                    .map(
+                      (d) => CircleMenuButton(
+                        data: d,
+                        onPressed: widget.onPressed,
+                        onChange: widget.onChange,
+                      ),
+                    )
+                    .toList()),
+      ),
+    );
   }
 }
