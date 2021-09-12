@@ -74,7 +74,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
       dataList.add(
         OpData(
           x: data.x + data.radius,
-          y: data.y + data.radius,
+          y: data.y,
           radius: data.radius,
           text: 'זמני',
           isAdd: false,
