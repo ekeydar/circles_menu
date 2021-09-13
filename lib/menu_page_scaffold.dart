@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -63,7 +64,7 @@ class _MenuPageScaffoldState extends State<MenuPageScaffold> {
                     child: FloatingActionButton(
                       onPressed: () async {
                         OpAction? newAction = await pickAction();
-                        debugPrint('action = $newAction');
+                        //debugPrint('action = $newAction');
                         if (newAction != null) {
                           int index = dataList.length;
                           dataList.add(OpData(
@@ -81,11 +82,12 @@ class _MenuPageScaffoldState extends State<MenuPageScaffold> {
                       child: Icon(Icons.add),
                     ),
                   ),
+                  if (kDebugMode)
                   Padding(
                     padding: const EdgeInsets.only(left: 8.0, right: 8),
                     child: FloatingActionButton(
                       onPressed: () {
-                        debugPrint('size = ${MediaQuery.of(context).size}');
+                        // debugPrint('size = ${MediaQuery.of(context).size}');
                         for (var d in dataList) {
                           debugPrint('${d.text}: ${d.x} ${d.y}');
                         }

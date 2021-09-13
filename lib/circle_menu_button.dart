@@ -87,7 +87,7 @@ class _CircleMenuButtonState extends State<CircleMenuButton> {
             setState(() {
               cx = details.offset.dx + widget.controller.offset;
               cy = details.offset.dy;
-              debugPrint('cx = $cx');
+              // debugPrint('cx = $cx');
               widget.data.x = cx;
               widget.data.y = cy;
               widget.onChange();
