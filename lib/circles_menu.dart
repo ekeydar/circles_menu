@@ -7,8 +7,8 @@ import 'circle_menu_models.dart';
 const String spKey = 'circleButtons';
 
 class CirclesMenu extends StatefulWidget {
-  final List<OpData> dataList;
-  final VoidCallback onPressed;
+  final List<OpState> dataList;
+  final WithOpStateCallback onPressed;
   final VoidCallback onChange;
 
   CirclesMenu({Key? key, required this.dataList, required this.onPressed, required this.onChange});
@@ -45,7 +45,9 @@ class _CirclesMenuState extends State<CirclesMenu> {
                     .map(
                       (d) => CircleMenuButton(
                         data: d,
-                        onPressed: widget.onPressed,
+                        onPressed: () {
+                          widget.onPressed(d);
+                        },
                         onChange: widget.onChange,
                         controller: _controller,
                       ),

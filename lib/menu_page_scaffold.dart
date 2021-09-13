@@ -14,7 +14,7 @@ class MenuPageScaffold extends StatefulWidget {
 
 class _MenuPageScaffoldState extends State<MenuPageScaffold> {
   bool _ready = false;
-  late List<OpData> dataList;
+  late List<OpState> dataList;
   late Map<String, OpAction> actionsByCode;
 
   @override
@@ -33,10 +33,12 @@ class _MenuPageScaffoldState extends State<MenuPageScaffold> {
       body: _ready
           ? CirclesMenu(
               dataList: dataList,
-              onPressed: () {},
+              onPressed: (OpState op) {
+                debugPrint('${op.text} pressed');
+              },
               onChange: () {
                 dataList.removeWhere((d) => d.isDeleted);
-                _dumpOpDataList();
+                _dumpopStateList();
                 setState(() {});
               })
           : Center(
@@ -52,7 +54,7 @@ class _MenuPageScaffoldState extends State<MenuPageScaffold> {
                     child: FloatingActionButton(
                       onPressed: () {
                         dataList.clear();
-                        _dumpOpDataList();
+                        _dumpopStateList();
                         setState(() {});
                       },
                       backgroundColor: Colors.red,
@@ -67,14 +69,14 @@ class _MenuPageScaffoldState extends State<MenuPageScaffold> {
                         //debugPrint('action = $newAction');
                         if (newAction != null) {
                           int index = dataList.length;
-                          dataList.add(OpData(
+                          dataList.add(OpState(
                               action: newAction,
                               x: 100 + index * 10,
                               y: 100,
                               radius: 100,
                               fillColor: Theme.of(context).primaryColor,
                           ));
-                          _dumpOpDataList();
+                          _dumpopStateList();
                           setState(() {});
                         }
                       },
@@ -139,7 +141,7 @@ class _MenuPageScaffoldState extends State<MenuPageScaffold> {
         });
   }
 
-  Future<void> _dumpOpDataList() async {
+  Future<void> _dumpopStateList() async {
     SharedPreferences sp = await SharedPreferences.getInstance();
     String value = jsonEncode(dataList.map((m) => m.toMap()).toList());
     await sp.setString(spKey, value);
@@ -147,7 +149,7 @@ class _MenuPageScaffoldState extends State<MenuPageScaffold> {
 
   Future<void> _prepare() async {
     await _buildActions();
-    await _buildOpDataList();
+    await _buildopStateList();
     setState(() {
       _ready = true;
     });
@@ -161,7 +163,7 @@ class _MenuPageScaffoldState extends State<MenuPageScaffold> {
     }
   }
 
-  Future<void> _buildOpDataList() async {
+  Future<void> _buildopStateList() async {
     SharedPreferences sp = await SharedPreferences.getInstance();
     String? text = sp.getString(spKey);
     if (text == null) {
@@ -173,7 +175,7 @@ class _MenuPageScaffoldState extends State<MenuPageScaffold> {
       dataList = dataMaps
           .where((m) => actionsByCode.containsKey(m['actionCode']))
           .map(
-            (m) => OpData(
+            (m) => OpState(
               x: m['x'],
               y: m['y'],
               radius: m['radius'],

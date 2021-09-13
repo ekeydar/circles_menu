@@ -4,7 +4,7 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'circle_menu_models.dart';
 
 class CircleMenuButton extends StatefulWidget {
-  final OpData data;
+  final OpState data;
   final VoidCallback? onPressed;
   final VoidCallback onChange;
   final ScrollController controller;
@@ -22,20 +22,18 @@ class CircleMenuButton extends StatefulWidget {
 }
 
 class _CircleMenuButtonState extends State<CircleMenuButton> {
-  late double cx;
-  late double cy;
-  late double radius;
-
-  @override
-  void initState() {
-    cx = this.widget.data.x;
-    cy = this.widget.data.y;
-    radius = this.widget.data.radius;
-    super.initState();
-  }
+  // @override
+  // void initState() {
+  //   cx = this.widget.data.x;
+  //   cy = this.widget.data.y;
+  //   radius = this.widget.data.radius;
+  //   super.initState();
+  // }
 
   @override
   Widget build(BuildContext context) {
+    double cx = widget.data.x;
+    double cy = widget.data.y;
     return Positioned(
       left: cx,
       top: cy - 80,
@@ -50,6 +48,12 @@ class _CircleMenuButtonState extends State<CircleMenuButton> {
                   child: const Text('Delete'), value: 'delete'),
               PopupMenuItem<String>(
                   child: const Text('Change color'), value: 'color'),
+              if (widget.data.canIncrRadius)
+              PopupMenuItem<String>(
+                  child: const Text('increase'), value: 'incr'),
+              if (widget.data.canDecrRadius)
+              PopupMenuItem<String>(
+                  child: const Text('decrease'), value: 'decr'),
             ],
             elevation: 8.0,
           );
@@ -64,11 +68,16 @@ class _CircleMenuButtonState extends State<CircleMenuButton> {
               widget.onChange();
             }
           }
+          if (result == 'incr' || result == 'decr') {
+            widget.data.radius += (result == 'incr' ? 10 : -10);
+            debugPrint('widget.data.radius = ${widget.data.radius}');
+            widget.onChange();
+          }
         },
         child: Draggable(
           feedback: Container(
             child: CircleButton(
-              radius: this.radius,
+              radius: widget.data.radius,
               child: widget.data.widget,
               onPressed: null,
               fillColor: widget.data.fillColor,
@@ -76,7 +85,7 @@ class _CircleMenuButtonState extends State<CircleMenuButton> {
             ),
           ),
           child: CircleButton(
-            radius: this.radius,
+            radius: widget.data.radius,
             child: widget.data.widget,
             onPressed: widget.onPressed,
             fillColor: widget.data.fillColor,
@@ -85,11 +94,9 @@ class _CircleMenuButtonState extends State<CircleMenuButton> {
           childWhenDragging: Container(),
           onDragEnd: (details) {
             setState(() {
-              cx = details.offset.dx + widget.controller.offset;
-              cy = details.offset.dy;
               // debugPrint('cx = $cx');
-              widget.data.x = cx;
-              widget.data.y = cy;
+              widget.data.x = details.offset.dx + widget.controller.offset;
+              widget.data.y = details.offset.dy;
               widget.onChange();
             });
           },

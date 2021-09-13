@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
-class OpData {
+typedef WithOpStateCallback(OpState o1);
+
+class OpState {
   double x;
   double y;
   double radius;
@@ -8,6 +10,9 @@ class OpData {
   bool isDeleted = false;
   Color fillColor;
 
+  bool get canIncrRadius => radius < 200;
+  bool get canDecrRadius => radius > 50;
+  
   String get text => action.title;
 
   Map<String, dynamic> toMap() {
@@ -20,7 +25,7 @@ class OpData {
     };
   }
 
-  OpData(
+  OpState(
       {required this.x,
       required this.y,
       required this.radius,
