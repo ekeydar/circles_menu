@@ -1,5 +1,6 @@
-import 'package:anim1/circles_menu.dart';
 import 'package:flutter/material.dart';
+
+import 'circle_menu_models.dart';
 
 class CircleMenuButton extends StatefulWidget {
   final OpData data;
@@ -52,7 +53,7 @@ class _CircleMenuButtonState extends State<CircleMenuButton> {
         childWhenDragging: Container(),
         onDragEnd: (details) {
           setState(() {
-            cx = details.offset.dx + widget.controller.offset;;
+            cx = details.offset.dx + widget.controller.offset;
             cy = details.offset.dy;
             debugPrint('cx = $cx');
             widget.data.x = cx;
