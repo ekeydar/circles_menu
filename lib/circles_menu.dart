@@ -38,7 +38,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
       controller: _controller,
       child: Container(
         color: Colors.red.withAlpha(100),
-        width: 2000,
+        width: MediaQuery.of(context).size.width * 2,
         child: Stack(
             clipBehavior: Clip.none,
               children: widget.dataList

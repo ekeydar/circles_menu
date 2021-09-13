@@ -34,6 +34,7 @@ class _MenuPageScaffoldState extends State<MenuPageScaffold> {
               dataList: dataList,
               onPressed: () {},
               onChange: () {
+                dataList.removeWhere((d) => d.isDeleted);
                 _dumpOpDataList();
                 setState(() {});
               })
@@ -70,6 +71,7 @@ class _MenuPageScaffoldState extends State<MenuPageScaffold> {
                               x: 100 + index * 10,
                               y: 100,
                               radius: 100,
+                              fillColor: Theme.of(context).primaryColor,
                           ));
                           _dumpOpDataList();
                           setState(() {});
@@ -174,6 +176,7 @@ class _MenuPageScaffoldState extends State<MenuPageScaffold> {
               y: m['y'],
               radius: m['radius'],
               action: actionsByCode[m['actionCode']]!,
+              fillColor: Color(m['fillColorValue'] ?? Theme.of(context).primaryColor.value),
             ),
           )
           .toList();
