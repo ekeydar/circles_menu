@@ -25,7 +25,6 @@ class _MenuPageScaffoldState extends State<MenuPageScaffold> {
 
   @override
   Widget build(BuildContext context) {
-    // debugPrint('_ready = $_ready dataList.length = ${dataList.length}');
     return Scaffold(
       appBar: AppBar(
         title: Text('demo widget'),
@@ -34,7 +33,7 @@ class _MenuPageScaffoldState extends State<MenuPageScaffold> {
           ? CirclesMenu(
               dataList: dataList,
               onPressed: (OpState op) {
-                debugPrint('${op.text} pressed');
+                op.action.onPress();
               },
               onChange: () {
                 dataList.removeWhere((d) => d.isDeleted);
@@ -70,11 +69,11 @@ class _MenuPageScaffoldState extends State<MenuPageScaffold> {
                         if (newAction != null) {
                           int index = dataList.length;
                           dataList.add(OpState(
-                              action: newAction,
-                              x: 100 + index * 10,
-                              y: 100,
-                              radius: 100,
-                              fillColor: Theme.of(context).primaryColor,
+                            action: newAction,
+                            x: 100 + index * 10,
+                            y: 100,
+                            radius: 100,
+                            fillColor: Theme.of(context).primaryColor,
                           ));
                           _dumpopStateList();
                           setState(() {});
@@ -85,19 +84,19 @@ class _MenuPageScaffoldState extends State<MenuPageScaffold> {
                     ),
                   ),
                   if (kDebugMode)
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8.0, right: 8),
-                    child: FloatingActionButton(
-                      onPressed: () {
-                        // debugPrint('size = ${MediaQuery.of(context).size}');
-                        for (var d in dataList) {
-                          debugPrint('${d.text}: ${d.x} ${d.y}');
-                        }
-                      },
-                      backgroundColor: Colors.green,
-                      child: Icon(Icons.bug_report_outlined),
-                    ),
-                  )
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8.0, right: 8),
+                      child: FloatingActionButton(
+                        onPressed: () {
+                          // debugPrint('size = ${MediaQuery.of(context).size}');
+                          for (var d in dataList) {
+                            debugPrint('${d.text}: ${d.x} ${d.y}');
+                          }
+                        },
+                        backgroundColor: Colors.green,
+                        child: Icon(Icons.bug_report_outlined),
+                      ),
+                    )
                 ],
               ),
             )
@@ -127,15 +126,14 @@ class _MenuPageScaffoldState extends State<MenuPageScaffold> {
             title: Text('pick category'),
             content: SingleChildScrollView(
               child: Column(
-                children: actions.map(
-                    (a) => ListTile(
-                      title: Text(a.title),
-                      onTap: () {
-                        Navigator.of(context).pop(a);
-                      },
-                    )
-                ).toList()
-              ),
+                  children: actions
+                      .map((a) => ListTile(
+                            title: Text(a.title),
+                            onTap: () {
+                              Navigator.of(context).pop(a);
+                            },
+                          ))
+                      .toList()),
             ),
           );
         });
@@ -158,7 +156,11 @@ class _MenuPageScaffoldState extends State<MenuPageScaffold> {
   Future<void> _buildActions() async {
     actionsByCode = Map<String, OpAction>();
     for (var x = 1; x <= 10; x++) {
-      OpAction oa = OpAction(code: 'action_$x', title: 'balloon $x');
+      OpAction oa = OpAction(
+        code: 'action_$x',
+        title: 'balloon $x',
+        onPress: () => debugPrint('clicked $x'),
+      );
       actionsByCode[oa.code] = oa;
     }
   }
@@ -180,11 +182,11 @@ class _MenuPageScaffoldState extends State<MenuPageScaffold> {
               y: m['y'],
               radius: m['radius'],
               action: actionsByCode[m['actionCode']]!,
-              fillColor: Color(m['fillColorValue'] ?? Theme.of(context).primaryColor.value),
+              fillColor: Color(
+                  m['fillColorValue'] ?? Theme.of(context).primaryColor.value),
             ),
           )
           .toList();
     }
   }
 }
-

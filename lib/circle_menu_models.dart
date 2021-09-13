@@ -46,8 +46,9 @@ class OpState {
 class OpAction {
   final String title;
   final String code;
+  final VoidCallback onPress;
 
-  OpAction({required this.title, required this.code});
+  OpAction({required this.title, required this.code, required this.onPress});
 
   @override
   String toString() {

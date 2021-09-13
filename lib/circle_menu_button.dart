@@ -39,7 +39,7 @@ class _CircleMenuButtonState extends State<CircleMenuButton> {
       top: cy - 80,
       child: GestureDetector(
         onLongPress: () async {
-          debugPrint('long pressed');
+          // debugPrint('long pressed');
           String? result = await showMenu<String>(
             context: context,
             position: RelativeRect.fromLTRB(cx + 10, cy + 10, cx + 10, cy + 10),
@@ -70,7 +70,7 @@ class _CircleMenuButtonState extends State<CircleMenuButton> {
           }
           if (result == 'incr' || result == 'decr') {
             widget.data.radius += (result == 'incr' ? 10 : -10);
-            debugPrint('widget.data.radius = ${widget.data.radius}');
+            // debugPrint('widget.data.radius = ${widget.data.radius}');
             widget.onChange();
           }
         },
