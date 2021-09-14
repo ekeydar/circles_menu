@@ -43,7 +43,7 @@ class _MenuPageScaffoldState extends State<MenuPageScaffold> {
           : Center(
         child: Text('loading...'),
       ),
-      floatingActionButton: _ready
+      floatingActionButton: _ready && false
           ? Padding(
         padding: const EdgeInsets.only(left: 16.0, right: 16.0),
         child: Row(
