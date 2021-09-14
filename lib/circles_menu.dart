@@ -106,13 +106,15 @@ class _CirclesMenuState extends State<CirclesMenu> {
                   OpAction? newAction = await pickAction();
                   if (newAction != null) {
                     int index = dataList.length;
-                    dataList.add(OpState(
-                      action: newAction,
-                      x: 100 + index * 10,
-                      y: 100,
-                      radius: 100,
-                      fillColor: Theme.of(context).primaryColor,
-                    ));
+                    dataList.add(
+                      OpState(
+                        action: newAction,
+                        x: 100 + index * 10,
+                        y: 100,
+                        radius: 100,
+                        fillColor: Theme.of(context).primaryColor,
+                      ),
+                    );
                     _dumpOpStateList();
                     setState(() {});
                   }
