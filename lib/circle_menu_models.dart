@@ -47,8 +47,9 @@ class OpAction {
   final String title;
   final String code;
   final VoidCallback onPress;
+  final bool showByDefault;
 
-  OpAction({required this.title, required this.code, required this.onPress});
+  OpAction({required this.title, required this.code, required this.onPress, required this.showByDefault});
 
   @override
   String toString() {

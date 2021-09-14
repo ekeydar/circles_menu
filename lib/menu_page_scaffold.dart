@@ -19,11 +19,12 @@ class MenuPageScaffold extends StatelessWidget {
 
   List<OpAction> _getActions() {
     List<OpAction> result = [];
-    for (var x = 1; x <= 10; x++) {
+    for (var x = 1; x <= 15; x++) {
       OpAction oa = OpAction(
         code: 'action_$x',
         title: 'balloon $x',
         onPress: () => debugPrint('clicked $x'),
+        showByDefault: x <= 10,
       );
       result.add(oa);
     }

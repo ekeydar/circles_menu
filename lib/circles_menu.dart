@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:collection/collection.dart';
 
 import 'package:anim1/circle_menu_button.dart';
 import 'package:anim1/pick_action_dialog.dart';
@@ -103,6 +104,17 @@ class _CirclesMenuState extends State<CirclesMenu> {
               padding: const EdgeInsets.only(left: 8.0, right: 8),
               child: FloatingActionButton(
                 onPressed: () async {
+                  await _buildOpStateList(reset: true);
+                  setState(() {});
+                },
+                backgroundColor: Colors.red,
+                child: Icon(Icons.auto_delete),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0, right: 8),
+              child: FloatingActionButton(
+                onPressed: () async {
                   OpAction? newAction = await pickAction();
                   if (newAction != null) {
                     int index = dataList.length;
@@ -110,7 +122,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
                       OpState(
                         action: newAction,
                         x: 100 + index * 10,
-                        y: 100,
+                        y: MediaQuery.of(context).size.height - 200,
                         radius: 100,
                         fillColor: Theme.of(context).primaryColor,
                       ),
@@ -148,16 +160,24 @@ class _CirclesMenuState extends State<CirclesMenu> {
     await sp.setString(spKey, value);
   }
 
-  Future<void> _buildOpStateList() async {
+  Future<void> _buildOpStateList({bool reset=false}) async {
     Map<String, OpAction> actionsByCode = Map<String, OpAction>();
     widget.actions.forEach((a) {
       actionsByCode[a.code] = a;
     });
     SharedPreferences sp = await SharedPreferences.getInstance();
-    String? text = sp.getString(spKey);
-    if (text == null) {
-      dataList = [];
+    if (reset || !sp.containsKey(spKey)) {
+      dataList = widget.actions.where(
+          (a) => a.showByDefault
+      ).mapIndexed((index, a) => OpState(
+          x: 20.0 + 110*(index ~/ 4),
+          y : 100 + 110*(index % 4),
+          radius: 100,
+          fillColor: Theme.of(context).primaryColor,
+          action: a,
+      )).toList();
     } else {
+      String text = sp.getString(spKey)!;
       List<Map<String, dynamic>> dataMaps = List<Map<String, dynamic>>.from(
         jsonDecode(text),
       );
