@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
 import 'circle_menu_models.dart';
 
@@ -38,107 +37,43 @@ class _CircleMenuButtonState extends State<CircleMenuButton> {
     double cy = widget.data.y;
     return Positioned(
       left: cx,
-      top: cy - 80,
-      child: GestureDetector(
-        onLongPress: () async {
-          // debugPrint('long pressed');
-          String? result = await showMenu<String>(
-            context: context,
-            position: RelativeRect.fromLTRB(cx + 10, cy + 10, cx + 10, cy + 10),
-            items: [
-              PopupMenuItem<String>(
-                  child: Icon(Icons.delete), value: 'delete'),
-              PopupMenuItem<String>(
-                  child: Icon(Icons.color_lens), value: 'color'),
-              if (widget.data.canIncrRadius)
-                PopupMenuItem<String>(
-                    child: const Icon(Icons.add), value: 'incr'),
-              if (widget.data.canDecrRadius)
-                PopupMenuItem<String>(
-                    child: const Icon(Icons.remove), value: 'decr'),
-            ],
-            elevation: 8.0,
-          );
-          if (result == 'delete') {
-            widget.data.isDeleted = true;
-            widget.onChange();
-          }
-          if (result == 'color') {
-            Color? c = await pickColor();
-            if (c != null) {
-              widget.data.fillColor = c;
+      top: cy,
+      child: Align(
+        child: GestureDetector(
+          onLongPress: () {
+              widget.data.showActions = !widget.data.showActions;
               widget.onChange();
-            }
-          }
-          if (result == 'incr' || result == 'decr') {
-            widget.data.radius += (result == 'incr' ? 10 : -10);
-            // debugPrint('widget.data.radius = ${widget.data.radius}');
-            widget.onChange();
-          }
-        },
-        child: Draggable(
-          feedback: Container(
+          },
+          child: Draggable(
+            feedback: Container(
+              child: CircleButton(
+                radius: widget.data.radius,
+                child: widget.data.widget,
+                onPressed: null,
+                fillColor: widget.data.fillColor,
+                borderColor: widget.data.borderColor,
+              ),
+            ),
             child: CircleButton(
               radius: widget.data.radius,
               child: widget.data.widget,
-              onPressed: null,
+              onPressed: widget.onPressed,
               fillColor: widget.data.fillColor,
               borderColor: widget.data.borderColor,
             ),
+            childWhenDragging: Container(),
+            onDragEnd: (details) {
+              setState(() {
+                // debugPrint('cx = $cx');
+                widget.data.x = details.offset.dx + widget.controller.offset;
+                widget.data.y = details.offset.dy - 80;
+                widget.onChange();
+              });
+            },
           ),
-          child: CircleButton(
-            radius: widget.data.radius,
-            child: widget.data.widget,
-            onPressed: widget.onPressed,
-            fillColor: widget.data.fillColor,
-            borderColor: widget.data.borderColor,
-          ),
-          childWhenDragging: Container(),
-          onDragEnd: (details) {
-            setState(() {
-              // debugPrint('cx = $cx');
-              widget.data.x = details.offset.dx + widget.controller.offset;
-              widget.data.y = details.offset.dy;
-              widget.onChange();
-            });
-          },
         ),
       ),
     );
-  }
-
-  Future<Color?> pickColor() async {
-    Color newColor = widget.data.fillColor;
-    return await showDialog<Color>(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            content: SingleChildScrollView(
-              child: ColorPicker(
-                pickerColor: newColor,
-                onColorChanged: (Color c) {
-                  newColor = c;
-                },
-                showLabel: true,
-                pickerAreaHeightPercent: 0.8,
-              ),
-            ),
-            actions: [
-              TextButton(
-                child: Text(widget.config.cancel),
-                onPressed: () {
-                  Navigator.of(context).pop(null);
-                },
-              ),
-              TextButton(
-                child: Text(widget.config.accept),
-                onPressed: () {
-                  Navigator.of(context).pop(newColor);
-                },
-              ),
-            ],
-          );
-        });
   }
 }
 
@@ -176,4 +111,36 @@ class CircleButton extends StatelessWidget {
       ),
     );
   }
+}
+
+class CircleMenuActionButton extends StatefulWidget {
+  final Icon icon;
+  final OpState data;
+  final int index;
+  final VoidCallback onPress;
+  CircleMenuActionButton({Key? key, required this.icon, required this.data, required this.index, required this.onPress});
+
+  @override
+  State<StatefulWidget> createState() => CircleMenuActionButtonState();
+}
+
+class CircleMenuActionButtonState extends State<CircleMenuActionButton> {
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+        top: widget.index < 2 ? widget.data.y - 20 : widget.data.y + widget.data.radius - 20,
+        left: (widget.index % 2) == 0 ? widget.data.x : widget.data.x + widget.data.radius - 40,
+        child: Align(
+          alignment: Alignment.center,
+          child: CircleButton(
+            fillColor: Colors.red,
+            borderColor: null,
+            radius: 40,
+            onPressed: widget.onPress,
+            child: widget.icon,
+          ),
+        ),
+    );
+  }
+
 }

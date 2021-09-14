@@ -9,9 +9,10 @@ class OpState {
   final OpAction action;
   bool isDeleted = false;
   Color fillColor;
+  bool showActions = false;
 
   bool get canIncrRadius => radius < 200;
-  bool get canDecrRadius => radius > 50;
+  bool get canDecrRadius => radius > 70;
   
   String get text => action.title;
 
@@ -65,3 +66,4 @@ class CircleMenuConfig {
   String get cancel => 'cancel';
   String get pickAction => 'pick action';
 }
+
