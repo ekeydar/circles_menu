@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:collection/collection.dart';
 
-import 'package:anim1/circle_menu_button.dart';
-import 'package:anim1/pick_action_dialog.dart';
+import 'circle_menu_button.dart';
+import 'pick_action_dialog.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -52,8 +52,8 @@ class _CirclesMenuState extends State<CirclesMenu> {
         scrollDirection: Axis.horizontal,
         controller: _controller,
         child: Container(
-          color: Colors.red.withAlpha(100),
-          width: MediaQuery.of(context).size.width * 2,
+          //color: Colors.red.withAlpha(100),
+          width: MediaQuery.of(context).size.width,
           child: Stack(
               clipBehavior: Clip.none,
               children: [getButtons(context)] +
@@ -91,6 +91,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
             Padding(
               padding: const EdgeInsets.only(left: 8.0, right: 8),
               child: FloatingActionButton(
+                heroTag: 'circle_menu_delete',
                 onPressed: () {
                   dataList.clear();
                   _dumpOpStateList();
@@ -103,8 +104,10 @@ class _CirclesMenuState extends State<CirclesMenu> {
             Padding(
               padding: const EdgeInsets.only(left: 8.0, right: 8),
               child: FloatingActionButton(
+                heroTag: 'circle_menu_reset',
                 onPressed: () async {
                   await _buildOpStateList(reset: true);
+                  _dumpOpStateList();
                   setState(() {});
                 },
                 backgroundColor: Colors.red,
@@ -114,6 +117,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
             Padding(
               padding: const EdgeInsets.only(left: 8.0, right: 8),
               child: FloatingActionButton(
+                heroTag: 'circle_menu_add',
                 onPressed: () async {
                   OpAction? newAction = await pickAction();
                   if (newAction != null) {
@@ -139,6 +143,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
               Padding(
                 padding: const EdgeInsets.only(left: 8.0, right: 8),
                 child: FloatingActionButton(
+                  heroTag: 'circle_menu_debug',
                   onPressed: () {
                     for (var d in dataList) {
                       debugPrint('${d.text}: ${d.x} ${d.y}');
