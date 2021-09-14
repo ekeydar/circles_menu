@@ -58,4 +58,9 @@ class OpAction {
 
 class CircleMenuConfig {
   String get loading => 'loading';
+  String get delete => 'delete';
+  String get changeColor => 'change color';
+  String get accept => 'accept';
+  String get cancel => 'cancel';
+  String get pickAction => 'pick action';
 }

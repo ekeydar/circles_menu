@@ -4,7 +4,8 @@ import 'circle_menu_models.dart';
 
 class PickActionDialog extends StatefulWidget {
   final List<OpAction> actions;
-  PickActionDialog({required this.actions});
+  final CircleMenuConfig config;
+  PickActionDialog({required this.actions, required this.config});
 
   @override
   State<StatefulWidget> createState() => _PickActionDialogState();
@@ -33,13 +34,13 @@ class _PickActionDialogState extends State<PickActionDialog> {
     return AlertDialog(
       actions: [
         TextButton(
-          child: Text('cancel'),
+          child: Text(widget.config.cancel),
           onPressed: () {
             Navigator.of(context).pop(null);
           },
         ),
       ],
-      title: Text('pick category'),
+      title: Text(widget.config.pickAction),
       content: Container(
         height: MediaQuery.of(context).size.height * 0.7,
         child: SingleChildScrollView(

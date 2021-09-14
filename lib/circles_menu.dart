@@ -15,13 +15,12 @@ class CirclesMenu extends StatefulWidget {
   final CircleMenuConfig config;
   final List<OpAction> actions;
 
-  CirclesMenu({Key? key, CircleMenuConfig? config, required this.actions}) :
-        this.config=config ?? CircleMenuConfig();
+  CirclesMenu({Key? key, CircleMenuConfig? config, required this.actions})
+      : this.config = config ?? CircleMenuConfig();
 
   @override
   State<StatefulWidget> createState() => _CirclesMenuState();
 }
-
 
 class _CirclesMenuState extends State<CirclesMenu> {
   ScrollController _controller = ScrollController();
@@ -53,35 +52,31 @@ class _CirclesMenuState extends State<CirclesMenu> {
         controller: _controller,
         child: Container(
           color: Colors.red.withAlpha(100),
-          width: MediaQuery
-              .of(context)
-              .size
-              .width * 2,
+          width: MediaQuery.of(context).size.width * 2,
           child: Stack(
               clipBehavior: Clip.none,
-              children: [getButtonsContainer(context)] + dataList
-                  .map(
-                    (d) =>
-                    CircleMenuButton(
-                      data: d,
-                      onPressed: () {
-                        d.action.onPress();
-                      },
-                      onChange: () {
-                        dataList.removeWhere((d) => d.isDeleted);
-                        _dumpOpStateList();
-                        setState(() {});
-                      },
-                      controller: _controller,
-                    ),
-              )
-                  .toList()),
+              children: [getButtonsContainer(context)] +
+                  dataList
+                      .map(
+                        (d) => CircleMenuButton(
+                          config: widget.config,
+                          data: d,
+                          onPressed: () {
+                            d.action.onPress();
+                          },
+                          onChange: () {
+                            dataList.removeWhere((d) => d.isDeleted);
+                            _dumpOpStateList();
+                            setState(() {});
+                          },
+                          controller: _controller,
+                        ),
+                      )
+                      .toList()),
         ),
       );
     } else {
-      return Center(
-        child: Text(widget.config.loading)
-      );
+      return Center(child: Text(widget.config.loading));
     }
   }
 
@@ -100,9 +95,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
                   onPressed: () {
                     dataList.clear();
                     _dumpOpStateList();
-                    setState(() {
-
-                    });
+                    setState(() {});
                   },
                   backgroundColor: Colors.red,
                   child: Icon(Icons.delete),
@@ -120,9 +113,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
                         x: 100 + index * 10,
                         y: 100,
                         radius: 100,
-                        fillColor: Theme
-                            .of(context)
-                            .primaryColor,
+                        fillColor: Theme.of(context).primaryColor,
                       ));
                       _dumpOpStateList();
                       setState(() {});
@@ -161,7 +152,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
   Future<void> _buildOpStateList() async {
     Map<String, OpAction> actionsByCode = Map<String, OpAction>();
     widget.actions.forEach((a) {
-        actionsByCode[a.code] = a;
+      actionsByCode[a.code] = a;
     });
     SharedPreferences sp = await SharedPreferences.getInstance();
     String? text = sp.getString(spKey);
@@ -174,36 +165,32 @@ class _CirclesMenuState extends State<CirclesMenu> {
       dataList = dataMaps
           .where((m) => actionsByCode.containsKey(m['actionCode']))
           .map(
-            (m) =>
-            OpState(
+            (m) => OpState(
               x: m['x'],
               y: m['y'],
               radius: m['radius'],
               action: actionsByCode[m['actionCode']]!,
               fillColor: Color(
-                  m['fillColorValue'] ?? Theme
-                      .of(context)
-                      .primaryColor
-                      .value),
+                  m['fillColorValue'] ?? Theme.of(context).primaryColor.value),
             ),
-      )
+          )
           .toList();
     }
   }
 
   Future<OpAction?> pickAction() async {
     Set<String> curCodes = dataList.map((d) => d.action.code).toSet();
-    List<OpAction> actions = widget.actions
-        .where((a) => !curCodes.contains(a.code))
-        .toList();
+    List<OpAction> actions =
+        widget.actions.where((a) => !curCodes.contains(a.code)).toList();
     actions.sort((a1, a2) => a1.title.compareTo(a2.title));
     return await showDialog<OpAction>(
         context: context,
         barrierDismissible: false,
         builder: (context) {
-          return PickActionDialog(actions: actions);
+          return PickActionDialog(
+            actions: actions,
+            config: widget.config,
+          );
         });
   }
 }
-
-

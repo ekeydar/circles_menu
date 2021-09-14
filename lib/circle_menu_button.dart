@@ -8,9 +8,11 @@ class CircleMenuButton extends StatefulWidget {
   final VoidCallback? onPressed;
   final VoidCallback onChange;
   final ScrollController controller;
+  final CircleMenuConfig config;
 
   CircleMenuButton(
       {Key? key,
+      required this.config,
       required this.data,
       required this.onPressed,
       required this.onChange,
@@ -45,15 +47,15 @@ class _CircleMenuButtonState extends State<CircleMenuButton> {
             position: RelativeRect.fromLTRB(cx + 10, cy + 10, cx + 10, cy + 10),
             items: [
               PopupMenuItem<String>(
-                  child: const Text('Delete'), value: 'delete'),
+                  child: Icon(Icons.delete), value: 'delete'),
               PopupMenuItem<String>(
-                  child: const Text('Change color'), value: 'color'),
+                  child: Icon(Icons.color_lens), value: 'color'),
               if (widget.data.canIncrRadius)
-              PopupMenuItem<String>(
-                  child: const Text('increase'), value: 'incr'),
+                PopupMenuItem<String>(
+                    child: const Icon(Icons.add), value: 'incr'),
               if (widget.data.canDecrRadius)
-              PopupMenuItem<String>(
-                  child: const Text('decrease'), value: 'decr'),
+                PopupMenuItem<String>(
+                    child: const Icon(Icons.remove), value: 'decr'),
             ],
             elevation: 8.0,
           );
@@ -123,13 +125,13 @@ class _CircleMenuButtonState extends State<CircleMenuButton> {
             ),
             actions: [
               TextButton(
-                child: Text('cancel'),
+                child: Text(widget.config.cancel),
                 onPressed: () {
                   Navigator.of(context).pop(null);
                 },
               ),
               TextButton(
-                child: Text('accept'),
+                child: Text(widget.config.accept),
                 onPressed: () {
                   Navigator.of(context).pop(newColor);
                 },
