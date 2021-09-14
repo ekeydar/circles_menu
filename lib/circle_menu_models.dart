@@ -55,3 +55,7 @@ class OpAction {
     return '$title ($code)';
   }
 }
+
+class CircleMenuConfig {
+  String get loading => 'loading';
+}
