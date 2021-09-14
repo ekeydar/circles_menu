@@ -204,7 +204,6 @@ class _AlertDialogWithSearchState extends State<AlertDialogWithSearch> {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('In build q = ${_controller.text}');
     return AlertDialog(
       actions: [
         TextButton(
