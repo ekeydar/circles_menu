@@ -55,7 +55,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
           width: MediaQuery.of(context).size.width * 2,
           child: Stack(
               clipBehavior: Clip.none,
-              children: [getButtonsContainer(context)] +
+              children: [getButtons(context)] +
                   dataList
                       .map(
                         (d) => CircleMenuButton(
@@ -80,64 +80,61 @@ class _CirclesMenuState extends State<CirclesMenu> {
     }
   }
 
-  Widget getButtonsContainer(context) {
-    return Container(
-      height: MediaQuery.of(context).size.height,
-      child: Align(
-        alignment: Alignment.bottomLeft,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
+  Widget getButtons(context) {
+    return Align(
+      alignment: Alignment.bottomLeft,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0, right: 8),
+              child: FloatingActionButton(
+                onPressed: () {
+                  dataList.clear();
+                  _dumpOpStateList();
+                  setState(() {});
+                },
+                backgroundColor: Colors.red,
+                child: Icon(Icons.delete),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0, right: 8),
+              child: FloatingActionButton(
+                onPressed: () async {
+                  OpAction? newAction = await pickAction();
+                  if (newAction != null) {
+                    int index = dataList.length;
+                    dataList.add(OpState(
+                      action: newAction,
+                      x: 100 + index * 10,
+                      y: 100,
+                      radius: 100,
+                      fillColor: Theme.of(context).primaryColor,
+                    ));
+                    _dumpOpStateList();
+                    setState(() {});
+                  }
+                },
+                backgroundColor: Colors.green,
+                child: Icon(Icons.add),
+              ),
+            ),
+            if (kDebugMode)
               Padding(
                 padding: const EdgeInsets.only(left: 8.0, right: 8),
                 child: FloatingActionButton(
                   onPressed: () {
-                    dataList.clear();
-                    _dumpOpStateList();
-                    setState(() {});
-                  },
-                  backgroundColor: Colors.red,
-                  child: Icon(Icons.delete),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 8.0, right: 8),
-                child: FloatingActionButton(
-                  onPressed: () async {
-                    OpAction? newAction = await pickAction();
-                    if (newAction != null) {
-                      int index = dataList.length;
-                      dataList.add(OpState(
-                        action: newAction,
-                        x: 100 + index * 10,
-                        y: 100,
-                        radius: 100,
-                        fillColor: Theme.of(context).primaryColor,
-                      ));
-                      _dumpOpStateList();
-                      setState(() {});
+                    for (var d in dataList) {
+                      debugPrint('${d.text}: ${d.x} ${d.y}');
                     }
                   },
                   backgroundColor: Colors.green,
-                  child: Icon(Icons.add),
+                  child: Icon(Icons.bug_report_outlined),
                 ),
-              ),
-              if (kDebugMode)
-                Padding(
-                  padding: const EdgeInsets.only(left: 8.0, right: 8),
-                  child: FloatingActionButton(
-                    onPressed: () {
-                      for (var d in dataList) {
-                        debugPrint('${d.text}: ${d.x} ${d.y}');
-                      }
-                    },
-                    backgroundColor: Colors.green,
-                    child: Icon(Icons.bug_report_outlined),
-                  ),
-                )
-            ],
-          ),
+              )
+          ],
         ),
       ),
     );
