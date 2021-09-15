@@ -215,7 +215,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
                       OpState(
                         action: newAction,
                         x: 100 + index * 10,
-                        y: MediaQuery.of(context).size.height - 200,
+                        y: MediaQuery.of(context).size.height - 350,
                         radius: 100,
                         fillColor: Theme.of(context).primaryColor,
                       ),
@@ -264,8 +264,8 @@ class _CirclesMenuState extends State<CirclesMenu> {
       dataList = widget.actions.where(
           (a) => a.showByDefault
       ).mapIndexed((index, a) => OpState(
-          x: 20.0 + 110*(index ~/ 4),
-          y : 100 + 110*(index % 4),
+          x: 10.0 + 110*(index ~/ 4),
+          y : 10 + 110*(index % 4),
           radius: 100,
           fillColor: Theme.of(context).primaryColor,
           action: a,
