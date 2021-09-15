@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'circles_menu.dart';
-import 'circles_menu_models.dart';
 
 class MenuPageScaffold extends StatelessWidget {
   @override

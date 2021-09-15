@@ -6,9 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'circles_menu_button.dart';
-import 'circles_menu_models.dart';
-import 'circles_menu_pick_action_dialog.dart';
+import 'src/circles_menu_button.dart';
+import 'src/circles_menu_models.dart';
+import 'src/circles_menu_pick_action_dialog.dart';
+
+export 'src/circles_menu_models.dart';
 
 const String spKey = 'circleButtons';
 
