@@ -11,8 +11,8 @@ class OpState {
   Color fillColor;
   bool showActions = false;
 
-  bool get canIncrRadius => radius < 200;
-  bool get canDecrRadius => radius > 70;
+  bool get canIncrRadius => radius < 100;
+  bool get canDecrRadius => radius > 35;
   
   String get text => action.title;
 

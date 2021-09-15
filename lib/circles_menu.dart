@@ -216,7 +216,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
                         action: newAction,
                         x: 100 + index * 10,
                         y: MediaQuery.of(context).size.height - 350,
-                        radius: 100,
+                        radius: 50,
                         fillColor: Theme.of(context).primaryColor,
                       ),
                     );
@@ -266,7 +266,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
       ).mapIndexed((index, a) => OpState(
           x: 10.0 + 110*(index ~/ 4),
           y : 10 + 110*(index % 4),
-          radius: 100,
+          radius: 50,
           fillColor: Theme.of(context).primaryColor,
           action: a,
       )).toList();

@@ -38,39 +38,51 @@ class _CircleMenuButtonState extends State<CircleMenuButton> {
     return Positioned(
       left: cx,
       top: cy,
-      child: Align(
-        child: GestureDetector(
-          onLongPress: () {
-              widget.data.showActions = !widget.data.showActions;
-              widget.onChange();
-          },
-          child: Draggable(
-            feedback: Container(
-              child: CircleButton(
-                radius: widget.data.radius,
-                child: widget.data.widget,
-                onPressed: null,
-                fillColor: widget.data.fillColor,
-                borderColor: widget.data.borderColor,
+      child: Container(
+        width: widget.data.radius * 2,
+        height: widget.data.radius * 2,
+        color: Colors.green.withAlpha(100),
+        child: Stack(
+          children: [
+            Positioned(
+              top: 0,
+              left: 0,
+              child: GestureDetector(
+                onLongPress: () {
+                  widget.data.showActions = !widget.data.showActions;
+                  widget.onChange();
+                },
+                child: Draggable(
+                  feedback: Container(
+                    child: CircleButton(
+                      radius: widget.data.radius,
+                      child: widget.data.widget,
+                      onPressed: null,
+                      fillColor: widget.data.fillColor,
+                      borderColor: widget.data.borderColor,
+                    ),
+                  ),
+                  child: CircleButton(
+                    radius: widget.data.radius,
+                    child: widget.data.widget,
+                    onPressed: widget.onPressed,
+                    fillColor: widget.data.fillColor,
+                    borderColor: widget.data.borderColor,
+                  ),
+                  childWhenDragging: Container(),
+                  onDragEnd: (details) {
+                    setState(() {
+                      // debugPrint('cx = $cx');
+                      widget.data.x =
+                          details.offset.dx + widget.controller.offset;
+                      widget.data.y = details.offset.dy - 80;
+                      widget.onChange();
+                    });
+                  },
+                ),
               ),
             ),
-            child: CircleButton(
-              radius: widget.data.radius,
-              child: widget.data.widget,
-              onPressed: widget.onPressed,
-              fillColor: widget.data.fillColor,
-              borderColor: widget.data.borderColor,
-            ),
-            childWhenDragging: Container(),
-            onDragEnd: (details) {
-              setState(() {
-                // debugPrint('cx = $cx');
-                widget.data.x = details.offset.dx + widget.controller.offset;
-                widget.data.y = details.offset.dy - 80;
-                widget.onChange();
-              });
-            },
-          ),
+          ],
         ),
       ),
     );
@@ -94,8 +106,8 @@ class CircleButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: radius,
-      height: radius,
+      width: radius*2,
+      height: radius*2,
       child: new RawMaterialButton(
         fillColor: fillColor,
         shape: new CircleBorder(
@@ -118,7 +130,13 @@ class CircleMenuActionButton extends StatefulWidget {
   final OpState data;
   final int index;
   final VoidCallback onPress;
-  CircleMenuActionButton({Key? key, required this.icon, required this.data, required this.index, required this.onPress});
+
+  CircleMenuActionButton(
+      {Key? key,
+      required this.icon,
+      required this.data,
+      required this.index,
+      required this.onPress});
 
   @override
   State<StatefulWidget> createState() => CircleMenuActionButtonState();
@@ -128,19 +146,22 @@ class CircleMenuActionButtonState extends State<CircleMenuActionButton> {
   @override
   Widget build(BuildContext context) {
     return Positioned(
-        top: widget.index < 2 ? widget.data.y - 20 : widget.data.y + widget.data.radius - 20,
-        left: (widget.index % 2) == 0 ? widget.data.x : widget.data.x + widget.data.radius - 40,
-        child: Align(
-          alignment: Alignment.center,
-          child: CircleButton(
-            fillColor: Colors.red,
-            borderColor: null,
-            radius: 40,
-            onPressed: widget.onPress,
-            child: widget.icon,
-          ),
+      top: widget.index < 2
+          ? widget.data.y - 20
+          : widget.data.y + 2*widget.data.radius - 20,
+      left: (widget.index % 2) == 0
+          ? widget.data.x
+          : widget.data.x + 2*widget.data.radius - 40,
+      child: Align(
+        alignment: Alignment.center,
+        child: CircleButton(
+          fillColor: Colors.red,
+          borderColor: null,
+          radius: 20,
+          onPressed: widget.onPress,
+          child: widget.icon,
         ),
+      ),
     );
   }
-
 }
