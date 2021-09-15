@@ -52,7 +52,7 @@ class _CircleMenuButtonState extends State<CircleMenuButton> {
   List<Widget> _getActionButtons() {
     OpState d = widget.data;
     List<Widget> result = [];
-    if (d.showActions) {
+    if (d.showActions && !d.isDragged) {
       result.add(CircleMenuActionButton(
         left: 0,
         top: 0,
@@ -133,7 +133,14 @@ class _CircleMenuButtonState extends State<CircleMenuButton> {
             borderColor: widget.data.borderColor,
           ),
           childWhenDragging: Container(),
+          onDragStarted: () {
+              widget.data.isDragged = true;
+              setState(() {
+
+              });
+          },
           onDragEnd: (details) {
+            widget.data.isDragged = false;
             setState(() {
               // debugPrint('cx = $cx');
               widget.data.x = details.offset.dx + widget.controller.offset;

@@ -10,6 +10,7 @@ class OpState {
   bool isDeleted = false;
   Color fillColor;
   bool showActions = false;
+  bool isDragged = false;
 
   bool get canIncrRadius => radius < 100;
   bool get canDecrRadius => radius > 35;
