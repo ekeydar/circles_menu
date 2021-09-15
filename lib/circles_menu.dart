@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:collection/collection.dart';
-import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
 import 'circle_menu_button.dart';
 import 'pick_action_dialog.dart';
@@ -82,92 +81,8 @@ class _CirclesMenuState extends State<CirclesMenu> {
         },
         controller: _controller,
       ));
-      if (d.showActions) {
-        result.add(CircleMenuActionButton(
-            index: 0,
-            data: d,
-            icon: Icon(Icons.color_lens_outlined),
-            onPress: () async {
-              Color? newColor = await pickColor(d.fillColor);
-              if (newColor != null) {
-                  d.fillColor = newColor;
-                  d.showActions = false;
-                  _dumpOpStateList();
-                  setState(() {});
-              }
-            },
-        ));
-        result.add(CircleMenuActionButton(
-          index: 1,
-          data: d,
-          icon: Icon(Icons.delete_outline),
-          onPress: () {
-              dataList.remove(d);
-              _dumpOpStateList();
-              setState(() {});
-          },
-        ));
-        if (d.canIncrRadius) {
-          result.add(CircleMenuActionButton(
-            index: 2,
-            data: d,
-            icon: Icon(Icons.zoom_in_outlined),
-            onPress: () {
-              d.radius += 10;
-              _dumpOpStateList();
-              setState(() {});
-            },
-          ));
-        }
-        if (d.canDecrRadius) {
-          result.add(CircleMenuActionButton(
-            index: 3,
-            data: d,
-            icon: Icon(Icons.zoom_out_outlined),
-            onPress: () {
-              d.radius -= 10;
-              _dumpOpStateList();
-              setState(() {});
-            },
-          ));
-        }
-      }
     }
     return result;
-  }
-
-  Future<Color?> pickColor(Color initialColor) async {
-    Color newColor = initialColor;
-    return await showDialog<Color>(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            content: SingleChildScrollView(
-              child: ColorPicker(
-                pickerColor: newColor,
-                onColorChanged: (Color c) {
-                  newColor = c;
-                },
-                showLabel: true,
-                pickerAreaHeightPercent: 0.8,
-              ),
-            ),
-            actions: [
-              TextButton(
-                child: Text(widget.config.cancel),
-                onPressed: () {
-                  Navigator.of(context).pop(null);
-                },
-              ),
-              TextButton(
-                child: Text(widget.config.accept),
-                onPressed: () {
-                  Navigator.of(context).pop(newColor);
-                },
-              ),
-            ],
-          );
-        });
   }
 
   Widget getButtons(context) {
