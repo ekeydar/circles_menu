@@ -8,22 +8,29 @@ class MenuPageScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('demo widget'),
-      ),
-      body: CirclesMenu(
-          actions: _getActions(),
-      )
-    );
+        appBar: AppBar(
+          title: Text('demo widget'),
+        ),
+        body: CirclesMenu(
+          actions: _getActions(context),
+        ));
   }
 
-  List<OpAction> _getActions() {
+  List<OpAction> _getActions(context) {
     List<OpAction> result = [];
     for (var x = 1; x <= 15; x++) {
+      String title = 'balloon $x';
       OpAction oa = OpAction(
         code: 'action_$x',
-        title: 'balloon $x',
-        onPress: () => debugPrint('clicked $x'),
+        title: title,
+        onPress: () {
+          final snackBar = SnackBar(
+            content: Text('clicked on $title'),
+            backgroundColor: Colors.red,
+            duration: Duration(milliseconds: 500),
+          );
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        },
         showByDefault: x <= 10,
       );
       result.add(oa);

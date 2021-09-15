@@ -42,7 +42,7 @@ class _CircleMenuButtonState extends State<CircleMenuButton> {
       child: Container(
         width: widget.data.radius * 2,
         height: widget.data.radius * 2,
-        color: Colors.green.withAlpha(100),
+        //color: Colors.green.withAlpha(100),
         child:
             Stack(children: <Widget>[_getMainButton()] + _getActionButtons()),
       ),
