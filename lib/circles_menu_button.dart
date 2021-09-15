@@ -1,7 +1,7 @@
-import 'package:anim1/utils.dart';
+import 'package:anim1/circles_menu_utils.dart';
 import 'package:flutter/material.dart';
 
-import 'circle_menu_models.dart';
+import 'circles_menu_models.dart';
 
 class CircleMenuButton extends StatefulWidget {
   final OpState data;

@@ -1,14 +1,14 @@
 import 'dart:convert';
 import 'package:collection/collection.dart';
 
-import 'circle_menu_button.dart';
-import 'pick_action_dialog.dart';
+import 'circles_menu_button.dart';
+import 'circles_menu_pick_action_dialog.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'circle_menu_models.dart';
+import 'circles_menu_models.dart';
 
 const String spKey = 'circleButtons';
 
