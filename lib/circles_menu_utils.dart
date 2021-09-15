@@ -1,6 +1,7 @@
-import 'package:anim1/circles_menu_models.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+
+import 'circles_menu_models.dart';
 
 Future<Color?> pickColor(BuildContext context, {required Color initialColor, required CircleMenuConfig config}) async {
   Color newColor = initialColor;
