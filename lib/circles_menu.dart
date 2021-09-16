@@ -26,10 +26,11 @@ class CirclesMenu extends StatefulWidget {
 }
 
 class _CirclesMenuState extends State<CirclesMenu> {
-  ScrollController _controller = ScrollController();
+  late ScrollController _controller;
   double xOffset = 0;
   bool _ready = false;
   late List<OpState> dataList;
+  double initialOffset = 0;
 
   @override
   void initState() {
@@ -38,6 +39,11 @@ class _CirclesMenuState extends State<CirclesMenu> {
   }
 
   Future<void> _prepare() async {
+    await Future.delayed(Duration(milliseconds: 2));
+    double w = MediaQuery.of(context).size.width;
+    initialOffset = w/2;
+    _controller = ScrollController(initialScrollOffset: initialOffset);
+    xOffset = initialOffset;
     _controller.addListener(() {
       xOffset = _controller.offset;
     });
@@ -54,8 +60,8 @@ class _CirclesMenuState extends State<CirclesMenu> {
         scrollDirection: Axis.horizontal,
         controller: _controller,
         child: Container(
-          //color: Colors.red.withAlpha(100),
-          width: MediaQuery.of(context).size.width,
+          color: Colors.red.withAlpha(100),
+          width: MediaQuery.of(context).size.width * 2,
           child: Stack(
               clipBehavior: Clip.none,
               children: [getButtons(context)] + getCirclesAndActions()
@@ -89,10 +95,11 @@ class _CirclesMenuState extends State<CirclesMenu> {
 
   Widget getButtons(context) {
     return Align(
-      alignment: Alignment.bottomLeft,
+      alignment: Alignment.bottomCenter,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Padding(
               padding: const EdgeInsets.only(left: 8.0, right: 8),
@@ -131,7 +138,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
                     dataList.add(
                       OpState(
                         action: newAction,
-                        x: 100 + index * 10,
+                        x: initialOffset + 100 + index * 10,
                         y: MediaQuery.of(context).size.height - 350,
                         radius: 50,
                         fillColor: Theme.of(context).primaryColor,
@@ -181,7 +188,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
       dataList = widget.actions.where(
           (a) => a.showByDefault
       ).mapIndexed((index, a) => OpState(
-          x: 10.0 + 110*(index ~/ 4),
+          x: initialOffset + 10.0 + 110*(index ~/ 4),
           y : 10 + 110*(index % 4),
           radius: 50,
           fillColor: Theme.of(context).primaryColor,
