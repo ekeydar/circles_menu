@@ -1,4 +1,4 @@
-package com.example.anim1
+package co.keydar.circles_menu
 
 import io.flutter.embedding.android.FlutterActivity
 

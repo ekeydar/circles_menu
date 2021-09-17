@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.anim1">
+    package="co.keydar.circles_menu">
    <application
-        android:label="anim1"
+        android:label="circles_menu"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
