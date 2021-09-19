@@ -9,7 +9,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Circles Menu Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
@@ -22,12 +22,13 @@ class CirclesMenuExample extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text('demo widget'),
-        ),
-        body: CirclesMenu(
-          actions: _getActions(context),
-        ));
+      appBar: AppBar(
+        title: Text('demo widget'),
+      ),
+      body: CirclesMenu(
+        actions: _getActions(context),
+      ),
+    );
   }
 
   List<OpAction> _getActions(context) {
@@ -52,4 +53,3 @@ class CirclesMenuExample extends StatelessWidget {
     return result;
   }
 }
-
