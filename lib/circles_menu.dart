@@ -4,6 +4,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'src/circles_menu_button.dart';
@@ -56,16 +57,19 @@ class _CirclesMenuState extends State<CirclesMenu> {
   @override
   Widget build(BuildContext context) {
     if (_ready) {
-      return SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
+      return Scrollbar(
         controller: _controller,
-        child: Container(
-          color: kDebugMode ? Colors.red.withAlpha(100) : null,
-          width: MediaQuery.of(context).size.width * 2,
-          child: Stack(
-              clipBehavior: Clip.none,
-              children: [getButtons(context)] + getCirclesAndActions()
-          )
+        child: SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          controller: _controller,
+          child: Container(
+            color: kDebugMode ? Colors.red.withAlpha(100) : null,
+            width: MediaQuery.of(context).size.width * 2,
+            child: Stack(
+                clipBehavior: Clip.none,
+                children: [getButtons(context)] + getCirclesAndActions()
+            )
+          ),
         ),
       );
     } else {
