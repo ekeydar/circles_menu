@@ -142,8 +142,12 @@ class _CircleMenuButtonState extends State<CircleMenuButton> {
           onDragEnd: (details) {
             widget.data.isDragged = false;
             setState(() {
-              // debugPrint('cx = $cx');
-              widget.data.x = details.offset.dx + widget.controller.offset;
+              // debugPrint('details.offset = ${details.offset} widget.controller.offset = ${widget.controller.offset}');
+              double w = MediaQuery.of(context).size.width;
+              // debugPrint('width = $w');
+              bool isRtl = Directionality.of(context) == TextDirection.rtl;
+              double offset = isRtl ? w - widget.controller.offset : widget.controller.offset;
+              widget.data.x = details.offset.dx + offset;
               widget.data.y = details.offset.dy - 80;
               widget.onChange();
             });
