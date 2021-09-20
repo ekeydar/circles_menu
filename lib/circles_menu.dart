@@ -8,6 +8,7 @@ import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'src/circles_menu_button.dart';
+import 'src/circles_menu_confirm.dart';
 import 'src/circles_menu_models.dart';
 import 'src/circles_menu_pick_action_dialog.dart';
 
@@ -117,10 +118,12 @@ class _CirclesMenuState extends State<CirclesMenu> {
               padding: const EdgeInsets.only(left: 8.0, right: 8),
               child: FloatingActionButton(
                 heroTag: 'circle_menu_delete',
-                onPressed: () {
-                  dataList.clear();
-                  _dumpOpStateList();
-                  setState(() {});
+                onPressed: () async {
+                  if (await askConfirmation(widget.config.deleteAllConfirmation)) {
+                    dataList.clear();
+                    _dumpOpStateList();
+                    setState(() {});
+                  }
                 },
                 backgroundColor: Colors.red,
                 child: Icon(Icons.delete),
@@ -131,9 +134,11 @@ class _CirclesMenuState extends State<CirclesMenu> {
               child: FloatingActionButton(
                 heroTag: 'circle_menu_reset',
                 onPressed: () async {
-                  await _buildOpStateList(reset: true);
-                  _dumpOpStateList();
-                  setState(() {});
+                  if (await askConfirmation(widget.config.resetConfirmation)) {
+                    await _buildOpStateList(reset: true);
+                    _dumpOpStateList();
+                    setState(() {});
+                  }
                 },
                 backgroundColor: Colors.red,
                 child: Icon(Icons.auto_delete),

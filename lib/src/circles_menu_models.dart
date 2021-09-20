@@ -68,12 +68,16 @@ class CircleMenuConfig {
   final String accept;
   final String cancel;
   final String pickAction;
+  final String deleteAllConfirmation;
+  final String resetConfirmation;
 
   CircleMenuConfig({
-    this.loading = 'loading',
-    this.accept = 'accept',
-    this.cancel = 'cancel',
-    this.pickAction = 'pick action'
+    this.loading = 'Loading',
+    this.accept = 'Accept',
+    this.cancel = 'Cancel',
+    this.pickAction = 'Pick action',
+    this.deleteAllConfirmation = 'Are you sure you want to delete the current menu',
+    this.resetConfirmation = 'Are you sure you want to delete the current menu and restore the defaults',
   });
 }
 
