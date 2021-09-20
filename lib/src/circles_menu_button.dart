@@ -58,7 +58,7 @@ class _CircleMenuButtonState extends State<CircleMenuButton> {
         top: 0,
         data: d,
         icon: Icon(Icons.color_lens_outlined),
-        onPress: () async {
+        onPressed: () async {
           Color? newColor = await pickColor(context,
               initialColor: d.fillColor, config: widget.config);
           if (newColor != null) {
@@ -73,7 +73,7 @@ class _CircleMenuButtonState extends State<CircleMenuButton> {
         top: 0,
         data: d,
         icon: Icon(Icons.delete_outline),
-        onPress: () {
+        onPressed: () {
           d.isDeleted = true;
           widget.onChange();
         },
@@ -84,7 +84,7 @@ class _CircleMenuButtonState extends State<CircleMenuButton> {
           bottom: 0,
           data: d,
           icon: Icon(Icons.zoom_in_outlined),
-          onPress: () {
+          onPressed: () {
             d.radius += 5;
             widget.onChange();
           },
@@ -96,7 +96,7 @@ class _CircleMenuButtonState extends State<CircleMenuButton> {
           bottom: 0,
           data: d,
           icon: Icon(Icons.zoom_out_outlined),
-          onPress: () {
+          onPressed: () {
             d.radius -= 5;
             widget.onChange();
           },
@@ -121,15 +121,15 @@ class _CircleMenuButtonState extends State<CircleMenuButton> {
               radius: widget.data.radius,
               child: widget.data.widget,
               onPressed: null,
-              fillColor: widget.data.fillColor,
+              fillColor: widget.data.actualFillColor,
               borderColor: widget.data.borderColor,
             ),
           ),
           child: CircleButton(
             radius: widget.data.radius,
             child: widget.data.widget,
-            onPressed: widget.onPressed,
-            fillColor: widget.data.fillColor,
+            onPressed: widget.data.action.enabled ? widget.onPressed : null,
+            fillColor: widget.data.actualFillColor,
             borderColor: widget.data.borderColor,
           ),
           childWhenDragging: Container(),
@@ -197,7 +197,7 @@ class CircleButton extends StatelessWidget {
 class CircleMenuActionButton extends StatefulWidget {
   final Icon icon;
   final OpState data;
-  final VoidCallback onPress;
+  final VoidCallback onPressed;
   final double? top;
   final double? right;
   final double? bottom;
@@ -211,7 +211,7 @@ class CircleMenuActionButton extends StatefulWidget {
       this.right,
       this.left,
       this.bottom,
-      required this.onPress});
+      required this.onPressed});
 
   @override
   State<StatefulWidget> createState() => CircleMenuActionButtonState();
@@ -231,7 +231,7 @@ class CircleMenuActionButtonState extends State<CircleMenuActionButton> {
           fillColor: Colors.red,
           borderColor: null,
           radius: 20,
-          onPressed: widget.onPress,
+          onPressed: widget.onPressed,
           child: widget.icon,
         ),
       ),

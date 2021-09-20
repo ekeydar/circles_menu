@@ -48,7 +48,8 @@ class CirclesMenuExample extends StatelessWidget {
       OpAction oa = OpAction(
         code: 'action_$x',
         title: title,
-        onPress: () {
+        enabled: x % 7 != 0,
+        onPressed: () {
           final snackBar = SnackBar(
             content: Text('clicked on $title'),
             backgroundColor: Colors.red,

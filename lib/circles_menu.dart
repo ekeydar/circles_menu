@@ -84,7 +84,9 @@ class _CirclesMenuState extends State<CirclesMenu> {
         config: widget.config,
         data: d,
         onPressed: () {
-          d.action.onPress();
+          if (d.action.enabled) {
+            d.action.onPressed();
+          }
         },
         onChange: () {
           dataList.removeWhere((d) => d.isDeleted);

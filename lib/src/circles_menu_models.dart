@@ -17,6 +17,8 @@ class OpState {
   
   String get text => action.title;
 
+  Color get actualFillColor => action.enabled ? fillColor : fillColor.withAlpha(100);
+
   Map<String, dynamic> toMap() {
     return {
       'x': x,
@@ -48,10 +50,11 @@ class OpState {
 class OpAction {
   final String title;
   final String code;
-  final VoidCallback onPress;
+  final VoidCallback onPressed;
   final bool showByDefault;
+  final bool enabled;
 
-  OpAction({required this.title, required this.code, required this.onPress, required this.showByDefault});
+  OpAction({required this.title, required this.code, required this.onPressed, required this.showByDefault, this.enabled = true});
 
   @override
   String toString() {
