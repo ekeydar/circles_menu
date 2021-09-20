@@ -28,39 +28,58 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class CirclesMenuExample extends StatelessWidget {
+class CirclesMenuExample extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => CirclesMenuExampleState();
+}
+
+
+class CirclesMenuExampleState extends State<CirclesMenuExample> {
+  int disabledIndex = 1;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('demo widget'),
-      ),
-      body: CirclesMenu(
-        actions: _getActions(context),
-      ),
+        appBar: AppBar(
+          title: Text('demo widget'),
+        ),
+        body: CirclesMenu(
+          actions: _getActions(context, disabledIndex: disabledIndex),
+        ),
+        floatingActionButton: FloatingActionButton(
+            child: Icon(Icons.add),
+            onPressed: () {
+              setState(() {
+                disabledIndex++;
+                if (disabledIndex > 15) {
+                  disabledIndex = 1;
+                }
+                // debugPrint('disabledIndex = $disabledIndex');
+              });
+            })
     );
   }
+}
 
-  List<OpAction> _getActions(context) {
-    List<OpAction> result = [];
-    for (var x = 1; x <= 15; x++) {
-      String title = 'balloon $x';
-      OpAction oa = OpAction(
-        code: 'action_$x',
-        title: title,
-        enabled: x % 7 != 0,
-        onPressed: () {
-          final snackBar = SnackBar(
-            content: Text('clicked on $title'),
-            backgroundColor: Colors.red,
-            duration: Duration(milliseconds: 500),
-          );
-          ScaffoldMessenger.of(context).showSnackBar(snackBar);
-        },
-        showByDefault: x <= 10,
-      );
-      result.add(oa);
-    }
-    return result;
+List<OpAction> _getActions(context, {required int disabledIndex}) {
+  List<OpAction> result = [];
+  for (var x = 1; x <= 15; x++) {
+    String title = 'balloon $x';
+    OpAction oa = OpAction(
+      code: 'action_$x',
+      title: title,
+      enabled: x != disabledIndex,
+      onPressed: () {
+        final snackBar = SnackBar(
+          content: Text('clicked on $title'),
+          backgroundColor: Colors.red,
+          duration: Duration(milliseconds: 500),
+        );
+        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      },
+      showByDefault: x <= 10,
+    );
+    result.add(oa);
   }
+  return result;
 }

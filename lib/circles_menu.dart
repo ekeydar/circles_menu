@@ -57,6 +57,12 @@ class _CirclesMenuState extends State<CirclesMenu> {
   @override
   Widget build(BuildContext context) {
     if (_ready) {
+      Map<String, OpAction> actionsByCode = {for (var a in widget.actions) a.code: a};
+      dataList.removeWhere((st) => !actionsByCode.containsKey(st.action.code));
+      dataList.forEach((st) {
+          String c = st.action.code;
+          st.action = actionsByCode[c]!;
+      });
       return Scrollbar(
         controller: _controller,
         child: SingleChildScrollView(

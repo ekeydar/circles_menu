@@ -6,7 +6,7 @@ class OpState {
   double x;
   double y;
   double radius;
-  final OpAction action;
+  OpAction action;
   bool isDeleted = false;
   Color fillColor;
   bool showActions = false;
@@ -60,6 +60,7 @@ class OpAction {
   String toString() {
     return '$title ($code)';
   }
+
 }
 
 class CircleMenuConfig {
