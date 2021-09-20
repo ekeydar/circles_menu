@@ -64,12 +64,16 @@ class OpAction {
 }
 
 class CircleMenuConfig {
+  // translations/texts
   final String loading;
   final String accept;
   final String cancel;
   final String pickAction;
   final String deleteAllConfirmation;
   final String resetConfirmation;
+  final String approveDialogTitle;
+  // key to hold the data in shared prefrences
+  final String spKey;
 
   CircleMenuConfig({
     this.loading = 'Loading',
@@ -78,6 +82,8 @@ class CircleMenuConfig {
     this.pickAction = 'Pick action',
     this.deleteAllConfirmation = 'Are you sure you want to delete the current menu',
     this.resetConfirmation = 'Are you sure you want to delete the current menu and restore the defaults',
+    this.approveDialogTitle = 'Action approval',
+    this.spKey = 'circleButtons',
   });
 }
 

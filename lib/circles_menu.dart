@@ -14,7 +14,6 @@ import 'src/circles_menu_pick_action_dialog.dart';
 
 export 'src/circles_menu_models.dart';
 
-const String spKey = 'circleButtons';
 
 class CirclesMenu extends StatefulWidget {
   final CircleMenuConfig config;
@@ -119,7 +118,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
               child: FloatingActionButton(
                 heroTag: 'circle_menu_delete',
                 onPressed: () async {
-                  if (await askConfirmation(widget.config.deleteAllConfirmation)) {
+                  if (await askConfirmation(context, widget.config.deleteAllConfirmation, config: widget.config)) {
                     dataList.clear();
                     _dumpOpStateList();
                     setState(() {});
@@ -134,7 +133,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
               child: FloatingActionButton(
                 heroTag: 'circle_menu_reset',
                 onPressed: () async {
-                  if (await askConfirmation(widget.config.resetConfirmation)) {
+                  if (await askConfirmation(context, widget.config.resetConfirmation, config: widget.config)) {
                     await _buildOpStateList(reset: true);
                     _dumpOpStateList();
                     setState(() {});
@@ -192,7 +191,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
   Future<void> _dumpOpStateList() async {
     SharedPreferences sp = await SharedPreferences.getInstance();
     String value = jsonEncode(dataList.map((m) => m.toMap()).toList());
-    await sp.setString(spKey, value);
+    await sp.setString(widget.config.spKey, value);
   }
 
   Future<void> _buildOpStateList({bool reset=false}) async {
@@ -201,7 +200,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
       actionsByCode[a.code] = a;
     });
     SharedPreferences sp = await SharedPreferences.getInstance();
-    if (reset || !sp.containsKey(spKey)) {
+    if (reset || !sp.containsKey(widget.config.spKey)) {
       dataList = widget.actions.where(
           (a) => a.showByDefault
       ).mapIndexed((index, a) => OpState(
@@ -212,7 +211,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
           action: a,
       )).toList();
     } else {
-      String text = sp.getString(spKey)!;
+      String text = sp.getString(widget.config.spKey)!;
       List<Map<String, dynamic>> dataMaps = List<Map<String, dynamic>>.from(
         jsonDecode(text),
       );
