@@ -14,6 +14,8 @@ import 'src/circles_menu_pick_action_dialog.dart';
 
 export 'src/circles_menu_models.dart';
 
+const int DUMP_VERSION = 1;
+
 
 class CirclesMenu extends StatefulWidget {
   final CircleMenuConfig config;
@@ -173,10 +175,8 @@ class _CirclesMenuState extends State<CirclesMenu> {
                 padding: const EdgeInsets.only(left: 8.0, right: 8),
                 child: FloatingActionButton(
                   heroTag: 'circle_menu_debug',
-                  onPressed: () {
-                    for (var d in dataList) {
-                      debugPrint('${d.text}: ${d.x} ${d.y}');
-                    }
+                  onPressed: () async {
+                    await _dumpOpStateList(debug: true);
                   },
                   backgroundColor: Colors.green,
                   child: Icon(Icons.bug_report_outlined),
@@ -188,10 +188,19 @@ class _CirclesMenuState extends State<CirclesMenu> {
     );
   }
 
-  Future<void> _dumpOpStateList() async {
+  Future<void> _dumpOpStateList({bool debug=false}) async {
     SharedPreferences sp = await SharedPreferences.getInstance();
-    String value = jsonEncode(dataList.map((m) => m.toMap()).toList());
+    List<Map<String, dynamic>> states = List<Map<String, dynamic>>.from(dataList.map((m) => m.toMap()).toList());
+    Map<String, dynamic> data = {
+      'states': states,
+      'timestampMs': DateTime.now().millisecondsSinceEpoch,
+      'version': DUMP_VERSION,
+    };
+    String value = jsonEncode(data);
     await sp.setString(widget.config.spKey, value);
+    if (debug) {
+      debugPrint('data = $value');
+    }
   }
 
   Future<void> _buildOpStateList({bool reset=false}) async {
@@ -211,10 +220,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
           action: a,
       )).toList();
     } else {
-      String text = sp.getString(widget.config.spKey)!;
-      List<Map<String, dynamic>> dataMaps = List<Map<String, dynamic>>.from(
-        jsonDecode(text),
-      );
+      List<Map<String, dynamic>> dataMaps = restoreFromSp(sp);
       dataList = dataMaps
           .where((m) => actionsByCode.containsKey(m['actionCode']))
           .map(
@@ -228,6 +234,19 @@ class _CirclesMenuState extends State<CirclesMenu> {
             ),
           )
           .toList();
+    }
+  }
+
+  List<Map<String, dynamic>> restoreFromSp(SharedPreferences sp) {
+    try {
+      String text = sp.getString(widget.config.spKey)!;
+      Map<String, dynamic> dump = jsonDecode(text);
+      return List<Map<String, dynamic>>.from(
+        dump['states']
+      );
+    } catch (ex) {
+      debugPrint('ex = $ex');
+      return [];
     }
   }
 
