@@ -72,7 +72,8 @@ class CircleMenuConfig {
   final String deleteAllConfirmation;
   final String resetConfirmation;
   final String approveDialogTitle;
-  // key to hold the data in shared prefrences
+  final String moveToEditMessage;
+  // key to hold the data in shared preferences
   final String spKey;
 
   CircleMenuConfig({
@@ -83,6 +84,7 @@ class CircleMenuConfig {
     this.deleteAllConfirmation = 'Are you sure you want to delete the current menu',
     this.resetConfirmation = 'Are you sure you want to delete the current menu and restore the defaults',
     this.approveDialogTitle = 'Action approval',
+    this.moveToEditMessage = 'Press the edit icon to edit the menu',
     this.spKey = 'circleButtons',
   });
 }

@@ -158,12 +158,22 @@ class _CircleMenuButtonState extends State<CircleMenuButton> {
                 },
               ),
             )
-          : CircleButton(
-              radius: widget.data.radius,
-              child: widget.data.widget,
-              onPressed: widget.data.action.enabled ? widget.onPressed : null,
-              fillColor: widget.data.actualFillColor,
-              borderColor: widget.data.borderColor,
+          : GestureDetector(
+              onLongPress: () {
+                final snackBar = SnackBar(
+                  content: Text(widget.config.moveToEditMessage),
+                  backgroundColor: Colors.red,
+                  duration: Duration(milliseconds: 1000),
+                );
+                ScaffoldMessenger.of(context).showSnackBar(snackBar);
+              },
+              child: CircleButton(
+                radius: widget.data.radius,
+                child: widget.data.widget,
+                onPressed: widget.data.action.enabled ? widget.onPressed : null,
+                fillColor: widget.data.actualFillColor,
+                borderColor: widget.data.borderColor,
+              ),
             ),
     );
   }
