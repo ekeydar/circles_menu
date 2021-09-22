@@ -9,10 +9,12 @@ class CircleMenuButton extends StatefulWidget {
   final VoidCallback onChange;
   final ScrollController controller;
   final CircleMenuConfig config;
+  final bool isInEdit;
 
   CircleMenuButton(
       {Key? key,
       required this.config,
+      required this.isInEdit,
       required this.data,
       required this.onPressed,
       required this.onChange,
@@ -52,7 +54,7 @@ class _CircleMenuButtonState extends State<CircleMenuButton> {
   List<Widget> _getActionButtons() {
     OpState d = widget.data;
     List<Widget> result = [];
-    if (d.showActions && !d.isDragged) {
+    if (widget.isInEdit && d.showActions && !d.isDragged) {
       result.add(CircleMenuActionButton(
         left: 0,
         top: 0,
@@ -110,50 +112,59 @@ class _CircleMenuButtonState extends State<CircleMenuButton> {
     return Positioned(
       top: 0,
       left: 0,
-      child: GestureDetector(
-        onLongPress: () {
-          widget.data.showActions = !widget.data.showActions;
-          widget.onChange();
-        },
-        child: Draggable(
-          feedback: Container(
-            child: CircleButton(
+      child: widget.isInEdit
+          ? GestureDetector(
+              onLongPress: () {
+                widget.data.showActions = !widget.data.showActions;
+                widget.onChange();
+              },
+              child: Draggable(
+                feedback: Container(
+                  child: CircleButton(
+                    radius: widget.data.radius,
+                    child: widget.data.widget,
+                    onPressed: null,
+                    fillColor: widget.data.actualFillColor,
+                    borderColor: widget.data.borderColor,
+                  ),
+                ),
+                child: CircleButton(
+                  radius: widget.data.radius,
+                  child: widget.data.widget,
+                  onPressed: null,
+                  fillColor: widget.data.actualFillColor,
+                  borderColor: widget.data.borderColor,
+                ),
+                childWhenDragging: Container(),
+                onDragStarted: () {
+                  widget.data.isDragged = true;
+                  setState(() {});
+                },
+                onDragEnd: (details) {
+                  widget.data.isDragged = false;
+                  setState(() {
+                    // debugPrint('details.offset = ${details.offset} widget.controller.offset = ${widget.controller.offset}');
+                    double w = MediaQuery.of(context).size.width;
+                    // debugPrint('width = $w');
+                    bool isRtl =
+                        Directionality.of(context) == TextDirection.rtl;
+                    double offset = isRtl
+                        ? w - widget.controller.offset
+                        : widget.controller.offset;
+                    widget.data.x = details.offset.dx + offset;
+                    widget.data.y = details.offset.dy - 80;
+                    widget.onChange();
+                  });
+                },
+              ),
+            )
+          : CircleButton(
               radius: widget.data.radius,
               child: widget.data.widget,
-              onPressed: null,
+              onPressed: widget.data.action.enabled ? widget.onPressed : null,
               fillColor: widget.data.actualFillColor,
               borderColor: widget.data.borderColor,
             ),
-          ),
-          child: CircleButton(
-            radius: widget.data.radius,
-            child: widget.data.widget,
-            onPressed: widget.data.action.enabled ? widget.onPressed : null,
-            fillColor: widget.data.actualFillColor,
-            borderColor: widget.data.borderColor,
-          ),
-          childWhenDragging: Container(),
-          onDragStarted: () {
-              widget.data.isDragged = true;
-              setState(() {
-
-              });
-          },
-          onDragEnd: (details) {
-            widget.data.isDragged = false;
-            setState(() {
-              // debugPrint('details.offset = ${details.offset} widget.controller.offset = ${widget.controller.offset}');
-              double w = MediaQuery.of(context).size.width;
-              // debugPrint('width = $w');
-              bool isRtl = Directionality.of(context) == TextDirection.rtl;
-              double offset = isRtl ? w - widget.controller.offset : widget.controller.offset;
-              widget.data.x = details.offset.dx + offset;
-              widget.data.y = details.offset.dy - 80;
-              widget.onChange();
-            });
-          },
-        ),
-      ),
     );
   }
 }

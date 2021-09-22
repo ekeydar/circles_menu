@@ -34,6 +34,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
   bool _ready = false;
   late List<OpState> dataList;
   double initialOffset = 0;
+  bool isInEdit = false;
 
   @override
   void initState() {
@@ -91,6 +92,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
       result.add(CircleMenuButton(
         config: widget.config,
         data: d,
+        isInEdit: this.isInEdit,
         onPressed: () {
           if (d.action.enabled) {
             d.action.onPressed();
@@ -118,6 +120,20 @@ class _CirclesMenuState extends State<CirclesMenu> {
             Padding(
               padding: const EdgeInsets.only(left: 8.0, right: 8),
               child: FloatingActionButton(
+                heroTag: 'circles_menu_toggle_edit',
+                onPressed: () async {
+                    setState(() {
+                      this.isInEdit = !this.isInEdit;
+                    });
+                },
+                backgroundColor: isInEdit ? Colors.green : Colors.red,
+                child: Icon(isInEdit ? Icons.check : Icons.edit),
+              ),
+            ),
+            if (isInEdit)
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0, right: 8),
+              child: FloatingActionButton(
                 heroTag: 'circle_menu_delete',
                 onPressed: () async {
                   if (await askConfirmation(context, widget.config.deleteAllConfirmation, config: widget.config)) {
@@ -130,6 +146,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
                 child: Icon(Icons.delete),
               ),
             ),
+            if (isInEdit)
             Padding(
               padding: const EdgeInsets.only(left: 8.0, right: 8),
               child: FloatingActionButton(
@@ -145,6 +162,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
                 child: Icon(Icons.auto_delete),
               ),
             ),
+            if (isInEdit)
             Padding(
               padding: const EdgeInsets.only(left: 8.0, right: 8),
               child: FloatingActionButton(
@@ -170,7 +188,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
                 child: Icon(Icons.add),
               ),
             ),
-            if (kDebugMode)
+            if (isInEdit && kDebugMode)
               Padding(
                 padding: const EdgeInsets.only(left: 8.0, right: 8),
                 child: FloatingActionButton(
