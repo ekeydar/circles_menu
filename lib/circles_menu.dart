@@ -124,6 +124,11 @@ class _CirclesMenuState extends State<CirclesMenu> {
                 onPressed: () async {
                     setState(() {
                       this.isInEdit = !this.isInEdit;
+                      if (!this.isInEdit) {
+                        this.dataList.forEach((s) {
+                            s.showActions = false;
+                        });
+                      }
                     });
                 },
                 backgroundColor: isInEdit ? Colors.green : Colors.red,
