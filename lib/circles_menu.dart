@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -232,7 +231,9 @@ class _CirclesMenuState extends State<CirclesMenu> {
     await sp.setString(widget.config.spKey, value);
     if (debug) {
       debugPrint('data = $value');
+      debugPrint('default = ${sp.getString(widget.config.spDefaultKey)}');
     }
+
   }
 
   Future<void> _buildOpStateList({bool reset = false}) async {
@@ -241,42 +242,37 @@ class _CirclesMenuState extends State<CirclesMenu> {
       actionsByCode[a.code] = a;
     });
     SharedPreferences sp = await SharedPreferences.getInstance();
-    if (reset || !sp.containsKey(widget.config.spKey)) {
-      dataList = widget.actions
-          .where((a) => a.showByDefault)
-          .mapIndexed((index, a) => OpState(
-                x: initialOffset + 10.0 + 110 * (index ~/ 4),
-                y: 10 + 110 * (index % 4),
-                radius: 50,
-                fillColor: Theme.of(context).primaryColor,
-                action: a,
-              ))
-          .toList();
-    } else {
-      List<Map<String, dynamic>> dataMaps = restoreFromSp(sp);
-      dataList = dataMaps
-          .where((m) => actionsByCode.containsKey(m['actionCode']))
-          .map(
-            (m) => OpState(
-              x: m['x'],
-              y: m['y'],
-              radius: m['radius'],
-              action: actionsByCode[m['actionCode']]!,
-              fillColor: Color(
-                  m['fillColorValue'] ?? Theme.of(context).primaryColor.value),
-            ),
-          )
-          .toList();
-    }
+
+    String spKey = (reset || !sp.containsKey(widget.config.spKey)) ?
+        widget.config.spDefaultKey :
+        widget.config.spKey;
+    List<Map<String, dynamic>> dataMaps = restoreFromSp(sp, spKey);
+    dataList = dataMaps
+        .where((m) => actionsByCode.containsKey(m['actionCode']))
+        .map(
+          (m) => OpState(
+            x: m['x'],
+            y: m['y'],
+            radius: m['radius'],
+            action: actionsByCode[m['actionCode']]!,
+            fillColor: Color(
+                m['fillColorValue'] ?? Theme.of(context).primaryColor.value),
+          ),
+        )
+        .toList();
   }
 
-  List<Map<String, dynamic>> restoreFromSp(SharedPreferences sp) {
+  List<Map<String, dynamic>> restoreFromSp(SharedPreferences sp, String key) {
+    if (!sp.containsKey(key)) {
+      return [];
+    }
     try {
-      String text = sp.getString(widget.config.spKey)!;
+      String text = sp.getString(key)!;
       Map<String, dynamic> dump = jsonDecode(text);
       return List<Map<String, dynamic>>.from(dump['states']);
-    } catch (ex) {
+    } catch (ex, stacktrace) {
       debugPrint('ex = $ex');
+      debugPrint('$stacktrace');
       return [];
     }
   }

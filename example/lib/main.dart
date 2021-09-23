@@ -36,6 +36,23 @@ class CirclesMenuExample extends StatefulWidget {
 class CirclesMenuExampleState extends State<CirclesMenuExample> {
   int disabledIndex = 1;
 
+  late CircleMenuConfig config;
+
+  @override
+  void initState() {
+    config = CircleMenuConfig(onEditDone: this.onEditDone);
+    super.initState();
+  }
+
+  Future<void> onEditDone() async {
+    final snackBar = SnackBar(
+      content: Text('In edit done callback'),
+      backgroundColor: Colors.red,
+      duration: Duration(milliseconds: 500),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,32 +61,42 @@ class CirclesMenuExampleState extends State<CirclesMenuExample> {
         ),
         body: CirclesMenu(
           actions: _getActions(context, disabledIndex: disabledIndex),
-          config: CircleMenuConfig(onEditDone: () async {
-            final snackBar = SnackBar(
-              content: Text('In edit done callback'),
-              backgroundColor: Colors.red,
-              duration: Duration(milliseconds: 500),
-            );
-            ScaffoldMessenger.of(context).showSnackBar(snackBar);
-          }),
+          config: config
         ),
-        floatingActionButton: FloatingActionButton(
-            child: Icon(Icons.add),
-            onPressed: () {
-              setState(() {
-                disabledIndex++;
-                if (disabledIndex > 15) {
-                  disabledIndex = 1;
-                }
-                // debugPrint('disabledIndex = $disabledIndex');
-              });
-            }));
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerTop,
+        floatingActionButton: Padding(
+          padding: const EdgeInsets.only(top: 100.0),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              FloatingActionButton(
+                  child: Icon(Icons.add),
+                  onPressed: () {
+                    setState(() {
+                      disabledIndex++;
+                      if (disabledIndex > 15) {
+                        disabledIndex = 1;
+                      }
+                      // debugPrint('disabledIndex = $disabledIndex');
+                    });
+                  }),
+              SizedBox(
+                width: 10,
+              ),
+              FloatingActionButton(
+                  child: Icon(Icons.save_alt),
+                  onPressed: () {
+                      config.saveCurrentAsDefault();
+                  }),
+            ],
+          ),
+        ));
   }
 }
 
 List<OpAction> _getActions(context, {required int disabledIndex}) {
   List<OpAction> result = [];
-  for (var x = 1; x <= 15; x++) {
+  for (int x = 1; x <= 15; x++) {
     String title = 'balloon $x';
     OpAction oa = OpAction(
       code: 'action_$x',
@@ -83,7 +110,6 @@ List<OpAction> _getActions(context, {required int disabledIndex}) {
         );
         ScaffoldMessenger.of(context).showSnackBar(snackBar);
       },
-      showByDefault: x <= 10,
     );
     result.add(oa);
   }

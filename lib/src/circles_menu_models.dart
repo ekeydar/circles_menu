@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 typedef WithOpStateCallback(OpState o1);
 
@@ -51,10 +52,9 @@ class OpAction {
   final String title;
   final String code;
   final VoidCallback onPressed;
-  final bool showByDefault;
   final bool enabled;
 
-  OpAction({required this.title, required this.code, required this.onPressed, required this.showByDefault, this.enabled = true});
+  OpAction({required this.title, required this.code, required this.onPressed, this.enabled = true});
 
   @override
   String toString() {
@@ -75,8 +75,10 @@ class CircleMenuConfig {
   final String moveToEditMessage;
   // key to hold the data in shared preferences
   final String spKey;
+  // key to hold default data in shared preferences (to used when there is no data or when key pressed)
+  final String spDefaultKey;
   // this function is called whenever the edit is Done, if you want to persist
-  // after it is saved to the shared prefrences
+  // after it is saved to the shared preferences
   final VoidCallback? onEditDone;
   
   CircleMenuConfig({
@@ -89,7 +91,26 @@ class CircleMenuConfig {
     this.approveDialogTitle = 'Action approval',
     this.moveToEditMessage = 'Press the edit icon to edit the menu',
     this.spKey = 'circleButtons',
+    this.spDefaultKey = 'circlesButtonsDefault',
     this.onEditDone,
   });
+
+  Future<String?> getCurrent() async {
+    SharedPreferences sp = await SharedPreferences.getInstance();
+    return sp.getString(this.spKey);
+  }
+
+  Future<bool> saveAsDefault(String? data) async {
+    SharedPreferences sp = await SharedPreferences.getInstance();
+    if (data != null) {
+      sp.setString(this.spDefaultKey, data);
+      return true;
+    }
+    return false;
+  }
+
+  Future<bool> saveCurrentAsDefault() async {
+    return saveAsDefault(await getCurrent());
+  }
 }
 
