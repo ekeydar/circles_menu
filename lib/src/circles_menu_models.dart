@@ -75,7 +75,10 @@ class CircleMenuConfig {
   final String moveToEditMessage;
   // key to hold the data in shared preferences
   final String spKey;
-
+  // this function is called whenever the edit is Done, if you want to persist
+  // after it is saved to the shared prefrences
+  VoidCallback? onEditDone;
+  
   CircleMenuConfig({
     this.loading = 'Loading',
     this.accept = 'Accept',

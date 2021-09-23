@@ -122,6 +122,9 @@ class _CirclesMenuState extends State<CirclesMenu> {
               child: FloatingActionButton(
                 heroTag: 'circles_menu_toggle_edit',
                 onPressed: () async {
+                    if (widget.config.onEditDone != null) {
+                      widget.config.onEditDone!();
+                    }
                     setState(() {
                       this.isInEdit = !this.isInEdit;
                       if (!this.isInEdit) {
