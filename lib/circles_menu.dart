@@ -158,7 +158,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
                   child: Icon(Icons.delete),
                 ),
               ),
-            if (isInEdit)
+            if (isInEdit && widget.defaultDump != null)
               Padding(
                 padding: const EdgeInsets.only(left: 8.0, right: 8),
                 child: FloatingActionButton(
