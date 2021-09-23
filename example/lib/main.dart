@@ -33,7 +33,6 @@ class CirclesMenuExample extends StatefulWidget {
   State<StatefulWidget> createState() => CirclesMenuExampleState();
 }
 
-
 class CirclesMenuExampleState extends State<CirclesMenuExample> {
   int disabledIndex = 1;
 
@@ -45,6 +44,14 @@ class CirclesMenuExampleState extends State<CirclesMenuExample> {
         ),
         body: CirclesMenu(
           actions: _getActions(context, disabledIndex: disabledIndex),
+          config: CircleMenuConfig(onEditDone: () async {
+            final snackBar = SnackBar(
+              content: Text('In edit done callback'),
+              backgroundColor: Colors.red,
+              duration: Duration(milliseconds: 500),
+            );
+            ScaffoldMessenger.of(context).showSnackBar(snackBar);
+          }),
         ),
         floatingActionButton: FloatingActionButton(
             child: Icon(Icons.add),
@@ -56,8 +63,7 @@ class CirclesMenuExampleState extends State<CirclesMenuExample> {
                 }
                 // debugPrint('disabledIndex = $disabledIndex');
               });
-            })
-    );
+            }));
   }
 }
 

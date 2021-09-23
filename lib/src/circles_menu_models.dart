@@ -77,7 +77,7 @@ class CircleMenuConfig {
   final String spKey;
   // this function is called whenever the edit is Done, if you want to persist
   // after it is saved to the shared prefrences
-  VoidCallback? onEditDone;
+  final VoidCallback? onEditDone;
   
   CircleMenuConfig({
     this.loading = 'Loading',
@@ -89,6 +89,7 @@ class CircleMenuConfig {
     this.approveDialogTitle = 'Action approval',
     this.moveToEditMessage = 'Press the edit icon to edit the menu',
     this.spKey = 'circleButtons',
+    this.onEditDone,
   });
 }
 

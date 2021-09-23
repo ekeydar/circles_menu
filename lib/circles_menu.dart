@@ -16,7 +16,6 @@ export 'src/circles_menu_models.dart';
 
 const int DUMP_VERSION = 1;
 
-
 class CirclesMenu extends StatefulWidget {
   final CircleMenuConfig config;
   final List<OpAction> actions;
@@ -45,7 +44,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
   Future<void> _prepare() async {
     await Future.delayed(Duration(milliseconds: 2));
     double w = MediaQuery.of(context).size.width;
-    initialOffset = w/2;
+    initialOffset = w / 2;
     _controller = ScrollController(initialScrollOffset: initialOffset);
     xOffset = initialOffset;
     _controller.addListener(() {
@@ -60,11 +59,13 @@ class _CirclesMenuState extends State<CirclesMenu> {
   @override
   Widget build(BuildContext context) {
     if (_ready) {
-      Map<String, OpAction> actionsByCode = {for (var a in widget.actions) a.code: a};
+      Map<String, OpAction> actionsByCode = {
+        for (var a in widget.actions) a.code: a
+      };
       dataList.removeWhere((st) => !actionsByCode.containsKey(st.action.code));
       dataList.forEach((st) {
-          String c = st.action.code;
-          st.action = actionsByCode[c]!;
+        String c = st.action.code;
+        st.action = actionsByCode[c]!;
       });
       return Scrollbar(
         controller: _controller,
@@ -72,13 +73,11 @@ class _CirclesMenuState extends State<CirclesMenu> {
           scrollDirection: Axis.horizontal,
           controller: _controller,
           child: Container(
-            color: kDebugMode ? Colors.red.withAlpha(100) : null,
-            width: MediaQuery.of(context).size.width * 2,
-            child: Stack(
-                clipBehavior: Clip.none,
-                children: [getButtons(context)] + getCirclesAndActions()
-            )
-          ),
+              color: kDebugMode ? Colors.red.withAlpha(100) : null,
+              width: MediaQuery.of(context).size.width * 2,
+              child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [getButtons(context)] + getCirclesAndActions())),
         ),
       );
     } else {
@@ -122,80 +121,86 @@ class _CirclesMenuState extends State<CirclesMenu> {
               child: FloatingActionButton(
                 heroTag: 'circles_menu_toggle_edit',
                 onPressed: () async {
+                  if (this.isInEdit) {
                     if (widget.config.onEditDone != null) {
                       widget.config.onEditDone!();
                     }
-                    setState(() {
-                      this.isInEdit = !this.isInEdit;
-                      if (!this.isInEdit) {
-                        this.dataList.forEach((s) {
-                            s.showActions = false;
-                        });
-                      }
-                    });
+                  }
+                  setState(() {
+                    this.isInEdit = !this.isInEdit;
+                    if (!this.isInEdit) {
+                      this.dataList.forEach((s) {
+                        s.showActions = false;
+                      });
+                    }
+                  });
                 },
                 backgroundColor: isInEdit ? Colors.green : Colors.red,
                 child: Icon(isInEdit ? Icons.check : Icons.edit),
               ),
             ),
             if (isInEdit)
-            Padding(
-              padding: const EdgeInsets.only(left: 8.0, right: 8),
-              child: FloatingActionButton(
-                heroTag: 'circle_menu_delete',
-                onPressed: () async {
-                  if (await askConfirmation(context, widget.config.deleteAllConfirmation, config: widget.config)) {
-                    dataList.clear();
-                    _dumpOpStateList();
-                    setState(() {});
-                  }
-                },
-                backgroundColor: Colors.red,
-                child: Icon(Icons.delete),
+              Padding(
+                padding: const EdgeInsets.only(left: 8.0, right: 8),
+                child: FloatingActionButton(
+                  heroTag: 'circle_menu_delete',
+                  onPressed: () async {
+                    if (await askConfirmation(
+                        context, widget.config.deleteAllConfirmation,
+                        config: widget.config)) {
+                      dataList.clear();
+                      _dumpOpStateList();
+                      setState(() {});
+                    }
+                  },
+                  backgroundColor: Colors.red,
+                  child: Icon(Icons.delete),
+                ),
               ),
-            ),
             if (isInEdit)
-            Padding(
-              padding: const EdgeInsets.only(left: 8.0, right: 8),
-              child: FloatingActionButton(
-                heroTag: 'circle_menu_reset',
-                onPressed: () async {
-                  if (await askConfirmation(context, widget.config.resetConfirmation, config: widget.config)) {
-                    await _buildOpStateList(reset: true);
-                    _dumpOpStateList();
-                    setState(() {});
-                  }
-                },
-                backgroundColor: Colors.red,
-                child: Icon(Icons.auto_delete),
+              Padding(
+                padding: const EdgeInsets.only(left: 8.0, right: 8),
+                child: FloatingActionButton(
+                  heroTag: 'circle_menu_reset',
+                  onPressed: () async {
+                    if (await askConfirmation(
+                        context, widget.config.resetConfirmation,
+                        config: widget.config)) {
+                      await _buildOpStateList(reset: true);
+                      _dumpOpStateList();
+                      setState(() {});
+                    }
+                  },
+                  backgroundColor: Colors.red,
+                  child: Icon(Icons.auto_delete),
+                ),
               ),
-            ),
             if (isInEdit)
-            Padding(
-              padding: const EdgeInsets.only(left: 8.0, right: 8),
-              child: FloatingActionButton(
-                heroTag: 'circle_menu_add',
-                onPressed: () async {
-                  OpAction? newAction = await pickAction();
-                  if (newAction != null) {
-                    int index = dataList.length;
-                    dataList.add(
-                      OpState(
-                        action: newAction,
-                        x: initialOffset + 100 + index * 10,
-                        y: MediaQuery.of(context).size.height - 350,
-                        radius: 50,
-                        fillColor: Theme.of(context).primaryColor,
-                      ),
-                    );
-                    _dumpOpStateList();
-                    setState(() {});
-                  }
-                },
-                backgroundColor: Colors.green,
-                child: Icon(Icons.add),
+              Padding(
+                padding: const EdgeInsets.only(left: 8.0, right: 8),
+                child: FloatingActionButton(
+                  heroTag: 'circle_menu_add',
+                  onPressed: () async {
+                    OpAction? newAction = await pickAction();
+                    if (newAction != null) {
+                      int index = dataList.length;
+                      dataList.add(
+                        OpState(
+                          action: newAction,
+                          x: initialOffset + 100 + index * 10,
+                          y: MediaQuery.of(context).size.height - 350,
+                          radius: 50,
+                          fillColor: Theme.of(context).primaryColor,
+                        ),
+                      );
+                      _dumpOpStateList();
+                      setState(() {});
+                    }
+                  },
+                  backgroundColor: Colors.green,
+                  child: Icon(Icons.add),
+                ),
               ),
-            ),
             if (isInEdit && kDebugMode)
               Padding(
                 padding: const EdgeInsets.only(left: 8.0, right: 8),
@@ -214,9 +219,10 @@ class _CirclesMenuState extends State<CirclesMenu> {
     );
   }
 
-  Future<void> _dumpOpStateList({bool debug=false}) async {
+  Future<void> _dumpOpStateList({bool debug = false}) async {
     SharedPreferences sp = await SharedPreferences.getInstance();
-    List<Map<String, dynamic>> states = List<Map<String, dynamic>>.from(dataList.map((m) => m.toMap()).toList());
+    List<Map<String, dynamic>> states = List<Map<String, dynamic>>.from(
+        dataList.map((m) => m.toMap()).toList());
     Map<String, dynamic> data = {
       'states': states,
       'timestampMs': DateTime.now().millisecondsSinceEpoch,
@@ -229,22 +235,23 @@ class _CirclesMenuState extends State<CirclesMenu> {
     }
   }
 
-  Future<void> _buildOpStateList({bool reset=false}) async {
+  Future<void> _buildOpStateList({bool reset = false}) async {
     Map<String, OpAction> actionsByCode = Map<String, OpAction>();
     widget.actions.forEach((a) {
       actionsByCode[a.code] = a;
     });
     SharedPreferences sp = await SharedPreferences.getInstance();
     if (reset || !sp.containsKey(widget.config.spKey)) {
-      dataList = widget.actions.where(
-          (a) => a.showByDefault
-      ).mapIndexed((index, a) => OpState(
-          x: initialOffset + 10.0 + 110*(index ~/ 4),
-          y : 10 + 110*(index % 4),
-          radius: 50,
-          fillColor: Theme.of(context).primaryColor,
-          action: a,
-      )).toList();
+      dataList = widget.actions
+          .where((a) => a.showByDefault)
+          .mapIndexed((index, a) => OpState(
+                x: initialOffset + 10.0 + 110 * (index ~/ 4),
+                y: 10 + 110 * (index % 4),
+                radius: 50,
+                fillColor: Theme.of(context).primaryColor,
+                action: a,
+              ))
+          .toList();
     } else {
       List<Map<String, dynamic>> dataMaps = restoreFromSp(sp);
       dataList = dataMaps
@@ -267,9 +274,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
     try {
       String text = sp.getString(widget.config.spKey)!;
       Map<String, dynamic> dump = jsonDecode(text);
-      return List<Map<String, dynamic>>.from(
-        dump['states']
-      );
+      return List<Map<String, dynamic>>.from(dump['states']);
     } catch (ex) {
       debugPrint('ex = $ex');
       return [];
