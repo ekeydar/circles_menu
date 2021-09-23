@@ -60,10 +60,9 @@ class OpAction {
   String toString() {
     return '$title ($code)';
   }
-
 }
 
-class CircleMenuConfig {
+class CirclesMenuConfig {
   // translations/texts
   final String loading;
   final String accept;
@@ -75,13 +74,11 @@ class CircleMenuConfig {
   final String moveToEditMessage;
   // key to hold the data in shared preferences
   final String spKey;
-  // key to hold default data in shared preferences (to used when there is no data or when key pressed)
-  final String spDefaultKey;
   // this function is called whenever the edit is Done, if you want to persist
   // after it is saved to the shared preferences
   final VoidCallback? onEditDone;
   
-  CircleMenuConfig({
+  CirclesMenuConfig({
     this.loading = 'Loading',
     this.accept = 'Accept',
     this.cancel = 'Cancel',
@@ -91,26 +88,12 @@ class CircleMenuConfig {
     this.approveDialogTitle = 'Action approval',
     this.moveToEditMessage = 'Press the edit icon to edit the menu',
     this.spKey = 'circleButtons',
-    this.spDefaultKey = 'circlesButtonsDefault',
     this.onEditDone,
   });
 
   Future<String?> getCurrent() async {
     SharedPreferences sp = await SharedPreferences.getInstance();
     return sp.getString(this.spKey);
-  }
-
-  Future<bool> saveAsDefault(String? data) async {
-    SharedPreferences sp = await SharedPreferences.getInstance();
-    if (data != null) {
-      sp.setString(this.spDefaultKey, data);
-      return true;
-    }
-    return false;
-  }
-
-  Future<bool> saveCurrentAsDefault() async {
-    return saveAsDefault(await getCurrent());
   }
 }
 

@@ -4,7 +4,7 @@ import 'circles_menu_models.dart';
 
 class PickActionDialog extends StatefulWidget {
   final List<OpAction> actions;
-  final CircleMenuConfig config;
+  final CirclesMenuConfig config;
   PickActionDialog({required this.actions, required this.config});
 
   @override

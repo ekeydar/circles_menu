@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'circles_menu_models.dart';
 
-Future<bool> askConfirmation(BuildContext context,  String msg, {required CircleMenuConfig config}) async {
+Future<bool> askConfirmation(BuildContext context,  String msg, {required CirclesMenuConfig config}) async {
     return await showDialog<bool>(context: context, builder: (BuildContext context) {
         return AlertDialog(
             title: Text(config.approveDialogTitle),

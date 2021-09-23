@@ -35,12 +35,13 @@ class CirclesMenuExample extends StatefulWidget {
 
 class CirclesMenuExampleState extends State<CirclesMenuExample> {
   int disabledIndex = 1;
+  String? defaultDump;
 
-  late CircleMenuConfig config;
+  late CirclesMenuConfig config;
 
   @override
   void initState() {
-    config = CircleMenuConfig(onEditDone: this.onEditDone);
+    config = CirclesMenuConfig(onEditDone: this.onEditDone);
     super.initState();
   }
 
@@ -61,7 +62,8 @@ class CirclesMenuExampleState extends State<CirclesMenuExample> {
         ),
         body: CirclesMenu(
           actions: _getActions(context, disabledIndex: disabledIndex),
-          config: config
+          config: config,
+          defaultDump: defaultDump,
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerTop,
         floatingActionButton: Padding(
@@ -85,8 +87,10 @@ class CirclesMenuExampleState extends State<CirclesMenuExample> {
               ),
               FloatingActionButton(
                   child: Icon(Icons.save_alt),
-                  onPressed: () {
-                      config.saveCurrentAsDefault();
+                  onPressed: () async {
+                      defaultDump = await config.getCurrent();
+                      setState(() {
+                      });
                   }),
             ],
           ),

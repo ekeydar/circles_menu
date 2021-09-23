@@ -8,7 +8,7 @@ class CircleMenuButton extends StatefulWidget {
   final VoidCallback? onPressed;
   final VoidCallback onChange;
   final ScrollController controller;
-  final CircleMenuConfig config;
+  final CirclesMenuConfig config;
   final bool isInEdit;
 
   CircleMenuButton(

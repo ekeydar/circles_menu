@@ -16,11 +16,13 @@ export 'src/circles_menu_models.dart';
 const int DUMP_VERSION = 1;
 
 class CirclesMenu extends StatefulWidget {
-  final CircleMenuConfig config;
+  final CirclesMenuConfig config;
   final List<OpAction> actions;
+  final String? initialDump;
+  final String? defaultDump;
 
-  CirclesMenu({Key? key, CircleMenuConfig? config, required this.actions})
-      : this.config = config ?? CircleMenuConfig();
+  CirclesMenu({Key? key, CirclesMenuConfig? config, required this.actions, this.initialDump, this.defaultDump})
+      : this.config = config ?? CirclesMenuConfig();
 
   @override
   State<StatefulWidget> createState() => _CirclesMenuState();
@@ -231,9 +233,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
     await sp.setString(widget.config.spKey, value);
     if (debug) {
       debugPrint('data = $value');
-      debugPrint('default = ${sp.getString(widget.config.spDefaultKey)}');
     }
-
   }
 
   Future<void> _buildOpStateList({bool reset = false}) async {
@@ -242,11 +242,15 @@ class _CirclesMenuState extends State<CirclesMenu> {
       actionsByCode[a.code] = a;
     });
     SharedPreferences sp = await SharedPreferences.getInstance();
-
-    String spKey = (reset || !sp.containsKey(widget.config.spKey)) ?
-        widget.config.spDefaultKey :
-        widget.config.spKey;
-    List<Map<String, dynamic>> dataMaps = restoreFromSp(sp, spKey);
+    String? dumpText;
+    if (reset) {
+        dumpText = widget.defaultDump;
+    } else if (!sp.containsKey(widget.config.spKey)) {
+        dumpText = widget.initialDump ?? widget.defaultDump;
+    } else {
+      dumpText = sp.getString(widget.config.spKey);
+    }
+    List<Map<String, dynamic>> dataMaps = restoreFromStringSafe(dumpText);
     dataList = dataMaps
         .where((m) => actionsByCode.containsKey(m['actionCode']))
         .map(
@@ -262,13 +266,12 @@ class _CirclesMenuState extends State<CirclesMenu> {
         .toList();
   }
 
-  List<Map<String, dynamic>> restoreFromSp(SharedPreferences sp, String key) {
-    if (!sp.containsKey(key)) {
+  List<Map<String, dynamic>> restoreFromStringSafe(String? dumpText) {
+    if (dumpText == null) {
       return [];
     }
     try {
-      String text = sp.getString(key)!;
-      Map<String, dynamic> dump = jsonDecode(text);
+      Map<String, dynamic> dump = jsonDecode(dumpText);
       return List<Map<String, dynamic>>.from(dump['states']);
     } catch (ex, stacktrace) {
       debugPrint('ex = $ex');
