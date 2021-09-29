@@ -21,7 +21,12 @@ class CirclesMenu extends StatefulWidget {
   final String? initialDump;
   final String? defaultDump;
 
-  CirclesMenu({Key? key, CirclesMenuConfig? config, required this.actions, this.initialDump, this.defaultDump})
+  CirclesMenu(
+      {Key? key,
+      CirclesMenuConfig? config,
+      required this.actions,
+      this.initialDump,
+      this.defaultDump})
       : this.config = config ?? CirclesMenuConfig();
 
   @override
@@ -33,6 +38,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
   double xOffset = 0;
   bool _ready = false;
   late List<OpState> dataList;
+  List<OpState> _beforeDataList = [];
   double initialOffset = 0;
   bool isInEdit = false;
 
@@ -126,6 +132,9 @@ class _CirclesMenuState extends State<CirclesMenu> {
                     if (widget.config.onEditDone != null) {
                       widget.config.onEditDone!();
                     }
+                  } else {
+                    // save the state before the start edit
+                    this._beforeDataList = this.dataList.map((d) => d.clone()).toList();
                   }
                   setState(() {
                     this.isInEdit = !this.isInEdit;
@@ -140,6 +149,24 @@ class _CirclesMenuState extends State<CirclesMenu> {
                 child: Icon(isInEdit ? Icons.check : Icons.edit),
               ),
             ),
+            if (isInEdit)
+              Padding(
+                padding: const EdgeInsets.only(left: 8.0, right: 8),
+                child: FloatingActionButton(
+                  heroTag: 'circle_menu_cancel_edit',
+                  onPressed: () async {
+                    if (await askConfirmation(
+                        context, widget.config.cancelEditsConfirmation,
+                        config: widget.config)) {
+                      setState(() {
+                        this.dataList = this._beforeDataList.map((d) => d.clone()).toList();
+                      });
+                    }
+                  },
+                  backgroundColor: Colors.red,
+                  child: Icon(Icons.cancel),
+                ),
+              ),
             if (isInEdit)
               Padding(
                 padding: const EdgeInsets.only(left: 8.0, right: 8),
@@ -244,9 +271,9 @@ class _CirclesMenuState extends State<CirclesMenu> {
     SharedPreferences sp = await SharedPreferences.getInstance();
     String? dumpText;
     if (reset) {
-        dumpText = widget.defaultDump;
+      dumpText = widget.defaultDump;
     } else if (!sp.containsKey(widget.config.spKey)) {
-        dumpText = widget.initialDump ?? widget.defaultDump;
+      dumpText = widget.initialDump ?? widget.defaultDump;
     } else {
       dumpText = sp.getString(widget.config.spKey);
     }

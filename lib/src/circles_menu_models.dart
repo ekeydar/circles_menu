@@ -13,6 +13,16 @@ class OpState {
   bool showActions = false;
   bool isDragged = false;
 
+  OpState clone() {
+    return OpState(
+      x: this.x,
+      y: this.y,
+      action: this.action,
+      fillColor: this.fillColor,
+      radius: this.radius,
+    );
+  }
+
   bool get canIncrRadius => radius < 100;
   bool get canDecrRadius => radius > 35;
   
@@ -72,6 +82,7 @@ class CirclesMenuConfig {
   final String resetConfirmation;
   final String approveDialogTitle;
   final String moveToEditMessage;
+  final String cancelEditsConfirmation;
   // key to hold the data in shared preferences
   final String spKey;
   // this function is called whenever the edit is Done, if you want to persist
@@ -86,6 +97,7 @@ class CirclesMenuConfig {
     this.deleteAllConfirmation = 'Are you sure you want to delete the current menu',
     this.resetConfirmation = 'Are you sure you want to delete the current menu and restore the defaults',
     this.approveDialogTitle = 'Action approval',
+    this.cancelEditsConfirmation = 'Are you sure you want to cancel the current edits',
     this.moveToEditMessage = 'Press the edit icon to edit the menu',
     this.spKey = 'circleButtons',
     this.onEditDone,
