@@ -309,8 +309,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
 
   Future<OpAction?> pickAction() async {
     Set<String> curCodes = dataList.map((d) => d.action.code).toSet();
-    List<OpAction> actions =
-        widget.actions.where((a) => !curCodes.contains(a.code)).toList();
+    List<OpAction> actions = List<OpAction>.from(widget.actions);
     actions.sort((a1, a2) => a1.title.compareTo(a2.title));
     return await showDialog<OpAction>(
         context: context,
@@ -319,6 +318,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
           return PickActionDialog(
             actions: actions,
             config: widget.config,
+            curCodes: curCodes,
           );
         });
   }

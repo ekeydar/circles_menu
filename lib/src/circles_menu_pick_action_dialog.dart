@@ -5,15 +5,18 @@ import 'circles_menu_models.dart';
 class PickActionDialog extends StatefulWidget {
   final List<OpAction> actions;
   final CirclesMenuConfig config;
-  PickActionDialog({required this.actions, required this.config});
+  final Set<String> curCodes;
+
+  PickActionDialog(
+      {required this.actions, required this.curCodes, required this.config});
 
   @override
   State<StatefulWidget> createState() => _PickActionDialogState();
 }
 
-
 class _PickActionDialogState extends State<PickActionDialog> {
   late TextEditingController _controller;
+
   @override
   void initState() {
     _controller = TextEditingController();
@@ -46,28 +49,35 @@ class _PickActionDialogState extends State<PickActionDialog> {
         child: SingleChildScrollView(
           child: Column(
               children: <Widget>[
-                TextField(
-                  controller: _controller,
-                  decoration: InputDecoration(
-                    suffixIcon: IconButton(
-                        onPressed: () {
-                          _controller.text = '';
-                          setState(() {});
-                        },
-                        icon: Icon(Icons.clear)
-                    ),
-                  ),
-                )
-              ] + widget.actions
-                  .where((a) => _controller.text.length == 0 || a.title.contains(_controller.text))
-                  .map((a) =>
-                  ListTile(
-                    title: Text(a.title),
-                    onTap: () {
-                      Navigator.of(context).pop(a);
-                    },
-                  ))
-                  .toList()),
+                    TextField(
+                      controller: _controller,
+                      decoration: InputDecoration(
+                        suffixIcon: IconButton(
+                            onPressed: () {
+                              _controller.text = '';
+                              setState(() {});
+                            },
+                            icon: Icon(Icons.clear)),
+                      ),
+                    )
+                  ] +
+                  widget.actions
+                      .where((a) =>
+                          _controller.text.length == 0 ||
+                          a.title.contains(_controller.text))
+                      .map((a) => ListTile(
+                            title: Text(a.title),
+                            trailing: widget.curCodes.contains(a.code)
+                                ? Icon(
+                                    Icons.check,
+                                    color: Colors.green,
+                                  )
+                                : null,
+                            onTap: () {
+                              Navigator.of(context).pop(a);
+                            },
+                          ))
+                      .toList()),
         ),
       ),
     );
