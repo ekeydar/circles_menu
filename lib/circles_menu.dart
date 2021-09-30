@@ -13,7 +13,7 @@ import 'src/circles_menu_pick_action_dialog.dart';
 
 export 'src/circles_menu_models.dart';
 
-const int DUMP_VERSION = 1;
+const int DUMP_VERSION = 2;
 
 class CirclesMenu extends StatefulWidget {
   final CirclesMenuConfig config;
