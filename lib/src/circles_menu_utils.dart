@@ -50,7 +50,7 @@ Future<String?> editText(BuildContext context,
         content: TextField(
           controller: controller,
           decoration: InputDecoration(
-            suffixIcon: IconButton(
+            prefixIcon: IconButton(
                 onPressed: () {
                   controller.text = '';
                 },
