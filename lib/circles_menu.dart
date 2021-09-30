@@ -58,7 +58,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
     _controller.addListener(() {
       xOffset = _controller.offset;
     });
-    await _buildOpStateList();
+    await _buildStateLists();
     setState(() {
       _ready = true;
     });
@@ -198,7 +198,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
                     if (await askConfirmation(
                         context, widget.config.resetConfirmation,
                         config: widget.config)) {
-                      await _buildOpStateList(reset: true);
+                      await _buildStateLists(reset: true);
                       _dumpStates();
                       setState(() {});
                     }
@@ -270,7 +270,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
     }
   }
 
-  Future<void> _buildOpStateList({bool reset = false}) async {
+  Future<void> _buildStateLists({bool reset = false}) async {
     Map<String, OpAction> actionsByCode = {
       for (var a in widget.actions) a.code: a
     };
