@@ -68,13 +68,12 @@ class LabelMenuItemState extends BaseMenuItemState {
 
   double get width => max(90, 20 + 0.6*fontSize * label.length);
 
-  double get height => 100 + fontSize;
+  double get height => 50 + fontSize;
 
-  bool get canIncr => fontSize < 30;
-  bool get canDecr => fontSize > 10;
-  void incr() => fontSize++;
-  void decr() => fontSize--;
-
+  bool get canIncr => fontSize < 34;
+  bool get canDecr => fontSize > 16;
+  void incr() => fontSize+=2;
+  void decr() => fontSize-=2;
 }
 
 class ActionMenuItemState extends BaseMenuItemState {

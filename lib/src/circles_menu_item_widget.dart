@@ -51,8 +51,7 @@ class _MenuItemWidgetState extends State<MenuItemWidget> {
   List<Widget> _getActionButtons() {
     BaseMenuItemState d = widget.data;
     List<Widget> result = [];
-    double minSide = min(widget.data.width, widget.data.height);
-    double innerRadius = min(minSide / 6, 20);
+    double innerRadius = min(min(widget.data.width / 6, 30), min(widget.data.height / 4, 30));
     //debugPrint('$minSide = $minSide $innerRadius = $innerRadius');
     if (widget.isInEdit && d.showActions && !d.isDragged) {
       result.add(
