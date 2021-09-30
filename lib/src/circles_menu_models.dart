@@ -1,16 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
-class ActionMenuItemState {
+abstract class BaseMenuItemState {
   double x;
   double y;
-  double radius;
-  OpAction action;
   bool isDeleted = false;
-  Color fillColor;
   bool showActions = false;
   bool isDragged = false;
+  BaseMenuItemState({required this.x, required this.y});
+}
+
+class ActionMenuItemState extends BaseMenuItemState {
+  double radius;
+  OpAction action;
+  Color fillColor;
+
+  ActionMenuItemState(
+      {required  double x,
+        required double y,
+        required this.radius,
+        required this.action,
+        required this.fillColor}) : super(x: x, y: y);
 
   ActionMenuItemState clone() {
     return ActionMenuItemState(
@@ -45,13 +55,6 @@ class ActionMenuItemState {
       'fillColorValue': fillColor.value,
     };
   }
-
-  ActionMenuItemState(
-      {required this.x,
-      required this.y,
-      required this.radius,
-      required this.action,
-      required this.fillColor});
 
   Widget get widget {
     return Text(
