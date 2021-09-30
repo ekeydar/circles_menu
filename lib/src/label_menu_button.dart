@@ -29,8 +29,14 @@ class _LabelMenuButtonState extends State<LabelMenuButton> {
       height: widget.data.height,
       width: widget.data.width,
       color: Colors.purple.withAlpha(30),
-      child: Text(
-          widget.data.label
+      child: Center(
+        child: Text(
+            widget.data.label,
+            style: TextStyle(
+              fontSize: widget.data.fontSize,
+              color: widget.data.color,
+            )
+        ),
       ),
     );
   }

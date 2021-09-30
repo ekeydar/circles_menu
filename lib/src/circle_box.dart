@@ -8,9 +8,9 @@ class CircleBox extends StatelessWidget {
 
   CircleBox(
       {required this.radius,
-        required this.child,
-        required this.fillColor,
-        required this.borderColor});
+      required this.child,
+      required this.fillColor,
+      required this.borderColor});
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +21,9 @@ class CircleBox extends StatelessWidget {
         shape: BoxShape.circle,
         color: fillColor,
       ),
-      child: Center(child: child),
+      child: Center(
+        child: child,
+      ),
     );
   }
 }

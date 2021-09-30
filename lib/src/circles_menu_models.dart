@@ -66,7 +66,7 @@ class LabelMenuItemState extends BaseMenuItemState {
 
   double get width => 50.0 * label.length;
 
-  double get height => 20 + fontSize;
+  double get height => 100 + fontSize;
 
   bool get canIncr => fontSize < 30;
   bool get canDecr => fontSize > 10;

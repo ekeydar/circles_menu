@@ -86,7 +86,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
           scrollDirection: Axis.horizontal,
           controller: _controller,
           child: Container(
-              color: kDebugMode ? Colors.red.withAlpha(100) : null,
+              color: null, // kDebugMode ? Colors.red.withAlpha(100) : null,
               width: MediaQuery.of(context).size.width * 2,
               child: Stack(
                   clipBehavior: Clip.none,
