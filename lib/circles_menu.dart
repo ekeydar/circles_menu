@@ -39,7 +39,8 @@ class _CirclesMenuState extends State<CirclesMenu> {
   bool _ready = false;
   late List<ActionMenuItemState> actionStatesList;
   late List<LabelMenuItemState> labelStatesList;
-  List<ActionMenuItemState> _beforeDataList = [];
+  List<ActionMenuItemState> _beforeActionStatesList = [];
+  List<LabelMenuItemState> _beforeLabelStatesList = [];
   double initialOffset = 0;
   bool isInEdit = false;
 
@@ -136,8 +137,10 @@ class _CirclesMenuState extends State<CirclesMenu> {
                     }
                   } else {
                     // save the state before the start edit
-                    this._beforeDataList =
+                    this._beforeActionStatesList =
                         this.actionStatesList.map((d) => d.clone()).toList();
+                    this._beforeLabelStatesList =
+                        this.labelStatesList.map((d) => d.clone()).toList();
                   }
                   setState(() {
                     this.isInEdit = !this.isInEdit;
@@ -163,7 +166,9 @@ class _CirclesMenuState extends State<CirclesMenu> {
                         config: widget.config)) {
                       setState(() {
                         this.actionStatesList =
-                            this._beforeDataList.map((d) => d.clone()).toList();
+                            this._beforeActionStatesList.map((d) => d.clone()).toList();
+                        this.labelStatesList =
+                            this._beforeLabelStatesList.map((d) => d.clone()).toList();
                       });
                     }
                   },

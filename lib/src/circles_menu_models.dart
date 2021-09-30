@@ -45,6 +45,15 @@ class LabelMenuItemState extends BaseMenuItemState {
       'colorValue': color.value,
     });
   }
+  LabelMenuItemState clone() {
+    return LabelMenuItemState(
+      x: this.x,
+      y: this.y,
+      fontSize: this.fontSize,
+      label: this.label,
+      color: this.color,
+    );
+  }
 }
 
 class ActionMenuItemState extends BaseMenuItemState {
