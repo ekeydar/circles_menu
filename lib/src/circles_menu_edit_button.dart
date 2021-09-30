@@ -5,18 +5,20 @@ import 'package:flutter/material.dart';
 class CircleMenuActionButton extends StatefulWidget {
   final Icon icon;
   final VoidCallback onPressed;
-  final double? top;
-  final double? right;
-  final double? bottom;
-  final double? left;
+  final double radius;
+  final double top;
+  //final double? right;
+  //final double? bottom;
+  final double left;
 
   CircleMenuActionButton(
       {Key? key,
         required this.icon,
-        this.top,
-        this.right,
-        this.left,
-        this.bottom,
+        required this.top,
+        //this.right,
+        required this.left,
+        //this.bottom,
+        required this.radius,
         required this.onPressed});
 
   @override
@@ -29,8 +31,8 @@ class _CircleMenuActionButtonState extends State<CircleMenuActionButton> {
     return Positioned(
       top: widget.top,
       left: widget.left,
-      right: widget.right,
-      bottom: widget.bottom,
+      //right: widget.right,
+      //bottom: widget.bottom,
       child: Align(
         alignment: Alignment.center,
         child: GestureDetector(
@@ -38,7 +40,7 @@ class _CircleMenuActionButtonState extends State<CircleMenuActionButton> {
           child: CircleBox(
             fillColor: Colors.red,
             borderColor: null,
-            radius: 20,
+            radius: widget.radius,
             child: widget.icon,
           ),
         ),
