@@ -37,8 +37,8 @@ class _CirclesMenuState extends State<CirclesMenu> {
   late ScrollController _controller;
   double xOffset = 0;
   bool _ready = false;
-  late List<OpState> dataList;
-  List<OpState> _beforeDataList = [];
+  late List<ActionMenuItemState> dataList;
+  List<ActionMenuItemState> _beforeDataList = [];
   double initialOffset = 0;
   bool isInEdit = false;
 
@@ -213,7 +213,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
                     if (newAction != null) {
                       int index = dataList.length;
                       dataList.add(
-                        OpState(
+                        ActionMenuItemState(
                           action: newAction,
                           x: initialOffset + 100 + index * 10,
                           y: MediaQuery.of(context).size.height - 350,
@@ -282,7 +282,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
     dataList = dataMaps
         .where((m) => actionsByCode.containsKey(m['actionCode']))
         .map(
-          (m) => OpState(
+          (m) => ActionMenuItemState(
             x: m['x'],
             y: m['y'],
             radius: m['radius'],

@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-typedef WithOpStateCallback(OpState o1);
 
-class OpState {
+class ActionMenuItemState {
   double x;
   double y;
   double radius;
@@ -13,8 +12,8 @@ class OpState {
   bool showActions = false;
   bool isDragged = false;
 
-  OpState clone() {
-    return OpState(
+  ActionMenuItemState clone() {
+    return ActionMenuItemState(
       x: this.x,
       y: this.y,
       action: this.action,
@@ -47,7 +46,7 @@ class OpState {
     };
   }
 
-  OpState(
+  ActionMenuItemState(
       {required this.x,
       required this.y,
       required this.radius,

@@ -4,7 +4,7 @@ import 'circles_menu_models.dart';
 import 'circles_menu_utils.dart';
 
 class CircleMenuButton extends StatefulWidget {
-  final OpState data;
+  final ActionMenuItemState data;
   final VoidCallback? onPressed;
   final VoidCallback onChange;
   final ScrollController controller;
@@ -52,7 +52,7 @@ class _CircleMenuButtonState extends State<CircleMenuButton> {
   }
 
   List<Widget> _getActionButtons() {
-    OpState d = widget.data;
+    ActionMenuItemState d = widget.data;
     List<Widget> result = [];
     if (widget.isInEdit && d.showActions && !d.isDragged) {
       result.add(CircleMenuActionButton(
@@ -217,7 +217,7 @@ class CircleButton extends StatelessWidget {
 
 class CircleMenuActionButton extends StatefulWidget {
   final Icon icon;
-  final OpState data;
+  final ActionMenuItemState data;
   final VoidCallback onPressed;
   final double? top;
   final double? right;
