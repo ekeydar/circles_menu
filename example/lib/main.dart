@@ -101,7 +101,7 @@ class CirclesMenuExampleState extends State<CirclesMenuExample> {
 List<OpAction> _getActions(context, {required int disabledIndex}) {
   List<OpAction> result = [];
   for (int x = 1; x <= 15; x++) {
-    String title = 'balloon $x';
+    String title = 'this is an action with long name $x';
     OpAction oa = OpAction(
       code: 'action_$x',
       title: title,
