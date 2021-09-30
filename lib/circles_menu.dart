@@ -11,6 +11,7 @@ import 'src/circles_menu_button.dart';
 import 'src/circles_menu_confirm.dart';
 import 'src/circles_menu_models.dart';
 import 'src/circles_menu_pick_action_dialog.dart';
+import 'src/label_menu_button.dart';
 
 export 'src/circles_menu_models.dart';
 
@@ -88,7 +89,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
               width: MediaQuery.of(context).size.width * 2,
               child: Stack(
                   clipBehavior: Clip.none,
-                  children: [getButtons(context)] + getCirclesAndActions())),
+                  children: [getButtons(context)] + getItems())),
         ),
       );
     } else {
@@ -96,7 +97,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
     }
   }
 
-  List<Widget> getCirclesAndActions() {
+  List<Widget> getItems() {
     List<Widget> result = [];
     for (var d in actionStatesList) {
       result.add(CircleMenuButton(
@@ -108,6 +109,19 @@ class _CirclesMenuState extends State<CirclesMenu> {
             d.action.onPressed();
           }
         },
+        onChange: () {
+          actionStatesList.removeWhere((d) => d.isDeleted);
+          _dumpStates();
+          setState(() {});
+        },
+        controller: _controller,
+      ));
+    }
+    for (var d in labelStatesList) {
+      result.add(LabelMenuButton(
+        config: widget.config,
+        data: d,
+        isInEdit: this.isInEdit,
         onChange: () {
           actionStatesList.removeWhere((d) => d.isDeleted);
           _dumpStates();
