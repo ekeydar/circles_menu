@@ -108,7 +108,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
         },
         onChange: () {
           actionStatesList.removeWhere((d) => d.isDeleted);
-          _dumpOpStateList();
+          _dumpStates();
           setState(() {});
         },
         controller: _controller,
@@ -181,7 +181,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
                         context, widget.config.deleteAllConfirmation,
                         config: widget.config)) {
                       actionStatesList.clear();
-                      _dumpOpStateList();
+                      _dumpStates();
                       setState(() {});
                     }
                   },
@@ -199,7 +199,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
                         context, widget.config.resetConfirmation,
                         config: widget.config)) {
                       await _buildOpStateList(reset: true);
-                      _dumpOpStateList();
+                      _dumpStates();
                       setState(() {});
                     }
                   },
@@ -225,7 +225,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
                           fillColor: Theme.of(context).primaryColor,
                         ),
                       );
-                      _dumpOpStateList();
+                      _dumpStates();
                       setState(() {});
                     }
                   },
@@ -239,7 +239,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
                 child: FloatingActionButton(
                   heroTag: 'circle_menu_debug',
                   onPressed: () async {
-                    await _dumpOpStateList(debug: true);
+                    await _dumpStates(debug: true);
                   },
                   backgroundColor: Colors.green,
                   child: Icon(Icons.bug_report_outlined),
@@ -251,12 +251,14 @@ class _CirclesMenuState extends State<CirclesMenu> {
     );
   }
 
-  Future<void> _dumpOpStateList({bool debug = false}) async {
+  Future<void> _dumpStates({bool debug = false}) async {
     SharedPreferences sp = await SharedPreferences.getInstance();
-    List<Map<String, dynamic>> states = List<Map<String, dynamic>>.from(
-        actionStatesList.map((m) => m.toMap()).toList());
+    List<Map<String, dynamic>> states = actionStatesList.map((m) => m.toMap()).toList();
+    List<Map<String, dynamic>> labels = labelStatesList.map((m) => m.toMap()).toList();
+
     Map<String, dynamic> data = {
       'states': states,
+      'labels': labels,
       'timestampMs': DateTime.now().millisecondsSinceEpoch,
       'version': DUMP_VERSION,
     };

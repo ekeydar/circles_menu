@@ -9,6 +9,14 @@ abstract class BaseMenuItemState {
   bool isDragged = false;
 
   BaseMenuItemState({required this.x, required this.y});
+
+  @mustCallSuper
+  Map<String, dynamic> toMap() {
+    return {
+      'x': x,
+      'y': y,
+    };
+  }
 }
 
 class LabelMenuItemState extends BaseMenuItemState {
@@ -29,6 +37,14 @@ class LabelMenuItemState extends BaseMenuItemState {
         fontSize = m['fontSize'],
         label = m['label'],
         super(x: m['x'], y: m['y']);
+
+  Map<String, dynamic> toMap() {
+    return super.toMap()..addAll({
+      'fontSize': fontSize,
+      'label': label,
+      'colorValue': color.value,
+    });
+  }
 }
 
 class ActionMenuItemState extends BaseMenuItemState {
@@ -79,13 +95,11 @@ class ActionMenuItemState extends BaseMenuItemState {
       action.enabled ? fillColor : fillColor.withAlpha(100);
 
   Map<String, dynamic> toMap() {
-    return {
-      'x': x,
-      'y': y,
+    return super.toMap()..addAll({
       'radius': radius,
       'actionCode': action.code,
       'fillColorValue': fillColor.value,
-    };
+    });
   }
 
   Widget get widget {
