@@ -181,6 +181,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
                         context, widget.config.deleteAllConfirmation,
                         config: widget.config)) {
                       actionStatesList.clear();
+                      labelStatesList.clear();
                       _dumpStates();
                       setState(() {});
                     }
