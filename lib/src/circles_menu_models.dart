@@ -64,7 +64,7 @@ class LabelMenuItemState extends BaseMenuItemState {
     );
   }
 
-  double get width => 10.0 * label.length;
+  double get width => 50.0 * label.length;
 
   double get height => 20 + fontSize;
 

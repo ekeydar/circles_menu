@@ -25,34 +25,12 @@ class LabelMenuButton extends StatefulWidget {
 class _LabelMenuButtonState extends State<LabelMenuButton> {
   @override
   Widget build(BuildContext context) {
-    double cx = widget.data.x;
-    double cy = widget.data.y;
-    return Positioned(
-      left: cx,
-      top: cy,
-      child: Container(
-        height: widget.data.fontSize + 50,
-        width: 100,
-        color: Colors.purple.withAlpha(30),
-        child:
-            Stack(children: <Widget>[_getMainButton()] + _getActionButtons()),
-      ),
-    );
-  }
-
-  List<Widget> _getActionButtons() {
-    return [];
-  }
-
-  Widget _getMainButton() {
-    return Positioned(
-      top: 0,
-      left: 0,
-      child: TextButton(
-        child: Text(
-          widget.data.label,
-        ),
-        onPressed: null,
+    return Container(
+      height: widget.data.height,
+      width: widget.data.width,
+      color: Colors.purple.withAlpha(30),
+      child: Text(
+          widget.data.label
       ),
     );
   }

@@ -135,16 +135,27 @@ class _CirclesMenuState extends State<CirclesMenu> {
       ));
     }
     for (var d in labelStatesList) {
-      result.add(LabelMenuButton(
+      result.add(MenuItemWidget(
         config: widget.config,
-        data: d,
         isInEdit: this.isInEdit,
+        controller: _controller,
+        data: d,
         onChange: () {
-          actionStatesList.removeWhere((d) => d.isDeleted);
           _dumpStates();
           setState(() {});
         },
-        controller: _controller,
+        onPressed: null,
+        child: LabelMenuButton(
+          config: widget.config,
+          data: d,
+          isInEdit: this.isInEdit,
+          onChange: () {
+            actionStatesList.removeWhere((d) => d.isDeleted);
+            _dumpStates();
+            setState(() {});
+          },
+          controller: _controller,
+        ),
       ));
     }
     return result;
