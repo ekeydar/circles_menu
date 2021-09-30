@@ -23,9 +23,16 @@ class OpState {
     );
   }
 
-  bool get canIncrRadius => radius < 100;
-  bool get canDecrRadius => radius > 35;
-  
+  bool get canIncr => radius < 100;
+  bool get canDecr => radius > 35;
+
+  void incr() {
+    radius += 5;
+  }
+  void decr() {
+    radius -= 5;
+  }
+
   String get text => action.title;
 
   Color get actualFillColor => action.enabled ? fillColor : fillColor.withAlpha(100);

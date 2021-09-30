@@ -80,26 +80,26 @@ class _CircleMenuButtonState extends State<CircleMenuButton> {
           widget.onChange();
         },
       ));
-      if (d.canIncrRadius) {
+      if (d.canIncr) {
         result.add(CircleMenuActionButton(
           left: 0,
           bottom: 0,
           data: d,
           icon: Icon(Icons.zoom_in_outlined),
           onPressed: () {
-            d.radius += 5;
+            d.incr();
             widget.onChange();
           },
         ));
       }
-      if (d.canDecrRadius) {
+      if (d.canDecr) {
         result.add(CircleMenuActionButton(
           right: 0,
           bottom: 0,
           data: d,
           icon: Icon(Icons.zoom_out_outlined),
           onPressed: () {
-            d.radius -= 5;
+            d.decr();
             widget.onChange();
           },
         ));
