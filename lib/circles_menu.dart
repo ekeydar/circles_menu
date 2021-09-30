@@ -76,7 +76,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
   @override
   Widget build(BuildContext context) {
     if (_ready) {
-      debugPrint('menuWidth = $menuWidth');
+      // debugPrint('menuWidth = $menuWidth');
       Map<String, OpAction> actionsByCode = {
         for (var a in widget.actions) a.code: a
       };
@@ -309,7 +309,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
                                 labelStatesList.add(
                                   LabelMenuItemState(
                                     label: newText,
-                                    fontSize: 12,
+                                    fontSize: 20,
                                     x: initialOffset + 100 + index * 10,
                                     y: MediaQuery.of(context).size.height - 350,
                                     color: Theme.of(context).primaryColor,

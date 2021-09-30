@@ -29,12 +29,12 @@ class _LabelMenuButtonState extends State<LabelMenuButton> {
     return Container(
       height: widget.data.height,
       width: widget.data.width,
-      color: kDebugMode ? Colors.purple.withAlpha(30) : null,
+      color: widget.isInEdit ? Colors.purple.withAlpha(30) : null,
       child: Center(
         child: Text(
             widget.data.label,
-            style: TextStyle(
-              fontSize: widget.data.fontSize,
+            style: Theme.of(context).textTheme.bodyText1!.apply(
+              fontSizeDelta: widget.data.fontSize - Theme.of(context).textTheme.bodyText1!.fontSize!,
               color: widget.data.color,
             )
         ),
