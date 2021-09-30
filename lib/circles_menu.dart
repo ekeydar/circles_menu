@@ -229,7 +229,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
                   child: Icon(Icons.add),
                 ),
               ),
-            if (isInEdit && kDebugMode)
+            if (!isInEdit && kDebugMode)
               Padding(
                 padding: const EdgeInsets.only(left: 8.0, right: 8),
                 child: FloatingActionButton(
@@ -259,7 +259,8 @@ class _CirclesMenuState extends State<CirclesMenu> {
     String value = jsonEncode(data);
     await sp.setString(widget.config.spKey, value);
     if (debug) {
-      debugPrint('data = $value');
+      String debugData = JsonEncoder.withIndent('    ').convert(data);
+      print('data = $debugData');
     }
   }
 
