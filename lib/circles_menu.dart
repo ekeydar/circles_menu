@@ -7,6 +7,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'src/circle_box.dart';
 import 'src/circles_menu_item_widget.dart';
 import 'src/circles_menu_confirm.dart';
 import 'src/circles_menu_models.dart';
@@ -93,7 +94,11 @@ class _CirclesMenuState extends State<CirclesMenu> {
         ),
       );
     } else {
-      return Center(child: Text(widget.config.loading));
+      return Center(
+        child: Text(
+          widget.config.loading,
+        ),
+      );
     }
   }
 
@@ -109,6 +114,18 @@ class _CirclesMenuState extends State<CirclesMenu> {
             d.action.onPressed();
           }
         },
+        child: CircleBox(
+          radius: d.radius,
+          child: Text(
+            d.text,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyText1!.apply(
+              color: Colors.white,
+            ),
+          ),
+          fillColor: d.actualFillColor,
+          borderColor: d.borderColor,
+        ),
         onChange: () {
           actionStatesList.removeWhere((d) => d.isDeleted);
           _dumpStates();

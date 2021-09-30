@@ -111,14 +111,6 @@ class ActionMenuItemState extends BaseMenuItemState {
     });
   }
 
-  Widget get widget {
-    return Text(
-      this.text,
-      textAlign: TextAlign.center,
-      style: TextStyle(color: Colors.white),
-    );
-  }
-
   Color? get borderColor => null;
 }
 

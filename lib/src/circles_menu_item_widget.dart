@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'circle_box.dart';
 import 'circles_menu_edit_button.dart';
 import 'circles_menu_models.dart';
 import 'circles_menu_utils.dart';
@@ -12,6 +11,7 @@ class MenuItemWidget extends StatefulWidget {
   final ScrollController controller;
   final CirclesMenuConfig config;
   final bool isInEdit;
+  final Widget child;
 
   MenuItemWidget(
       {Key? key,
@@ -20,6 +20,7 @@ class MenuItemWidget extends StatefulWidget {
       required this.data,
       required this.onPressed,
       required this.onChange,
+      required this.child,
       required this.controller})
       : super(key: key);
 
@@ -103,12 +104,6 @@ class _MenuItemWidgetState extends State<MenuItemWidget> {
   }
 
   Widget _getMainButton() {
-    Widget emptyChild = CircleBox(
-      radius: widget.data.radius,
-      child: widget.data.widget,
-      fillColor: widget.data.actualFillColor,
-      borderColor: widget.data.borderColor,
-    );
     return Positioned(
       top: 0,
       left: 0,
@@ -120,9 +115,9 @@ class _MenuItemWidgetState extends State<MenuItemWidget> {
               },
               child: Draggable(
                 feedback: Container(
-                  child: emptyChild,
+                  child: widget.child,
                 ),
-                child: emptyChild,
+                child: widget.child,
                 childWhenDragging: Container(),
                 onDragStarted: () {
                   widget.data.isDragged = true;
@@ -156,12 +151,10 @@ class _MenuItemWidgetState extends State<MenuItemWidget> {
                 ScaffoldMessenger.of(context).showSnackBar(snackBar);
               },
               child: GestureDetector(
-                  onTap: widget.data.action.onPressed,
-                  child: emptyChild
+                onTap: widget.data.action.onPressed,
+                child: widget.child,
               ),
             ),
     );
   }
 }
-
-
