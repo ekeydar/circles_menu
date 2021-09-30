@@ -17,7 +17,16 @@ abstract class BaseMenuItemState {
       'y': y,
     };
   }
+  double get width;
+  double get height;
+  bool get canIncr;
+  bool get canDecr;
+  void incr();
+  void decr();
+  Color get color;
+  set color(Color c);
 }
+
 
 class LabelMenuItemState extends BaseMenuItemState {
   double fontSize;
@@ -54,6 +63,16 @@ class LabelMenuItemState extends BaseMenuItemState {
       color: this.color,
     );
   }
+
+  double get width => 10.0 * label.length;
+
+  double get height => 20 + fontSize;
+
+  bool get canIncr => fontSize < 30;
+  bool get canDecr => fontSize > 10;
+  void incr() => fontSize++;
+  void decr() => fontSize--;
+
 }
 
 class ActionMenuItemState extends BaseMenuItemState {
@@ -85,6 +104,15 @@ class ActionMenuItemState extends BaseMenuItemState {
       radius: this.radius,
     );
   }
+
+  Color get color => fillColor;
+  set color(Color c) {
+    fillColor = c;
+  }
+
+  double get width => radius * 2;
+
+  double get height => width;
 
   bool get canIncr => radius < 100;
 

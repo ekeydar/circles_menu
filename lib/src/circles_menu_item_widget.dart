@@ -5,7 +5,7 @@ import 'circles_menu_models.dart';
 import 'circles_menu_utils.dart';
 
 class MenuItemWidget extends StatefulWidget {
-  final ActionMenuItemState data;
+  final BaseMenuItemState data;
   final VoidCallback? onPressed;
   final VoidCallback onChange;
   final ScrollController controller;
@@ -37,8 +37,8 @@ class _MenuItemWidgetState extends State<MenuItemWidget> {
       left: cx,
       top: cy,
       child: Container(
-        width: widget.data.radius * 2,
-        height: widget.data.radius * 2,
+        width: widget.data.width,
+        height: widget.data.height,
         //color: Colors.green.withAlpha(100),
         child:
             Stack(children: <Widget>[_getMainButton()] + _getActionButtons()),
@@ -47,19 +47,18 @@ class _MenuItemWidgetState extends State<MenuItemWidget> {
   }
 
   List<Widget> _getActionButtons() {
-    ActionMenuItemState d = widget.data;
+    BaseMenuItemState d = widget.data;
     List<Widget> result = [];
     if (widget.isInEdit && d.showActions && !d.isDragged) {
       result.add(CircleMenuActionButton(
         left: 0,
         top: 0,
-        data: d,
         icon: Icon(Icons.color_lens_outlined),
         onPressed: () async {
           Color? newColor = await pickColor(context,
-              initialColor: d.fillColor, config: widget.config);
+              initialColor: d.color, config: widget.config);
           if (newColor != null) {
-            d.fillColor = newColor;
+            d.color = newColor;
             d.showActions = false;
             widget.onChange();
           }
@@ -68,7 +67,6 @@ class _MenuItemWidgetState extends State<MenuItemWidget> {
       result.add(CircleMenuActionButton(
         right: 0,
         top: 0,
-        data: d,
         icon: Icon(Icons.delete_outline),
         onPressed: () {
           d.isDeleted = true;
@@ -79,7 +77,6 @@ class _MenuItemWidgetState extends State<MenuItemWidget> {
         result.add(CircleMenuActionButton(
           left: 0,
           bottom: 0,
-          data: d,
           icon: Icon(Icons.zoom_in_outlined),
           onPressed: () {
             d.incr();
@@ -91,7 +88,6 @@ class _MenuItemWidgetState extends State<MenuItemWidget> {
         result.add(CircleMenuActionButton(
           right: 0,
           bottom: 0,
-          data: d,
           icon: Icon(Icons.zoom_out_outlined),
           onPressed: () {
             d.decr();
@@ -104,6 +100,8 @@ class _MenuItemWidgetState extends State<MenuItemWidget> {
   }
 
   Widget _getMainButton() {
+    BaseMenuItemState d = widget.data;
+    VoidCallback? onPressed = d is ActionMenuItemState ? d.action.onPressed : null;
     return Positioned(
       top: 0,
       left: 0,
@@ -151,7 +149,7 @@ class _MenuItemWidgetState extends State<MenuItemWidget> {
                 ScaffoldMessenger.of(context).showSnackBar(snackBar);
               },
               child: GestureDetector(
-                onTap: widget.data.action.onPressed,
+                onTap: onPressed,
                 child: widget.child,
               ),
             ),

@@ -1,11 +1,9 @@
 import 'package:circles_menu/src/circle_box.dart';
 import 'package:flutter/material.dart';
 
-import 'circles_menu_models.dart';
 
 class CircleMenuActionButton extends StatefulWidget {
   final Icon icon;
-  final ActionMenuItemState data;
   final VoidCallback onPressed;
   final double? top;
   final double? right;
@@ -15,7 +13,6 @@ class CircleMenuActionButton extends StatefulWidget {
   CircleMenuActionButton(
       {Key? key,
         required this.icon,
-        required this.data,
         this.top,
         this.right,
         this.left,
