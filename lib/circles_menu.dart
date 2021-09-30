@@ -303,8 +303,8 @@ class _CirclesMenuState extends State<CirclesMenu> {
       int version = dump['version'];
         return RestoreFromStringData(
           version: version,
-          labelMaps: dump['labels'] ?? [],
-          actionMaps: dump['states']
+          labelMaps: List<Map<String, dynamic>>.from(dump['labels'] ?? []),
+          actionMaps: List<Map<String, dynamic>>.from(dump['states'])
         );
     } catch (ex, stacktrace) {
       debugPrint('ex = $ex');
