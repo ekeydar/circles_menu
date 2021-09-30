@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'circles_menu_models.dart';
@@ -28,7 +29,7 @@ class _LabelMenuButtonState extends State<LabelMenuButton> {
     return Container(
       height: widget.data.height,
       width: widget.data.width,
-      color: Colors.purple.withAlpha(30),
+      color: kDebugMode ? Colors.purple.withAlpha(30) : null,
       child: Center(
         child: Text(
             widget.data.label,

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:circles_menu/src/circles_menu_utils.dart';
 import 'package:flutter/foundation.dart';
@@ -38,7 +39,6 @@ class CirclesMenu extends StatefulWidget {
 
 class _CirclesMenuState extends State<CirclesMenu> {
   late ScrollController _controller;
-  double xOffset = 0;
   bool _ready = false;
   late List<ActionMenuItemState> actionStatesList;
   late List<LabelMenuItemState> labelStatesList;
@@ -46,6 +46,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
   List<LabelMenuItemState> _beforeLabelStatesList = [];
   double initialOffset = 0;
   bool isInEdit = false;
+  late double menuWidth;
 
   @override
   void initState() {
@@ -55,14 +56,13 @@ class _CirclesMenuState extends State<CirclesMenu> {
 
   Future<void> _prepare() async {
     await Future.delayed(Duration(milliseconds: 2));
-    double w = MediaQuery.of(context).size.width;
-    initialOffset = w / 2;
+    initialOffset = 0;
     _controller = ScrollController(initialScrollOffset: initialOffset);
-    xOffset = initialOffset;
-    _controller.addListener(() {
-      xOffset = _controller.offset;
-    });
     await _buildStateLists();
+    double maxX = (List<BaseMenuItemState>.from(this.labelStatesList) +
+            List<BaseMenuItemState>.from(this.actionStatesList))
+        .fold(0, (soFar, s2) => max(soFar, s2.x));
+    menuWidth = max(MediaQuery.of(context).size.width, maxX + 100);
     setState(() {
       _ready = true;
     });
@@ -80,14 +80,15 @@ class _CirclesMenuState extends State<CirclesMenu> {
         String c = st.action.code;
         st.action = actionsByCode[c]!;
       });
+
       return Scrollbar(
         controller: _controller,
         child: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           controller: _controller,
           child: Container(
-              color: null, // kDebugMode ? Colors.red.withAlpha(100) : null,
-              width: MediaQuery.of(context).size.width * 2,
+              color: kDebugMode ? Colors.red.withAlpha(100) : null,
+              width: menuWidth,
               child: Stack(
                   clipBehavior: Clip.none,
                   children: [getButtons(context)] + getItems())),
@@ -120,8 +121,8 @@ class _CirclesMenuState extends State<CirclesMenu> {
             d.text,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyText1!.apply(
-              color: Colors.white,
-            ),
+                  color: Colors.white,
+                ),
           ),
           fillColor: d.actualFillColor,
           borderColor: d.borderColor,
@@ -165,171 +166,203 @@ class _CirclesMenuState extends State<CirclesMenu> {
     return Align(
       alignment: Alignment.bottomCenter,
       child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(left: 8.0, right: 8),
-              child: FloatingActionButton(
-                heroTag: 'circles_menu_toggle_edit',
-                onPressed: () async {
-                  if (this.isInEdit) {
-                    if (widget.config.onEditDone != null) {
-                      widget.config.onEditDone!();
-                    }
-                  } else {
-                    // save the state before the start edit
-                    this._beforeActionStatesList =
-                        this.actionStatesList.map((d) => d.clone()).toList();
-                    this._beforeLabelStatesList =
-                        this.labelStatesList.map((d) => d.clone()).toList();
-                  }
-                  setState(() {
-                    this.isInEdit = !this.isInEdit;
-                    if (!this.isInEdit) {
-                      this.actionStatesList.forEach((s) {
-                        s.showActions = false;
-                      });
-                    }
-                  });
-                },
-                backgroundColor: isInEdit ? Colors.green : Colors.red,
-                child: Icon(isInEdit ? Icons.check : Icons.edit),
-              ),
-            ),
-            if (isInEdit)
-              Padding(
-                padding: const EdgeInsets.only(left: 8.0, right: 8),
-                child: FloatingActionButton(
-                  heroTag: 'circle_menu_cancel_edit',
-                  onPressed: () async {
-                    if (await askConfirmation(
-                        context, widget.config.cancelEditsConfirmation,
-                        config: widget.config)) {
-                      setState(() {
-                        this.actionStatesList = this
-                            ._beforeActionStatesList
-                            .map((d) => d.clone())
-                            .toList();
-                        this.labelStatesList = this
-                            ._beforeLabelStatesList
-                            .map((d) => d.clone())
-                            .toList();
-                      });
-                    }
-                  },
-                  backgroundColor: Colors.red,
-                  child: Icon(Icons.cancel),
-                ),
-              ),
-            if (isInEdit)
-              Padding(
-                padding: const EdgeInsets.only(left: 8.0, right: 8),
-                child: FloatingActionButton(
-                  heroTag: 'circle_menu_delete',
-                  onPressed: () async {
-                    if (await askConfirmation(
-                        context, widget.config.deleteAllConfirmation,
-                        config: widget.config)) {
-                      actionStatesList.clear();
-                      labelStatesList.clear();
-                      _dumpStates();
-                      setState(() {});
-                    }
-                  },
-                  backgroundColor: Colors.red,
-                  child: Icon(Icons.delete),
-                ),
-              ),
-            if (isInEdit && widget.defaultDump != null)
-              Padding(
-                padding: const EdgeInsets.only(left: 8.0, right: 8),
-                child: FloatingActionButton(
-                  heroTag: 'circle_menu_reset',
-                  onPressed: () async {
-                    if (await askConfirmation(
-                        context, widget.config.resetConfirmation,
-                        config: widget.config)) {
-                      await _buildStateLists(reset: true);
-                      _dumpStates();
-                      setState(() {});
-                    }
-                  },
-                  backgroundColor: Colors.red,
-                  child: Icon(Icons.auto_delete),
-                ),
-              ),
-            if (isInEdit)
-              Padding(
-                padding: const EdgeInsets.only(left: 8.0, right: 8),
-                child: FloatingActionButton(
-                  heroTag: 'circle_menu_add',
-                  onPressed: () async {
-                    OpAction? newAction = await pickAction();
-                    if (newAction != null) {
-                      int index = actionStatesList.length;
-                      actionStatesList.add(
-                        ActionMenuItemState(
-                          action: newAction,
-                          x: initialOffset + 100 + index * 10,
-                          y: MediaQuery.of(context).size.height - 350,
-                          radius: 50,
-                          fillColor: Theme.of(context).primaryColor,
+          padding: const EdgeInsets.all(16),
+          child: (isInEdit)
+              ? Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8.0, right: 8),
+                        child: FloatingActionButton(
+                          heroTag: 'circles_menu_approve_edit',
+                          onPressed: () async {
+                            if (widget.config.onEditDone != null) {
+                              widget.config.onEditDone!();
+                            }
+                            setState(() {
+                              this.isInEdit = false;
+                              this.actionStatesList.forEach((s) {
+                                s.showActions = false;
+                              });
+                            });
+                          },
+                          backgroundColor: isInEdit ? Colors.green : Colors.red,
+                          child: Icon(isInEdit ? Icons.check : Icons.edit),
                         ),
-                      );
-                      _dumpStates();
-                      setState(() {});
-                    }
-                  },
-                  backgroundColor: Colors.green,
-                  child: Icon(Icons.add),
-                ),
-              ),
-            if (isInEdit)
-              Padding(
-                padding: const EdgeInsets.only(left: 8.0, right: 8),
-                child: FloatingActionButton(
-                  heroTag: 'circle_menu_add_label',
-                  onPressed: () async {
-                    String? newText = await editText(
-                      context,
-                      config: widget.config,
-                    );
-                    if (newText != null) {
-                      int index = actionStatesList.length;
-                      labelStatesList.add(
-                        LabelMenuItemState(
-                          label: newText,
-                          fontSize: 12,
-                          x: initialOffset + 100 + index * 10,
-                          y: MediaQuery.of(context).size.height - 350,
-                          color: Theme.of(context).primaryColor,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8.0, right: 8),
+                        child: FloatingActionButton(
+                          heroTag: 'circle_menu_cancel_edit',
+                          onPressed: () async {
+                            if (await askConfirmation(
+                                context, widget.config.cancelEditsConfirmation,
+                                config: widget.config)) {
+                              setState(() {
+                                this.actionStatesList = this
+                                    ._beforeActionStatesList
+                                    .map((d) => d.clone())
+                                    .toList();
+                                this.labelStatesList = this
+                                    ._beforeLabelStatesList
+                                    .map((d) => d.clone())
+                                    .toList();
+                              });
+                            }
+                          },
+                          backgroundColor: Colors.red,
+                          child: Icon(Icons.cancel),
                         ),
-                      );
-                      _dumpStates();
-                      setState(() {});
-                    }
-                  },
-                  backgroundColor: Colors.green,
-                  child: Icon(Icons.font_download_outlined),
-                ),
-              ),
-            if (!isInEdit && kDebugMode)
-              Padding(
-                padding: const EdgeInsets.only(left: 8.0, right: 8),
-                child: FloatingActionButton(
-                  heroTag: 'circle_menu_debug',
-                  onPressed: () async {
-                    await _debugStates();
-                  },
-                  backgroundColor: Colors.green,
-                  child: Icon(Icons.bug_report_outlined),
-                ),
-              )
-          ],
-        ),
-      ),
+                      ),
+                    ]),
+                    SizedBox(height: 10),
+                    Row(children: [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8.0, right: 8),
+                        child: FloatingActionButton(
+                          heroTag: 'circle_menu_delete',
+                          onPressed: () async {
+                            if (await askConfirmation(
+                                context, widget.config.deleteAllConfirmation,
+                                config: widget.config)) {
+                              actionStatesList.clear();
+                              labelStatesList.clear();
+                              _dumpStates();
+                              setState(() {});
+                            }
+                          },
+                          backgroundColor: Colors.red,
+                          child: Icon(Icons.delete),
+                        ),
+                      ),
+                      if (widget.defaultDump != null)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8.0, right: 8),
+                          child: FloatingActionButton(
+                            heroTag: 'circle_menu_reset',
+                            onPressed: () async {
+                              if (await askConfirmation(
+                                  context, widget.config.resetConfirmation,
+                                  config: widget.config)) {
+                                await _buildStateLists(reset: true);
+                                _dumpStates();
+                                setState(() {});
+                              }
+                            },
+                            backgroundColor: Colors.red,
+                            child: Icon(Icons.auto_delete),
+                          ),
+                        ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8.0, right: 8),
+                        child: FloatingActionButton(
+                          heroTag: 'circle_menu_add',
+                          onPressed: () async {
+                            OpAction? newAction = await pickAction();
+                            if (newAction != null) {
+                              int index = actionStatesList.length;
+                              actionStatesList.add(
+                                ActionMenuItemState(
+                                  action: newAction,
+                                  x: initialOffset + 100 + index * 10,
+                                  y: MediaQuery.of(context).size.height - 350,
+                                  radius: 50,
+                                  fillColor: Theme.of(context).primaryColor,
+                                ),
+                              );
+                              _dumpStates();
+                              setState(() {});
+                            }
+                          },
+                          backgroundColor: Colors.green,
+                          child: Icon(Icons.add),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8.0, right: 8),
+                        child: FloatingActionButton(
+                          heroTag: 'circle_menu_add_label',
+                          onPressed: () async {
+                            String? newText = await editText(
+                              context,
+                              config: widget.config,
+                            );
+                            if (newText != null) {
+                              int index = actionStatesList.length;
+                              labelStatesList.add(
+                                LabelMenuItemState(
+                                  label: newText,
+                                  fontSize: 12,
+                                  x: initialOffset + 100 + index * 10,
+                                  y: MediaQuery.of(context).size.height - 350,
+                                  color: Theme.of(context).primaryColor,
+                                ),
+                              );
+                              _dumpStates();
+                              setState(() {});
+                            }
+                          },
+                          backgroundColor: Colors.green,
+                          child: Icon(Icons.font_download_outlined),
+                        ),
+                      ),
+                    ]),
+                  ],
+                )
+              : Row(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8.0, right: 8),
+                      child: FloatingActionButton(
+                        heroTag: 'circles_menu_start_edit',
+                        onPressed: () async {
+                          // save the state before the start edit
+                          this._beforeActionStatesList = this
+                              .actionStatesList
+                              .map((d) => d.clone())
+                              .toList();
+                          this._beforeLabelStatesList = this
+                              .labelStatesList
+                              .map((d) => d.clone())
+                              .toList();
+                          setState(() {
+                            this.isInEdit = true;
+                          });
+                        },
+                        backgroundColor: Colors.red,
+                        child: Icon(Icons.edit),
+                      ),
+                    ),
+                    if (kDebugMode)
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8.0, right: 8),
+                        child: FloatingActionButton(
+                          heroTag: 'circle_menu_debug',
+                          onPressed: () async {
+                            await _debugStates();
+                          },
+                          backgroundColor: Colors.green,
+                          child: Icon(Icons.bug_report_outlined),
+                        ),
+                      )
+                  ],
+                )
+          //     if (!isInEdit && kDebugMode)
+          //       Padding(
+          //         padding: const EdgeInsets.only(left: 8.0, right: 8),
+          //         child: FloatingActionButton(
+          //           heroTag: 'circle_menu_debug',
+          //           onPressed: () async {
+          //             await _debugStates();
+          //           },
+          //           backgroundColor: Colors.green,
+          //           child: Icon(Icons.bug_report_outlined),
+          //         ),
+          //       )
+          //   ],
+          // ),
+          ),
     );
   }
 
