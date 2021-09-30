@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+
 abstract class BaseMenuItemState {
   double x;
   double y;
@@ -118,3 +119,11 @@ class CirclesMenuConfig {
   }
 }
 
+class RestoreFromStringData {
+  final List<Map<String, dynamic>> actionMaps;
+  final List<Map<String, dynamic>> labelMaps;
+  final int version;
+  RestoreFromStringData({required this.actionMaps, required this.labelMaps, required this.version});
+
+  RestoreFromStringData.empty() : version = 0, actionMaps =[], labelMaps = [];
+}

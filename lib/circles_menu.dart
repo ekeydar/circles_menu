@@ -37,7 +37,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
   late ScrollController _controller;
   double xOffset = 0;
   bool _ready = false;
-  late List<ActionMenuItemState> dataList;
+  late List<ActionMenuItemState> actionStatesList;
   List<ActionMenuItemState> _beforeDataList = [];
   double initialOffset = 0;
   bool isInEdit = false;
@@ -69,8 +69,8 @@ class _CirclesMenuState extends State<CirclesMenu> {
       Map<String, OpAction> actionsByCode = {
         for (var a in widget.actions) a.code: a
       };
-      dataList.removeWhere((st) => !actionsByCode.containsKey(st.action.code));
-      dataList.forEach((st) {
+      actionStatesList.removeWhere((st) => !actionsByCode.containsKey(st.action.code));
+      actionStatesList.forEach((st) {
         String c = st.action.code;
         st.action = actionsByCode[c]!;
       });
@@ -94,7 +94,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
 
   List<Widget> getCirclesAndActions() {
     List<Widget> result = [];
-    for (var d in dataList) {
+    for (var d in actionStatesList) {
       result.add(CircleMenuButton(
         config: widget.config,
         data: d,
@@ -105,7 +105,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
           }
         },
         onChange: () {
-          dataList.removeWhere((d) => d.isDeleted);
+          actionStatesList.removeWhere((d) => d.isDeleted);
           _dumpOpStateList();
           setState(() {});
         },
@@ -134,12 +134,12 @@ class _CirclesMenuState extends State<CirclesMenu> {
                     }
                   } else {
                     // save the state before the start edit
-                    this._beforeDataList = this.dataList.map((d) => d.clone()).toList();
+                    this._beforeDataList = this.actionStatesList.map((d) => d.clone()).toList();
                   }
                   setState(() {
                     this.isInEdit = !this.isInEdit;
                     if (!this.isInEdit) {
-                      this.dataList.forEach((s) {
+                      this.actionStatesList.forEach((s) {
                         s.showActions = false;
                       });
                     }
@@ -159,7 +159,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
                         context, widget.config.cancelEditsConfirmation,
                         config: widget.config)) {
                       setState(() {
-                        this.dataList = this._beforeDataList.map((d) => d.clone()).toList();
+                        this.actionStatesList = this._beforeDataList.map((d) => d.clone()).toList();
                       });
                     }
                   },
@@ -176,7 +176,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
                     if (await askConfirmation(
                         context, widget.config.deleteAllConfirmation,
                         config: widget.config)) {
-                      dataList.clear();
+                      actionStatesList.clear();
                       _dumpOpStateList();
                       setState(() {});
                     }
@@ -211,8 +211,8 @@ class _CirclesMenuState extends State<CirclesMenu> {
                   onPressed: () async {
                     OpAction? newAction = await pickAction();
                     if (newAction != null) {
-                      int index = dataList.length;
-                      dataList.add(
+                      int index = actionStatesList.length;
+                      actionStatesList.add(
                         ActionMenuItemState(
                           action: newAction,
                           x: initialOffset + 100 + index * 10,
@@ -250,7 +250,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
   Future<void> _dumpOpStateList({bool debug = false}) async {
     SharedPreferences sp = await SharedPreferences.getInstance();
     List<Map<String, dynamic>> states = List<Map<String, dynamic>>.from(
-        dataList.map((m) => m.toMap()).toList());
+        actionStatesList.map((m) => m.toMap()).toList());
     Map<String, dynamic> data = {
       'states': states,
       'timestampMs': DateTime.now().millisecondsSinceEpoch,
@@ -278,8 +278,8 @@ class _CirclesMenuState extends State<CirclesMenu> {
     } else {
       dumpText = sp.getString(widget.config.spKey);
     }
-    List<Map<String, dynamic>> dataMaps = restoreFromStringSafe(dumpText);
-    dataList = dataMaps
+    RestoreFromStringData restoreData = restoreFromStringSafe(dumpText);
+    actionStatesList = restoreData.actionMaps
         .where((m) => actionsByCode.containsKey(m['actionCode']))
         .map(
           (m) => ActionMenuItemState(
@@ -294,22 +294,27 @@ class _CirclesMenuState extends State<CirclesMenu> {
         .toList();
   }
 
-  List<Map<String, dynamic>> restoreFromStringSafe(String? dumpText) {
+  RestoreFromStringData restoreFromStringSafe(String? dumpText) {
     if (dumpText == null) {
-      return [];
+      return RestoreFromStringData.empty();
     }
     try {
       Map<String, dynamic> dump = jsonDecode(dumpText);
-      return List<Map<String, dynamic>>.from(dump['states']);
+      int version = dump['version'];
+        return RestoreFromStringData(
+          version: version,
+          labelMaps: dump['labels'] ?? [],
+          actionMaps: dump['states']
+        );
     } catch (ex, stacktrace) {
       debugPrint('ex = $ex');
       debugPrint('$stacktrace');
-      return [];
+      return RestoreFromStringData.empty();
     }
   }
 
   Future<OpAction?> pickAction() async {
-    Set<String> curCodes = dataList.map((d) => d.action.code).toSet();
+    Set<String> curCodes = actionStatesList.map((d) => d.action.code).toSet();
     List<OpAction> actions = List<OpAction>.from(widget.actions);
     actions.sort((a1, a2) => a1.title.compareTo(a2.title));
     return await showDialog<OpAction>(
