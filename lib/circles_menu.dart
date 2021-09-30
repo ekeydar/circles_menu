@@ -110,6 +110,13 @@ class _CirclesMenuState extends State<CirclesMenu> {
     }
   }
 
+  void onChange() {
+    actionStatesList.removeWhere((d) => d.isDeleted);
+    labelStatesList.removeWhere((d) => d.isDeleted);
+    _dumpStates();
+    setState(() {});
+  }
+
   List<Widget> getItems() {
     List<Widget> result = [];
     for (var d in actionStatesList) {
@@ -134,11 +141,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
           fillColor: d.actualFillColor,
           borderColor: d.borderColor,
         ),
-        onChange: () {
-          actionStatesList.removeWhere((d) => d.isDeleted);
-          _dumpStates();
-          setState(() {});
-        },
+        onChange: this.onChange,
         controller: _controller,
       ));
     }
@@ -148,20 +151,13 @@ class _CirclesMenuState extends State<CirclesMenu> {
         isInEdit: this.isInEdit,
         controller: _controller,
         data: d,
-        onChange: () {
-          _dumpStates();
-          setState(() {});
-        },
+        onChange: this.onChange,
         onPressed: null,
         child: LabelMenuButton(
           config: widget.config,
           data: d,
           isInEdit: this.isInEdit,
-          onChange: () {
-            actionStatesList.removeWhere((d) => d.isDeleted);
-            _dumpStates();
-            setState(() {});
-          },
+          onChange: this.onChange,
           controller: _controller,
         ),
       ));
