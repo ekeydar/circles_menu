@@ -91,12 +91,16 @@ class _CirclesMenuState extends State<CirclesMenu> {
         child: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           controller: _controller,
-          child: Container(
-              color: kDebugMode ? Colors.red.withAlpha(100) : null,
-              width: menuWidth,
-              child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [getButtons(context)] + getItems())),
+          child: Directionality(
+            textDirection: TextDirection.ltr,
+            child: Container(
+
+                color: kDebugMode ? Colors.red.withAlpha(100) : null,
+                width: menuWidth,
+                child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [getButtons(context)] + getItems())),
+          ),
         ),
       );
     } else {

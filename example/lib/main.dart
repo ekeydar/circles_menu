@@ -10,15 +10,15 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      // localizationsDelegates: [
-      //   GlobalCupertinoLocalizations.delegate,
-      //   GlobalMaterialLocalizations.delegate,
-      //   GlobalWidgetsLocalizations.delegate,
-      // ],
-      // supportedLocales: [
-      //   Locale('he', 'IL'), // OR Locale('ar', 'AE') OR Other RTL locales
-      // ],
-      // locale: Locale('he', 'IL'), // OR Loc
+      localizationsDelegates: [
+         GlobalCupertinoLocalizations.delegate,
+         GlobalMaterialLocalizations.delegate,
+         GlobalWidgetsLocalizations.delegate,
+      ],
+      supportedLocales: [
+         Locale('he', 'IL'), // OR Locale('ar', 'AE') OR Other RTL locales
+      ],
+      locale: Locale('he', 'IL'), // OR Loc
       title: 'Circles Menu Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
