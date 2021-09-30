@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -64,7 +66,7 @@ class LabelMenuItemState extends BaseMenuItemState {
     );
   }
 
-  double get width => 20 + 0.6*fontSize * label.length;
+  double get width => max(90, 20 + 0.6*fontSize * label.length);
 
   double get height => 100 + fontSize;
 
@@ -171,7 +173,8 @@ class CirclesMenuConfig {
   final String approveDialogTitle;
   final String moveToEditMessage;
   final String cancelEditsConfirmation;
-  final String editLabel;
+  final String editLabelTitle;
+  final String editSizeTitle;
   // key to hold the data in shared preferences
   final String spKey;
 
@@ -192,7 +195,8 @@ class CirclesMenuConfig {
     this.cancelEditsConfirmation =
         'Are you sure you want to cancel the current edits',
     this.moveToEditMessage = 'Press the edit icon to edit the menu',
-    this.editLabel = 'Edit label',
+    this.editLabelTitle = 'Edit label',
+    this.editSizeTitle = 'Edit screen size',
     this.spKey = 'circleButtons',
     this.onEditDone,
   });
