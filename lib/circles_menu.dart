@@ -38,6 +38,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
   double xOffset = 0;
   bool _ready = false;
   late List<ActionMenuItemState> actionStatesList;
+  late List<LabelMenuItemState> labelStatesList;
   List<ActionMenuItemState> _beforeDataList = [];
   double initialOffset = 0;
   bool isInEdit = false;
@@ -69,7 +70,8 @@ class _CirclesMenuState extends State<CirclesMenu> {
       Map<String, OpAction> actionsByCode = {
         for (var a in widget.actions) a.code: a
       };
-      actionStatesList.removeWhere((st) => !actionsByCode.containsKey(st.action.code));
+      actionStatesList
+          .removeWhere((st) => !actionsByCode.containsKey(st.action.code));
       actionStatesList.forEach((st) {
         String c = st.action.code;
         st.action = actionsByCode[c]!;
@@ -134,7 +136,8 @@ class _CirclesMenuState extends State<CirclesMenu> {
                     }
                   } else {
                     // save the state before the start edit
-                    this._beforeDataList = this.actionStatesList.map((d) => d.clone()).toList();
+                    this._beforeDataList =
+                        this.actionStatesList.map((d) => d.clone()).toList();
                   }
                   setState(() {
                     this.isInEdit = !this.isInEdit;
@@ -159,7 +162,8 @@ class _CirclesMenuState extends State<CirclesMenu> {
                         context, widget.config.cancelEditsConfirmation,
                         config: widget.config)) {
                       setState(() {
-                        this.actionStatesList = this._beforeDataList.map((d) => d.clone()).toList();
+                        this.actionStatesList =
+                            this._beforeDataList.map((d) => d.clone()).toList();
                       });
                     }
                   },
@@ -265,10 +269,9 @@ class _CirclesMenuState extends State<CirclesMenu> {
   }
 
   Future<void> _buildOpStateList({bool reset = false}) async {
-    Map<String, OpAction> actionsByCode = Map<String, OpAction>();
-    widget.actions.forEach((a) {
-      actionsByCode[a.code] = a;
-    });
+    Map<String, OpAction> actionsByCode = {
+      for (var a in widget.actions) a.code: a
+    };
     SharedPreferences sp = await SharedPreferences.getInstance();
     String? dumpText;
     if (reset) {
@@ -282,15 +285,14 @@ class _CirclesMenuState extends State<CirclesMenu> {
     actionStatesList = restoreData.actionMaps
         .where((m) => actionsByCode.containsKey(m['actionCode']))
         .map(
-          (m) => ActionMenuItemState(
-            x: m['x'],
-            y: m['y'],
-            radius: m['radius'],
-            action: actionsByCode[m['actionCode']]!,
-            fillColor: Color(
-                m['fillColorValue'] ?? Theme.of(context).primaryColor.value),
+          (m) => ActionMenuItemState.fromMap(
+            m,
+            actionsByCode: actionsByCode,
           ),
         )
+        .toList();
+    labelStatesList = restoreData.labelMaps
+        .map((m) => LabelMenuItemState.fromMap(m))
         .toList();
   }
 
@@ -301,11 +303,10 @@ class _CirclesMenuState extends State<CirclesMenu> {
     try {
       Map<String, dynamic> dump = jsonDecode(dumpText);
       int version = dump['version'];
-        return RestoreFromStringData(
+      return RestoreFromStringData(
           version: version,
           labelMaps: List<Map<String, dynamic>>.from(dump['labels'] ?? []),
-          actionMaps: List<Map<String, dynamic>>.from(dump['states'])
-        );
+          actionMaps: List<Map<String, dynamic>>.from(dump['states']));
     } catch (ex, stacktrace) {
       debugPrint('ex = $ex');
       debugPrint('$stacktrace');

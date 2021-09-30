@@ -1,14 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
 abstract class BaseMenuItemState {
   double x;
   double y;
   bool isDeleted = false;
   bool showActions = false;
   bool isDragged = false;
+
   BaseMenuItemState({required this.x, required this.y});
+}
+
+class LabelMenuItemState extends BaseMenuItemState {
+  double fontSize;
+  Color color;
+  String label;
+
+  LabelMenuItemState(
+      {required double x,
+      required double y,
+      required this.fontSize,
+      required this.color,
+      required this.label})
+      : super(x: x, y: y);
+
+  LabelMenuItemState.fromMap(Map<String, dynamic> m)
+      : color = Color(m['colorValue']),
+        fontSize = m['fontSize'],
+        label = m['label'],
+        super(x: m['x'], y: m['y']);
 }
 
 class ActionMenuItemState extends BaseMenuItemState {
@@ -17,11 +37,19 @@ class ActionMenuItemState extends BaseMenuItemState {
   Color fillColor;
 
   ActionMenuItemState(
-      {required  double x,
-        required double y,
-        required this.radius,
-        required this.action,
-        required this.fillColor}) : super(x: x, y: y);
+      {required double x,
+      required double y,
+      required this.radius,
+      required this.action,
+      required this.fillColor})
+      : super(x: x, y: y);
+
+  ActionMenuItemState.fromMap(Map<String, dynamic> m,
+      {required Map<String, OpAction> actionsByCode})
+      : action = actionsByCode[m['actionCode']]!,
+        fillColor = Color(m['fillColorValue']),
+        radius = m['radius'],
+        super(x: m['x'], y: m['y']);
 
   ActionMenuItemState clone() {
     return ActionMenuItemState(
@@ -34,18 +62,21 @@ class ActionMenuItemState extends BaseMenuItemState {
   }
 
   bool get canIncr => radius < 100;
+
   bool get canDecr => radius > 35;
 
   void incr() {
     radius += 5;
   }
+
   void decr() {
     radius -= 5;
   }
 
   String get text => action.title;
 
-  Color get actualFillColor => action.enabled ? fillColor : fillColor.withAlpha(100);
+  Color get actualFillColor =>
+      action.enabled ? fillColor : fillColor.withAlpha(100);
 
   Map<String, dynamic> toMap() {
     return {
@@ -74,7 +105,11 @@ class OpAction {
   final VoidCallback onPressed;
   final bool enabled;
 
-  OpAction({required this.title, required this.code, required this.onPressed, this.enabled = true});
+  OpAction(
+      {required this.title,
+      required this.code,
+      required this.onPressed,
+      this.enabled = true});
 
   @override
   String toString() {
@@ -93,21 +128,26 @@ class CirclesMenuConfig {
   final String approveDialogTitle;
   final String moveToEditMessage;
   final String cancelEditsConfirmation;
+
   // key to hold the data in shared preferences
   final String spKey;
+
   // this function is called whenever the edit is Done, if you want to persist
   // after it is saved to the shared preferences
   final VoidCallback? onEditDone;
-  
+
   CirclesMenuConfig({
     this.loading = 'Loading',
     this.accept = 'Accept',
     this.cancel = 'Cancel',
     this.pickAction = 'Pick action',
-    this.deleteAllConfirmation = 'Are you sure you want to delete the current menu',
-    this.resetConfirmation = 'Are you sure you want to delete the current menu and restore the defaults',
+    this.deleteAllConfirmation =
+        'Are you sure you want to delete the current menu',
+    this.resetConfirmation =
+        'Are you sure you want to delete the current menu and restore the defaults',
     this.approveDialogTitle = 'Action approval',
-    this.cancelEditsConfirmation = 'Are you sure you want to cancel the current edits',
+    this.cancelEditsConfirmation =
+        'Are you sure you want to cancel the current edits',
     this.moveToEditMessage = 'Press the edit icon to edit the menu',
     this.spKey = 'circleButtons',
     this.onEditDone,
@@ -123,7 +163,14 @@ class RestoreFromStringData {
   final List<Map<String, dynamic>> actionMaps;
   final List<Map<String, dynamic>> labelMaps;
   final int version;
-  RestoreFromStringData({required this.actionMaps, required this.labelMaps, required this.version});
 
-  RestoreFromStringData.empty() : version = 0, actionMaps =[], labelMaps = [];
+  RestoreFromStringData(
+      {required this.actionMaps,
+      required this.labelMaps,
+      required this.version});
+
+  RestoreFromStringData.empty()
+      : version = 0,
+        actionMaps = [],
+        labelMaps = [];
 }
