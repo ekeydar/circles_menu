@@ -17,6 +17,9 @@ abstract class BaseMenuItemState {
     return {
       'x': x,
       'y': y,
+      // width and height are not really needed, just as extra (not used on restore)
+      'width': width,
+      'height': height,
     };
   }
   double get width;
