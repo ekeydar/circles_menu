@@ -239,6 +239,32 @@ class _CirclesMenuState extends State<CirclesMenu> {
                   child: Icon(Icons.add),
                 ),
               ),
+            if (isInEdit)
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0, right: 8),
+              child: FloatingActionButton(
+                heroTag: 'circle_menu_add_label',
+                onPressed: () async {
+                  OpAction? newAction = await pickAction();
+                  if (newAction != null) {
+                    int index = actionStatesList.length;
+                    labelStatesList.add(
+                      LabelMenuItemState(
+                        label: 'tmp',
+                        fontSize: 12,
+                        x: initialOffset + 100 + index * 10,
+                        y: MediaQuery.of(context).size.height - 350,
+                        color: Theme.of(context).primaryColor,
+                      ),
+                    );
+                    _dumpStates();
+                    setState(() {});
+                  }
+                },
+                backgroundColor: Colors.green,
+                child: Icon(Icons.font_download_outlined),
+              ),
+            ),
             if (!isInEdit && kDebugMode)
               Padding(
                 padding: const EdgeInsets.only(left: 8.0, right: 8),
