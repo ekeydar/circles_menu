@@ -160,9 +160,8 @@ class _MenuItemWidgetState extends State<MenuItemWidget> {
                 onDragEnd: (details) {
                   widget.data.isDragged = false;
                   setState(() {
-
-                    double w = MediaQuery.of(context).size.width;
-                    debugPrint('w = $w details.offset = ${details.offset} widget.controller.offset = ${widget.controller.offset}');
+                    // double w = MediaQuery.of(context).size.width;
+                    // debugPrint('w = $w details.offset = ${details.offset} widget.controller.offset = ${widget.controller.offset}');
                     // bool isRtl =
                     //     Directionality.of(context) == TextDirection.rtl;
                     double newX = details.offset.dx + widget.controller.offset;
