@@ -76,6 +76,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
   @override
   Widget build(BuildContext context) {
     if (_ready) {
+      debugPrint('menuWidth = $menuWidth');
       Map<String, OpAction> actionsByCode = {
         for (var a in widget.actions) a.code: a
       };
@@ -90,17 +91,14 @@ class _CirclesMenuState extends State<CirclesMenu> {
         controller: _controller,
         child: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
+          reverse: Directionality.of(context) == TextDirection.rtl,
           controller: _controller,
-          child: Directionality(
-            textDirection: TextDirection.ltr,
-            child: Container(
-
-                color: kDebugMode ? Colors.red.withAlpha(100) : null,
-                width: menuWidth,
-                child: Stack(
-                    clipBehavior: Clip.none,
-                    children: [getButtons(context)] + getItems())),
-          ),
+          child: Container(
+              color: kDebugMode ? Colors.red.withAlpha(100) : null,
+              width: menuWidth,
+              child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [getButtons(context)] + getItems())),
         ),
       );
     } else {
@@ -172,62 +170,70 @@ class _CirclesMenuState extends State<CirclesMenu> {
   }
 
   Widget getButtons(context) {
+    bool isRtl = Directionality.of(context) == TextDirection.rtl;
+    MainAxisAlignment mainAlignment =
+        isRtl ? MainAxisAlignment.end : MainAxisAlignment.start;
     return Align(
       alignment: Alignment.bottomCenter,
       child: Padding(
           padding: const EdgeInsets.all(16),
           child: (isInEdit)
               ? Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisAlignment: mainAlignment,
                   children: [
-                    Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-                      Padding(
-                        padding: const EdgeInsets.only(left: 8.0, right: 8),
-                        child: FloatingActionButton(
-                          heroTag: 'circles_menu_approve_edit',
-                          onPressed: () async {
-                            if (widget.config.onEditDone != null) {
-                              widget.config.onEditDone!();
-                            }
-                            setState(() {
-                              this.isInEdit = false;
-                              this.actionStatesList.forEach((s) {
-                                s.showActions = false;
-                              });
-                            });
-                          },
-                          backgroundColor: isInEdit ? Colors.green : Colors.red,
-                          child: Icon(isInEdit ? Icons.check : Icons.edit),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 8.0, right: 8),
-                        child: FloatingActionButton(
-                          heroTag: 'circle_menu_cancel_edit',
-                          onPressed: () async {
-                            if (await askConfirmation(
-                                context, widget.config.cancelEditsConfirmation,
-                                config: widget.config)) {
+                    Row(
+                      mainAxisAlignment: mainAlignment,
+                      children: reverseIfTrue(isRtl, [
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8.0, right: 8),
+                          child: FloatingActionButton(
+                            heroTag: 'circles_menu_approve_edit',
+                            onPressed: () async {
+                              if (widget.config.onEditDone != null) {
+                                widget.config.onEditDone!();
+                              }
                               setState(() {
-                                this.actionStatesList = this
-                                    ._beforeActionStatesList
-                                    .map((d) => d.clone())
-                                    .toList();
-                                this.labelStatesList = this
-                                    ._beforeLabelStatesList
-                                    .map((d) => d.clone())
-                                    .toList();
+                                this.isInEdit = false;
+                                this.actionStatesList.forEach((s) {
+                                  s.showActions = false;
+                                });
                               });
-                            }
-                          },
-                          backgroundColor: Colors.red,
-                          child: Icon(Icons.cancel),
+                            },
+                            backgroundColor:
+                                isInEdit ? Colors.green : Colors.red,
+                            child: Icon(isInEdit ? Icons.check : Icons.edit),
+                          ),
                         ),
-                      ),
-                    ]),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8.0, right: 8),
+                          child: FloatingActionButton(
+                            heroTag: 'circle_menu_cancel_edit',
+                            onPressed: () async {
+                              if (await askConfirmation(context,
+                                  widget.config.cancelEditsConfirmation,
+                                  config: widget.config)) {
+                                setState(() {
+                                  this.actionStatesList = this
+                                      ._beforeActionStatesList
+                                      .map((d) => d.clone())
+                                      .toList();
+                                  this.labelStatesList = this
+                                      ._beforeLabelStatesList
+                                      .map((d) => d.clone())
+                                      .toList();
+                                });
+                              }
+                            },
+                            backgroundColor: Colors.red,
+                            child: Icon(Icons.cancel),
+                          ),
+                        ),
+                      ]),
+                    ),
                     SizedBox(height: 10),
                     Row(
-                      children: [
+                      mainAxisAlignment: mainAlignment,
+                      children: reverseIfTrue(isRtl, [
                         Padding(
                           padding: const EdgeInsets.only(left: 8.0, right: 8),
                           child: FloatingActionButton(
@@ -329,12 +335,13 @@ class _CirclesMenuState extends State<CirclesMenu> {
                             child: Icon(Icons.zoom_out_map_outlined),
                           ),
                         ),
-                      ],
+                      ]),
                     ),
                   ],
                 )
               : Row(
-                  children: [
+                  mainAxisAlignment: mainAlignment,
+                  children: reverseIfTrue(isRtl, [
                     Padding(
                       padding: const EdgeInsets.only(left: 8.0, right: 8),
                       child: FloatingActionButton(
@@ -369,7 +376,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
                           child: Icon(Icons.bug_report_outlined),
                         ),
                       )
-                  ],
+                  ]),
                 )
           //     if (!isInEdit && kDebugMode)
           //       Padding(

@@ -75,3 +75,7 @@ Future<String?> editText(BuildContext context,
     },
   );
 }
+
+List<Widget> reverseIfTrue(bool cond, List<Widget> l) {
+  return cond ? l.reversed.toList() : l;
+}
