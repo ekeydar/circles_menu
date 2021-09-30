@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:circles_menu/src/circles_menu_utils.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -165,10 +166,14 @@ class _CirclesMenuState extends State<CirclesMenu> {
                         context, widget.config.cancelEditsConfirmation,
                         config: widget.config)) {
                       setState(() {
-                        this.actionStatesList =
-                            this._beforeActionStatesList.map((d) => d.clone()).toList();
-                        this.labelStatesList =
-                            this._beforeLabelStatesList.map((d) => d.clone()).toList();
+                        this.actionStatesList = this
+                            ._beforeActionStatesList
+                            .map((d) => d.clone())
+                            .toList();
+                        this.labelStatesList = this
+                            ._beforeLabelStatesList
+                            .map((d) => d.clone())
+                            .toList();
                       });
                     }
                   },
@@ -240,38 +245,41 @@ class _CirclesMenuState extends State<CirclesMenu> {
                 ),
               ),
             if (isInEdit)
-            Padding(
-              padding: const EdgeInsets.only(left: 8.0, right: 8),
-              child: FloatingActionButton(
-                heroTag: 'circle_menu_add_label',
-                onPressed: () async {
-                  OpAction? newAction = await pickAction();
-                  if (newAction != null) {
-                    int index = actionStatesList.length;
-                    labelStatesList.add(
-                      LabelMenuItemState(
-                        label: 'tmp',
-                        fontSize: 12,
-                        x: initialOffset + 100 + index * 10,
-                        y: MediaQuery.of(context).size.height - 350,
-                        color: Theme.of(context).primaryColor,
-                      ),
+              Padding(
+                padding: const EdgeInsets.only(left: 8.0, right: 8),
+                child: FloatingActionButton(
+                  heroTag: 'circle_menu_add_label',
+                  onPressed: () async {
+                    String? newText = await editText(
+                      context,
+                      config: widget.config,
                     );
-                    _dumpStates();
-                    setState(() {});
-                  }
-                },
-                backgroundColor: Colors.green,
-                child: Icon(Icons.font_download_outlined),
+                    if (newText != null) {
+                      int index = actionStatesList.length;
+                      labelStatesList.add(
+                        LabelMenuItemState(
+                          label: newText,
+                          fontSize: 12,
+                          x: initialOffset + 100 + index * 10,
+                          y: MediaQuery.of(context).size.height - 350,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                      );
+                      _dumpStates();
+                      setState(() {});
+                    }
+                  },
+                  backgroundColor: Colors.green,
+                  child: Icon(Icons.font_download_outlined),
+                ),
               ),
-            ),
             if (!isInEdit && kDebugMode)
               Padding(
                 padding: const EdgeInsets.only(left: 8.0, right: 8),
                 child: FloatingActionButton(
                   heroTag: 'circle_menu_debug',
                   onPressed: () async {
-                    await _dumpStates(debug: true);
+                    await _debugStates();
                   },
                   backgroundColor: Colors.green,
                   child: Icon(Icons.bug_report_outlined),
@@ -283,10 +291,27 @@ class _CirclesMenuState extends State<CirclesMenu> {
     );
   }
 
-  Future<void> _dumpStates({bool debug = false}) async {
+  Future<void> _debugStates() async {
+    List<Map<String, dynamic>> states =
+        actionStatesList.map((m) => m.toMap()).toList();
+    List<Map<String, dynamic>> labels =
+        labelStatesList.map((m) => m.toMap()).toList();
+    Map<String, dynamic> data = {
+      'states': states,
+      'labels': labels,
+      'timestampMs': DateTime.now().millisecondsSinceEpoch,
+      'version': DUMP_VERSION,
+    };
+    String debugData = JsonEncoder.withIndent('    ').convert(data);
+    debugPrint('data = $debugData');
+  }
+
+  Future<void> _dumpStates() async {
     SharedPreferences sp = await SharedPreferences.getInstance();
-    List<Map<String, dynamic>> states = actionStatesList.map((m) => m.toMap()).toList();
-    List<Map<String, dynamic>> labels = labelStatesList.map((m) => m.toMap()).toList();
+    List<Map<String, dynamic>> states =
+        actionStatesList.map((m) => m.toMap()).toList();
+    List<Map<String, dynamic>> labels =
+        labelStatesList.map((m) => m.toMap()).toList();
 
     Map<String, dynamic> data = {
       'states': states,
@@ -296,10 +321,6 @@ class _CirclesMenuState extends State<CirclesMenu> {
     };
     String value = jsonEncode(data);
     await sp.setString(widget.config.spKey, value);
-    if (debug) {
-      String debugData = JsonEncoder.withIndent('    ').convert(data);
-      print('data = $debugData');
-    }
   }
 
   Future<void> _buildStateLists({bool reset = false}) async {

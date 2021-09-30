@@ -151,7 +151,7 @@ class CirclesMenuConfig {
   final String approveDialogTitle;
   final String moveToEditMessage;
   final String cancelEditsConfirmation;
-
+  final String editLabel;
   // key to hold the data in shared preferences
   final String spKey;
 
@@ -172,6 +172,7 @@ class CirclesMenuConfig {
     this.cancelEditsConfirmation =
         'Are you sure you want to cancel the current edits',
     this.moveToEditMessage = 'Press the edit icon to edit the menu',
+    this.editLabel = 'Edit label',
     this.spKey = 'circleButtons',
     this.onEditDone,
   });
