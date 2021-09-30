@@ -1,6 +1,6 @@
+import 'package:circles_menu/src/circle_box.dart';
 import 'package:flutter/material.dart';
 
-import 'circles_menu_button.dart';
 import 'circles_menu_models.dart';
 
 class CircleMenuActionButton extends StatefulWidget {
@@ -23,10 +23,10 @@ class CircleMenuActionButton extends StatefulWidget {
         required this.onPressed});
 
   @override
-  State<StatefulWidget> createState() => CircleMenuActionButtonState();
+  State<StatefulWidget> createState() => _CircleMenuActionButtonState();
 }
 
-class CircleMenuActionButtonState extends State<CircleMenuActionButton> {
+class _CircleMenuActionButtonState extends State<CircleMenuActionButton> {
   @override
   Widget build(BuildContext context) {
     return Positioned(
@@ -36,12 +36,14 @@ class CircleMenuActionButtonState extends State<CircleMenuActionButton> {
       bottom: widget.bottom,
       child: Align(
         alignment: Alignment.center,
-        child: CircleButton(
-          fillColor: Colors.red,
-          borderColor: null,
-          radius: 20,
-          onPressed: widget.onPressed,
-          child: widget.icon,
+        child: GestureDetector(
+          onTap: widget.onPressed,
+          child: CircleBox(
+            fillColor: Colors.red,
+            borderColor: null,
+            radius: 20,
+            child: widget.icon,
+          ),
         ),
       ),
     );

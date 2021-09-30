@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
+import 'circle_box.dart';
 import 'circles_menu_edit_button.dart';
 import 'circles_menu_models.dart';
 import 'circles_menu_utils.dart';
 
-class CircleMenuButton extends StatefulWidget {
+class MenuItemWidget extends StatefulWidget {
   final ActionMenuItemState data;
   final VoidCallback? onPressed;
   final VoidCallback onChange;
@@ -12,7 +13,7 @@ class CircleMenuButton extends StatefulWidget {
   final CirclesMenuConfig config;
   final bool isInEdit;
 
-  CircleMenuButton(
+  MenuItemWidget(
       {Key? key,
       required this.config,
       required this.isInEdit,
@@ -23,18 +24,10 @@ class CircleMenuButton extends StatefulWidget {
       : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => _CircleMenuButtonState();
+  State<StatefulWidget> createState() => _MenuItemWidgetState();
 }
 
-class _CircleMenuButtonState extends State<CircleMenuButton> {
-  // @override
-  // void initState() {
-  //   cx = this.widget.data.x;
-  //   cy = this.widget.data.y;
-  //   radius = this.widget.data.radius;
-  //   super.initState();
-  // }
-
+class _MenuItemWidgetState extends State<MenuItemWidget> {
   @override
   Widget build(BuildContext context) {
     double cx = widget.data.x;
@@ -110,6 +103,12 @@ class _CircleMenuButtonState extends State<CircleMenuButton> {
   }
 
   Widget _getMainButton() {
+    Widget emptyChild = CircleBox(
+      radius: widget.data.radius,
+      child: widget.data.widget,
+      fillColor: widget.data.actualFillColor,
+      borderColor: widget.data.borderColor,
+    );
     return Positioned(
       top: 0,
       left: 0,
@@ -121,21 +120,9 @@ class _CircleMenuButtonState extends State<CircleMenuButton> {
               },
               child: Draggable(
                 feedback: Container(
-                  child: CircleButton(
-                    radius: widget.data.radius,
-                    child: widget.data.widget,
-                    onPressed: null,
-                    fillColor: widget.data.actualFillColor,
-                    borderColor: widget.data.borderColor,
-                  ),
+                  child: emptyChild,
                 ),
-                child: CircleButton(
-                  radius: widget.data.radius,
-                  child: widget.data.widget,
-                  onPressed: null,
-                  fillColor: widget.data.actualFillColor,
-                  borderColor: widget.data.borderColor,
-                ),
+                child: emptyChild,
                 childWhenDragging: Container(),
                 onDragStarted: () {
                   widget.data.isDragged = true;
@@ -168,51 +155,13 @@ class _CircleMenuButtonState extends State<CircleMenuButton> {
                 );
                 ScaffoldMessenger.of(context).showSnackBar(snackBar);
               },
-              child: CircleButton(
-                radius: widget.data.radius,
-                child: widget.data.widget,
-                onPressed: widget.data.action.enabled ? widget.onPressed : null,
-                fillColor: widget.data.actualFillColor,
-                borderColor: widget.data.borderColor,
+              child: GestureDetector(
+                  onTap: widget.data.action.onPressed,
+                  child: emptyChild
               ),
             ),
     );
   }
 }
 
-class CircleButton extends StatelessWidget {
-  final double radius;
-  final Widget child;
-  final VoidCallback? onPressed;
-  final Color fillColor;
-  final Color? borderColor;
-
-  CircleButton(
-      {required this.radius,
-      required this.child,
-      required this.onPressed,
-      required this.fillColor,
-      required this.borderColor});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: radius * 2,
-      height: radius * 2,
-      child: new RawMaterialButton(
-        fillColor: fillColor,
-        shape: new CircleBorder(
-            side: borderColor != null
-                ? BorderSide(
-                    color: borderColor!,
-                    width: 3,
-                  )
-                : BorderSide.none),
-        elevation: 0.0,
-        child: child,
-        onPressed: onPressed,
-      ),
-    );
-  }
-}
 

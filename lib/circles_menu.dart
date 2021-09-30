@@ -7,7 +7,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'src/circles_menu_button.dart';
+import 'src/circles_menu_item_widget.dart';
 import 'src/circles_menu_confirm.dart';
 import 'src/circles_menu_models.dart';
 import 'src/circles_menu_pick_action_dialog.dart';
@@ -100,7 +100,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
   List<Widget> getItems() {
     List<Widget> result = [];
     for (var d in actionStatesList) {
-      result.add(CircleMenuButton(
+      result.add(MenuItemWidget(
         config: widget.config,
         data: d,
         isInEdit: this.isInEdit,
