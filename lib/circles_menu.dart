@@ -70,7 +70,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
     double maxX = (List<BaseMenuItemState>.from(this.labelStatesList) +
             List<BaseMenuItemState>.from(this.actionStatesList))
         .fold(1, (soFar, s2) => max(soFar, s2.x + s2.width));
-    return max(maxX + 10, pageWidth);
+    return max(maxX + 50, pageWidth);
   }
 
   @override
