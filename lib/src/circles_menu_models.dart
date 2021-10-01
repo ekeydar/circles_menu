@@ -144,6 +144,11 @@ class ActionMenuItemState extends BaseMenuItemState {
   }
 
   Color? get borderColor => null;
+
+  @override
+  String toString() {
+    return this.text;
+  }
 }
 
 class OpAction {
@@ -222,3 +227,4 @@ class RestoreFromStringData {
         actionMaps = [],
         labelMaps = [];
 }
+
