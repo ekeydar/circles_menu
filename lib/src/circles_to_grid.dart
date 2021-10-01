@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:circles_menu/circles_menu.dart';
-import 'package:flutter/foundation.dart';
 import 'package:collection/collection.dart';
 
 const double PAD_Y = 10;
