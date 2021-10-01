@@ -1,7 +1,8 @@
 import 'dart:math';
 
-import 'package:circles_menu/circles_menu.dart';
 import 'package:collection/collection.dart';
+
+import 'circles_menu_models.dart';
 
 const double PAD_Y = 10;
 const double PAD_X = 10;
