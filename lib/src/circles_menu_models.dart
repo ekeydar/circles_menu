@@ -22,16 +22,23 @@ abstract class BaseMenuItemState {
       'height': height,
     };
   }
+
   double get width;
+
   double get height;
+
   bool get canIncr;
+
   bool get canDecr;
+
   void incr();
+
   void decr();
+
   Color get color;
+
   set color(Color c);
 }
-
 
 class LabelMenuItemState extends BaseMenuItemState {
   double fontSize;
@@ -53,12 +60,14 @@ class LabelMenuItemState extends BaseMenuItemState {
         super(x: m['x'], y: m['y']);
 
   Map<String, dynamic> toMap() {
-    return super.toMap()..addAll({
-      'fontSize': fontSize,
-      'label': label,
-      'colorValue': color.value,
-    });
+    return super.toMap()
+      ..addAll({
+        'fontSize': fontSize,
+        'label': label,
+        'colorValue': color.value,
+      });
   }
+
   LabelMenuItemState clone() {
     return LabelMenuItemState(
       x: this.x,
@@ -69,14 +78,17 @@ class LabelMenuItemState extends BaseMenuItemState {
     );
   }
 
-  double get width => max(90, 20 + 0.6*fontSize * label.length);
+  double get width => max(90, 20 + 0.6 * fontSize * label.length);
 
   double get height => 50 + fontSize;
 
   bool get canIncr => fontSize < 34;
+
   bool get canDecr => fontSize > 16;
-  void incr() => fontSize+=2;
-  void decr() => fontSize-=2;
+
+  void incr() => fontSize += 2;
+
+  void decr() => fontSize -= 2;
 }
 
 class ActionMenuItemState extends BaseMenuItemState {
@@ -110,6 +122,7 @@ class ActionMenuItemState extends BaseMenuItemState {
   }
 
   Color get color => fillColor;
+
   set color(Color c) {
     fillColor = c;
   }
@@ -136,11 +149,12 @@ class ActionMenuItemState extends BaseMenuItemState {
       action.enabled ? fillColor : fillColor.withAlpha(100);
 
   Map<String, dynamic> toMap() {
-    return super.toMap()..addAll({
-      'radius': radius,
-      'actionCode': action.code,
-      'fillColorValue': fillColor.value,
-    });
+    return super.toMap()
+      ..addAll({
+        'radius': radius,
+        'actionCode': action.code,
+        'fillColorValue': fillColor.value,
+      });
   }
 
   Color? get borderColor => null;
@@ -151,12 +165,31 @@ class ActionMenuItemState extends BaseMenuItemState {
   }
 }
 
+class ActionsCategory {
+  final Icon icon;
+  final String code;
+  final int order;
+
+  ActionsCategory({required this.icon, required this.code, this.order=100});
+
+  static ActionsCategory defaultCategory = ActionsCategory(
+    icon: Icon(Icons.add),
+    code: 'default',
+    order: 1,
+  );
+
+  @override
+  String toString() {
+    return this.code;
+  }
+}
+
 class OpAction {
   final String title;
   final String code;
   final VoidCallback onPressed;
   final bool enabled;
-  final IconData categoryIconData;
+  final ActionsCategory category;
 
   static IconData defaultIconData = Icons.add;
 
@@ -164,8 +197,9 @@ class OpAction {
       {required this.title,
       required this.code,
       required this.onPressed,
-      categoryIconData,
-      this.enabled = true}) : this.categoryIconData = categoryIconData ?? defaultIconData;
+      ActionsCategory? category,
+      this.enabled = true})
+      : this.category = category ?? ActionsCategory.defaultCategory;
 
   @override
   String toString() {
@@ -185,6 +219,7 @@ class CirclesMenuConfig {
   final String moveToEditMessage;
   final String cancelEditsConfirmation;
   final String editLabelTitle;
+
   // key to hold the data in shared preferences
   final String spKey;
 
@@ -231,4 +266,3 @@ class RestoreFromStringData {
         actionMaps = [],
         labelMaps = [];
 }
-

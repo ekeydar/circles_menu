@@ -98,7 +98,12 @@ class CirclesMenuExampleState extends State<CirclesMenuExample> {
   }
 }
 
+
 List<OpAction> _getActions(context, {required int disabledIndex}) {
+  ActionsCategory bigCat = ActionsCategory(
+    icon: Icon(Icons.sports_tennis),
+    code: 'big'
+  );
   List<OpAction> result = [];
   for (int x = 1; x <= 15; x++) {
     String title = 'this is an action with long name $x';
@@ -106,7 +111,7 @@ List<OpAction> _getActions(context, {required int disabledIndex}) {
       code: 'action_$x',
       title: title,
       enabled: x != disabledIndex,
-      categoryIconData: x >= 10 ? Icons.title : null,
+      category: x >= 10 ? bigCat : null,
       onPressed: () {
         final snackBar = SnackBar(
           content: Text('clicked on $title'),

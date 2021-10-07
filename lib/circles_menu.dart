@@ -166,14 +166,9 @@ class _CirclesMenuState extends State<CirclesMenu> {
     return result;
   }
 
-  List<IconData> get addIconList {
-    Set<IconData> icons = widget.actions.map((a) => a.categoryIconData).toSet();
-    // make sure the add is +
-    if (icons.length > 1 && icons.contains(Icons.add)) {
-      icons.remove(Icons.add);
-      return [Icons.add] + icons.toList();
-    }
-    return icons.toList();
+  List<ActionsCategory> get actionsCategories {
+    List<ActionsCategory> icons = widget.actions.map((a) => a.category).toSet().toList();
+    return icons..sort((c1, c2) => c1.order.compareTo(c2.order));
   }
 
   Widget getButtons(context) {
@@ -290,17 +285,17 @@ class _CirclesMenuState extends State<CirclesMenu> {
                                 child: Icon(Icons.auto_delete),
                               ),
                             ),
-                          for (var icon in addIconList)
+                          for (var cat in actionsCategories)
                             Padding(
                               padding:
                                   const EdgeInsets.only(left: 8.0, right: 8),
                               child: FloatingActionButton(
-                                heroTag: 'circle_menu_add_${icon.codePoint}',
+                                heroTag: 'circle_menu_add_${cat.code}',
                                 onPressed: () async {
                                   OpAction? newAction = await pickAction(
                                       widget.actions
                                           .where((a) =>
-                                              a.categoryIconData == icon)
+                                              a.category == cat)
                                           .toList());
                                   if (newAction != null) {
                                     int index = actionStatesList.length;
@@ -321,7 +316,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
                                   }
                                 },
                                 backgroundColor: Colors.green,
-                                child: Icon(icon),
+                                child: cat.icon,
                               ),
                             ),
                           Padding(
