@@ -177,8 +177,6 @@ class _CirclesMenuState extends State<CirclesMenu> {
   }
 
   Widget getButtons(context) {
-    print(Icons.add.codePoint.toRadixString(16));
-    print(Icons.add);
     bool isRtl = Directionality.of(context) == TextDirection.rtl;
     MainAxisAlignment mainAlignment =
         isRtl ? MainAxisAlignment.end : MainAxisAlignment.start;
@@ -297,7 +295,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
                               padding:
                                   const EdgeInsets.only(left: 8.0, right: 8),
                               child: FloatingActionButton(
-                                heroTag: 'circle_menu_add_',
+                                heroTag: 'circle_menu_add_${icon.codePoint}',
                                 onPressed: () async {
                                   OpAction? newAction = await pickAction(
                                       widget.actions
