@@ -166,7 +166,7 @@ class ActionMenuItemState extends BaseMenuItemState {
 }
 
 class ActionsCategory {
-  final Icon icon;
+  final Widget icon;
   final String code;
   final int order;
 
