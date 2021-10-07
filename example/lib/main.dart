@@ -106,6 +106,7 @@ List<OpAction> _getActions(context, {required int disabledIndex}) {
       code: 'action_$x',
       title: title,
       enabled: x != disabledIndex,
+      categoryIconData: x >= 10 ? Icons.title : null,
       onPressed: () {
         final snackBar = SnackBar(
           content: Text('clicked on $title'),

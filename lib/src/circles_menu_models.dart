@@ -156,12 +156,16 @@ class OpAction {
   final String code;
   final VoidCallback onPressed;
   final bool enabled;
+  final IconData categoryIconData;
+
+  static IconData defaultIconData = Icons.add;
 
   OpAction(
       {required this.title,
       required this.code,
       required this.onPressed,
-      this.enabled = true});
+      categoryIconData,
+      this.enabled = true}) : this.categoryIconData = categoryIconData ?? defaultIconData;
 
   @override
   String toString() {

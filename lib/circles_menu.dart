@@ -47,7 +47,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
   List<LabelMenuItemState> _beforeLabelStatesList = [];
   double initialOffset = 0;
   bool isInEdit = false;
-  late double menuWidth;
+  late double menuEditWidth;
 
   @override
   void initState() {
@@ -96,7 +96,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
           controller: _controller,
           child: Container(
               color: kDebugMode ? Colors.red.withAlpha(100) : null,
-              width: menuWidth,
+              width: this.isInEdit ? menuEditWidth : getMinWidth(), 
               child: Stack(
                   clipBehavior: Clip.none,
                   children: [getButtons(context)] + getItems())),
@@ -166,7 +166,19 @@ class _CirclesMenuState extends State<CirclesMenu> {
     return result;
   }
 
+  List<IconData> get addIconList {
+    Set<IconData> icons = widget.actions.map((a) => a.categoryIconData).toSet();
+    // make sure the add is +
+    if (icons.length > 1 && icons.contains(Icons.add)) {
+      icons.remove(Icons.add);
+      return [Icons.add] + icons.toList();
+    }
+    return icons.toList();
+  }
+
   Widget getButtons(context) {
+    print(Icons.add.codePoint.toRadixString(16));
+    print(Icons.add);
     bool isRtl = Directionality.of(context) == TextDirection.rtl;
     MainAxisAlignment mainAlignment =
         isRtl ? MainAxisAlignment.end : MainAxisAlignment.start;
@@ -229,7 +241,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
                           child: FloatingActionButton(
                             heroTag: 'circle_menu_add_page',
                             onPressed: () async {
-                              menuWidth += pageWidth;
+                              menuEditWidth += pageWidth;
                               setState(() {});
                             },
                             backgroundColor: Colors.green,
@@ -245,7 +257,8 @@ class _CirclesMenuState extends State<CirclesMenu> {
                         isRtl,
                         [
                           Padding(
-                            padding: const EdgeInsets.only(left: 8.0, right: 8),
+                            padding:
+                                const EdgeInsets.only(left: 8.0, right: 8),
                             child: FloatingActionButton(
                               heroTag: 'circle_menu_delete',
                               onPressed: () async {
@@ -268,8 +281,8 @@ class _CirclesMenuState extends State<CirclesMenu> {
                               child: FloatingActionButton(
                                 heroTag: 'circle_menu_reset',
                                 onPressed: () async {
-                                  if (await askConfirmation(
-                                      context, widget.config.resetConfirmation,
+                                  if (await askConfirmation(context,
+                                      widget.config.resetConfirmation,
                                       config: widget.config)) {
                                     await _buildStateLists(reset: true);
                                     onChange();
@@ -279,33 +292,43 @@ class _CirclesMenuState extends State<CirclesMenu> {
                                 child: Icon(Icons.auto_delete),
                               ),
                             ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 8.0, right: 8),
-                            child: FloatingActionButton(
-                              heroTag: 'circle_menu_add',
-                              onPressed: () async {
-                                OpAction? newAction = await pickAction();
-                                if (newAction != null) {
-                                  int index = actionStatesList.length;
-                                  actionStatesList.add(
-                                    ActionMenuItemState(
-                                      action: newAction,
-                                      x: initialOffset + 100 + index * 10,
-                                      y: MediaQuery.of(context).size.height -
-                                          350,
-                                      radius: 50,
-                                      fillColor: Theme.of(context).primaryColor,
-                                    ),
-                                  );
-                                  onChange();
-                                }
-                              },
-                              backgroundColor: Colors.green,
-                              child: Icon(Icons.add),
+                          for (var icon in addIconList)
+                            Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 8.0, right: 8),
+                              child: FloatingActionButton(
+                                heroTag: 'circle_menu_add_',
+                                onPressed: () async {
+                                  OpAction? newAction = await pickAction(
+                                      widget.actions
+                                          .where((a) =>
+                                              a.categoryIconData == icon)
+                                          .toList());
+                                  if (newAction != null) {
+                                    int index = actionStatesList.length;
+                                    actionStatesList.add(
+                                      ActionMenuItemState(
+                                        action: newAction,
+                                        x: initialOffset + 100 + index * 10,
+                                        y: MediaQuery.of(context)
+                                                .size
+                                                .height -
+                                            350,
+                                        radius: 50,
+                                        fillColor:
+                                            Theme.of(context).primaryColor,
+                                      ),
+                                    );
+                                    onChange();
+                                  }
+                                },
+                                backgroundColor: Colors.green,
+                                child: Icon(icon),
+                              ),
                             ),
-                          ),
                           Padding(
-                            padding: const EdgeInsets.only(left: 8.0, right: 8),
+                            padding:
+                                const EdgeInsets.only(left: 8.0, right: 8),
                             child: FloatingActionButton(
                               heroTag: 'circle_menu_add_label',
                               onPressed: () async {
@@ -333,18 +356,19 @@ class _CirclesMenuState extends State<CirclesMenu> {
                             ),
                           ),
                           if (this.actionStatesList.isNotEmpty)
-                          Padding(
-                            padding: const EdgeInsets.only(left: 8.0, right: 8),
-                            child: FloatingActionButton(
-                              heroTag: 'circle_menu_auto_order',
-                              onPressed: () async {
+                            Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 8.0, right: 8),
+                              child: FloatingActionButton(
+                                heroTag: 'circle_menu_auto_order',
+                                onPressed: () async {
                                   modifyCirclesToGrid(this.actionStatesList);
                                   onChange();
-                              },
-                              backgroundColor: Colors.green,
-                              child: Icon(Icons.grid_on),
-                            ),
-                          )
+                                },
+                                backgroundColor: Colors.green,
+                                child: Icon(Icons.grid_on),
+                              ),
+                            )
                         ],
                       ),
                     ),
@@ -465,7 +489,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
     labelStatesList = restoreData.labelMaps
         .map((m) => LabelMenuItemState.fromMap(m))
         .toList();
-    menuWidth = getMinWidth();
+    menuEditWidth = getMinWidth() + pageWidth;
   }
 
   RestoreFromStringData restoreFromStringSafe(String? dumpText) {
@@ -486,9 +510,8 @@ class _CirclesMenuState extends State<CirclesMenu> {
     }
   }
 
-  Future<OpAction?> pickAction() async {
+  Future<OpAction?> pickAction(List<OpAction> actions) async {
     Set<String> curCodes = actionStatesList.map((d) => d.action.code).toSet();
-    List<OpAction> actions = List<OpAction>.from(widget.actions);
     actions.sort((a1, a2) => a1.title.compareTo(a2.title));
     return await showDialog<OpAction>(
         context: context,
