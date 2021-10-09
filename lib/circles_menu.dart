@@ -96,7 +96,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
           controller: _controller,
           child: Container(
               color: kDebugMode ? Colors.red.withAlpha(100) : null,
-              width: this.isInEdit ? menuEditWidth : getMinWidth(), 
+              width: this.isInEdit ? menuEditWidth : getMinWidth(),
               child: Stack(
                   clipBehavior: Clip.none,
                   children: [getButtons(context)] + getItems())),
@@ -167,7 +167,8 @@ class _CirclesMenuState extends State<CirclesMenu> {
   }
 
   List<ActionsCategory> get actionsCategories {
-    List<ActionsCategory> icons = widget.actions.map((a) => a.category).toSet().toList();
+    List<ActionsCategory> icons =
+        widget.actions.map((a) => a.category).toSet().toList();
     return icons..sort((c1, c2) => c1.order.compareTo(c2.order));
   }
 
@@ -250,8 +251,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
                         isRtl,
                         [
                           Padding(
-                            padding:
-                                const EdgeInsets.only(left: 8.0, right: 8),
+                            padding: const EdgeInsets.only(left: 8.0, right: 8),
                             child: FloatingActionButton(
                               heroTag: 'circle_menu_delete',
                               onPressed: () async {
@@ -274,8 +274,8 @@ class _CirclesMenuState extends State<CirclesMenu> {
                               child: FloatingActionButton(
                                 heroTag: 'circle_menu_reset',
                                 onPressed: () async {
-                                  if (await askConfirmation(context,
-                                      widget.config.resetConfirmation,
+                                  if (await askConfirmation(
+                                      context, widget.config.resetConfirmation,
                                       config: widget.config)) {
                                     await _buildStateLists(reset: true);
                                     onChange();
@@ -292,20 +292,27 @@ class _CirclesMenuState extends State<CirclesMenu> {
                               child: FloatingActionButton(
                                 heroTag: 'circle_menu_add_${cat.code}',
                                 onPressed: () async {
-                                  OpAction? newAction = await pickAction(
-                                      widget.actions
-                                          .where((a) =>
-                                              a.category == cat)
-                                          .toList());
+                                  if (cat.prompt) {
+                                    bool cont = await askConfirmation(
+                                      context,
+                                      cat.promptText,
+                                      config: widget.config,
+                                    );
+                                    if (!cont) {
+                                      return;
+                                    }
+                                  }
+                                  OpAction? newAction = await pickAction(widget
+                                      .actions
+                                      .where((a) => a.category == cat)
+                                      .toList());
                                   if (newAction != null) {
                                     int index = actionStatesList.length;
                                     actionStatesList.add(
                                       ActionMenuItemState(
                                         action: newAction,
                                         x: initialOffset + 100 + index * 10,
-                                        y: MediaQuery.of(context)
-                                                .size
-                                                .height -
+                                        y: MediaQuery.of(context).size.height -
                                             350,
                                         radius: 50,
                                         fillColor:
@@ -320,8 +327,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
                               ),
                             ),
                           Padding(
-                            padding:
-                                const EdgeInsets.only(left: 8.0, right: 8),
+                            padding: const EdgeInsets.only(left: 8.0, right: 8),
                             child: FloatingActionButton(
                               heroTag: 'circle_menu_add_label',
                               onPressed: () async {

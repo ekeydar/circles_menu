@@ -169,13 +169,17 @@ class ActionsCategory {
   final Widget icon;
   final String code;
   final int order;
+  final bool prompt;
+  final String promptText;
 
-  ActionsCategory({required this.icon, required this.code, this.order=100});
+  ActionsCategory({required this.icon, required this.code, this.order=100, required this.prompt, required this.promptText});
 
   static ActionsCategory defaultCategory = ActionsCategory(
     icon: Icon(Icons.add),
     code: 'default',
     order: 1,
+    prompt: false,
+    promptText: 'Are you sure you want to create new item',
   );
 
   @override

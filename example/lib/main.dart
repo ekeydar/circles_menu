@@ -102,7 +102,9 @@ class CirclesMenuExampleState extends State<CirclesMenuExample> {
 List<OpAction> _getActions(context, {required int disabledIndex}) {
   ActionsCategory bigCat = ActionsCategory(
     icon: Icon(Icons.sports_tennis),
-    code: 'big'
+    code: 'big',
+    prompt: true,
+    promptText: 'really? really? really?'
   );
   List<OpAction> result = [];
   for (int x = 1; x <= 15; x++) {
