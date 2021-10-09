@@ -274,8 +274,8 @@ class _CirclesMenuState extends State<CirclesMenu> {
                               child: FloatingActionButton(
                                 heroTag: 'circle_menu_reset',
                                 onPressed: () async {
-                                  if (await askConfirmation(
-                                      context, widget.config.resetConfirmation,
+                                  if (await askConfirmation(context,
+                                      widget.config.resetConfirmation,
                                       config: widget.config)) {
                                     await _buildStateLists(reset: true);
                                     onChange();
@@ -292,16 +292,6 @@ class _CirclesMenuState extends State<CirclesMenu> {
                               child: FloatingActionButton(
                                 heroTag: 'circle_menu_add_${cat.code}',
                                 onPressed: () async {
-                                  if (cat.promptCallback()) {
-                                    bool cont = await askConfirmation(
-                                      context,
-                                      cat.promptText,
-                                      config: widget.config,
-                                    );
-                                    if (!cont) {
-                                      return;
-                                    }
-                                  }
                                   OpAction? newAction = await pickAction(widget
                                       .actions
                                       .where((a) => a.category == cat)
