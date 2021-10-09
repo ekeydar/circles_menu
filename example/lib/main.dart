@@ -103,7 +103,7 @@ List<OpAction> _getActions(context, {required int disabledIndex}) {
   ActionsCategory bigCat = ActionsCategory(
     icon: Icon(Icons.sports_tennis),
     code: 'big',
-    prompt: true,
+    promptAsync: () async => true,
     promptText: 'really? really? really?'
   );
   List<OpAction> result = [];

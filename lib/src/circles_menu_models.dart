@@ -165,20 +165,27 @@ class ActionMenuItemState extends BaseMenuItemState {
   }
 }
 
+typedef Future<bool> BoolAsyncFunction();
+
 class ActionsCategory {
   final Widget icon;
   final String code;
   final int order;
-  final bool prompt;
+  final BoolAsyncFunction promptAsync;
   final String promptText;
 
-  ActionsCategory({required this.icon, required this.code, this.order=100, required this.prompt, required this.promptText});
+  ActionsCategory(
+      {required this.icon,
+      required this.code,
+      this.order = 100,
+      required this.promptAsync,
+      required this.promptText});
 
   static ActionsCategory defaultCategory = ActionsCategory(
     icon: Icon(Icons.add),
     code: 'default',
     order: 1,
-    prompt: false,
+    promptAsync: () async => false,
     promptText: 'Are you sure you want to create new item',
   );
 
