@@ -292,7 +292,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
                               child: FloatingActionButton(
                                 heroTag: 'circle_menu_add_${cat.code}',
                                 onPressed: () async {
-                                  if (await cat.promptAsync()) {
+                                  if (cat.promptCallback()) {
                                     bool cont = await askConfirmation(
                                       context,
                                       cat.promptText,
