@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:circles_menu/src/circle_menu_page.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -88,20 +89,26 @@ class _CirclesMenuState extends State<CirclesMenu> {
         st.action = actionsByCode[c]!;
       });
 
-      return Scrollbar(
-        controller: _controller,
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          reverse: Directionality.of(context) == TextDirection.rtl,
-          controller: _controller,
-          child: Container(
-              color: kDebugMode ? Colors.red.withAlpha(100) : null,
-              width: this.isInEdit ? menuEditWidth : getMinWidth(),
-              child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [getButtons(context)] + getItems())),
+      return PageView(children: [
+        CircleMenuPage(
+          index: 0,
+          items: this.getItems(),
+          buttons: this.getButtons(context),
+          color: Colors.blue,
         ),
-      );
+        CircleMenuPage(
+          index: 1,
+          items: this.getItems(),
+          buttons: this.getButtons(context),
+          color: Colors.red,
+        ),
+        CircleMenuPage(
+          index: 2,
+          items: this.getItems(),
+          buttons: this.getButtons(context),
+          color: Colors.green,
+        ),
+      ]);
     } else {
       return Center(
         child: Text(
@@ -274,8 +281,8 @@ class _CirclesMenuState extends State<CirclesMenu> {
                               child: FloatingActionButton(
                                 heroTag: 'circle_menu_reset',
                                 onPressed: () async {
-                                  if (await askConfirmation(context,
-                                      widget.config.resetConfirmation,
+                                  if (await askConfirmation(
+                                      context, widget.config.resetConfirmation,
                                       config: widget.config)) {
                                     await _buildStateLists(reset: true);
                                     onChange();
