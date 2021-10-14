@@ -173,6 +173,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
     bool isRtl = Directionality.of(context) == TextDirection.rtl;
     MainAxisAlignment mainAlignment =
         isRtl ? MainAxisAlignment.end : MainAxisAlignment.start;
+    bool isLastPage = (1 + pageIndex) == this.curNumPages;
     return Align(
       alignment: Alignment.bottomCenter,
       child: Padding(
@@ -245,6 +246,22 @@ class _CirclesMenuState extends State<CirclesMenu> {
                                 },
                                 backgroundColor: Colors.red,
                                 child: Icon(Icons.auto_delete),
+                              ),
+                            ),
+                          if (isLastPage)
+                            Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 8.0, right: 8),
+                              child: FloatingActionButton(
+                                heroTag: 'circle_menu_add_page',
+                                onPressed: () async {
+                                  int newIndex = numPagesInEdit;
+                                  numPagesInEdit++;
+                                  onChange();
+                                  this._pageController.jumpToPage(newIndex);
+                                },
+                                backgroundColor: Colors.red,
+                                child: Icon(Icons.pages),
                               ),
                             ),
                         ],
@@ -379,6 +396,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
                               .toList();
                           setState(() {
                             this.isInEdit = true;
+                            numPagesInEdit = curNumPages;
                           });
                         },
                         backgroundColor: Colors.red,
