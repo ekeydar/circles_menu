@@ -9,8 +9,9 @@ abstract class BaseMenuItemState {
   bool isDeleted = false;
   bool showActions = false;
   bool isDragged = false;
+  int pageIndex; // zero based
 
-  BaseMenuItemState({required this.x, required this.y});
+  BaseMenuItemState({required this.x, required this.y, required this.pageIndex});
 
   @mustCallSuper
   Map<String, dynamic> toMap() {
@@ -20,6 +21,7 @@ abstract class BaseMenuItemState {
       // width and height are not really needed, just as extra (not used on restore)
       'width': width,
       'height': height,
+      'pageIndex': pageIndex,
     };
   }
 
@@ -38,6 +40,9 @@ abstract class BaseMenuItemState {
   Color get color;
 
   set color(Color c);
+
+  double get maxX => x + width;
+  double get maxY => y + height;
 }
 
 class LabelMenuItemState extends BaseMenuItemState {
@@ -48,16 +53,17 @@ class LabelMenuItemState extends BaseMenuItemState {
   LabelMenuItemState(
       {required double x,
       required double y,
+        required int pageIndex,
       required this.fontSize,
       required this.color,
       required this.label})
-      : super(x: x, y: y);
+      : super(x: x, y: y, pageIndex: pageIndex);
 
   LabelMenuItemState.fromMap(Map<String, dynamic> m)
       : color = Color(m['colorValue']),
         fontSize = m['fontSize'],
         label = m['label'],
-        super(x: m['x'], y: m['y']);
+        super(pageIndex: m['pageIndex'] ?? 0, x: m['x'], y: m['y']);
 
   Map<String, dynamic> toMap() {
     return super.toMap()
@@ -75,6 +81,7 @@ class LabelMenuItemState extends BaseMenuItemState {
       fontSize: this.fontSize,
       label: this.label,
       color: this.color,
+      pageIndex: this.pageIndex,
     );
   }
 
@@ -99,17 +106,18 @@ class ActionMenuItemState extends BaseMenuItemState {
   ActionMenuItemState(
       {required double x,
       required double y,
+        required int pageIndex,
       required this.radius,
       required this.action,
       required this.fillColor})
-      : super(x: x, y: y);
+      : super(x: x, y: y, pageIndex: pageIndex);
 
   ActionMenuItemState.fromMap(Map<String, dynamic> m,
       {required Map<String, OpAction> actionsByCode})
       : action = actionsByCode[m['actionCode']]!,
         fillColor = Color(m['fillColorValue']),
         radius = m['radius'],
-        super(x: m['x'], y: m['y']);
+        super(x: m['x'], y: m['y'], pageIndex: m['pageIndex'] ?? 0);
 
   ActionMenuItemState clone() {
     return ActionMenuItemState(
@@ -118,6 +126,7 @@ class ActionMenuItemState extends BaseMenuItemState {
       action: this.action,
       fillColor: this.fillColor,
       radius: this.radius,
+      pageIndex: this.pageIndex,
     );
   }
 
@@ -213,13 +222,14 @@ class CirclesMenuConfig {
   final String accept;
   final String cancel;
   final String pickAction;
-  final String deleteAllConfirmation;
+  final String emptyPageConfirmation;
   final String resetConfirmation;
   final String approveDialogTitle;
   final String moveToEditMessage;
   final String cancelEditsConfirmation;
   final String editLabelTitle;
-
+  final String swapWithNextPageConfirmation;
+  final String swapWithPrevPageConfirmation;
   // key to hold the data in shared preferences
   final String spKey;
 
@@ -232,16 +242,19 @@ class CirclesMenuConfig {
     this.accept = 'Accept',
     this.cancel = 'Cancel',
     this.pickAction = 'Pick action',
-    this.deleteAllConfirmation =
-        'Are you sure you want to delete the current menu',
+    this.emptyPageConfirmation =
+        'Are you sure you want to empty the current page',
     this.resetConfirmation =
         'Are you sure you want to delete the current menu and restore the defaults',
     this.approveDialogTitle = 'Action approval',
     this.cancelEditsConfirmation =
         'Are you sure you want to cancel the current edits',
     this.moveToEditMessage = 'Press the edit icon to edit the menu',
+    this.swapWithPrevPageConfirmation = 'Replace this page with the previous page?',
+    this.swapWithNextPageConfirmation = 'Replace this page with the next page?',
     this.editLabelTitle = 'Edit label',
     this.spKey = 'circleButtons',
+
     this.onEditDone,
   });
 

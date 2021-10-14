@@ -8,6 +8,7 @@ import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'src/circle_box.dart';
+import 'src/circle_menu_page.dart';
 import 'src/circles_menu_confirm.dart';
 import 'src/circles_menu_item_widget.dart';
 import 'src/circles_menu_models.dart';
@@ -18,7 +19,7 @@ import 'src/label_menu_button.dart';
 
 export 'src/circles_menu_models.dart';
 
-const int DUMP_VERSION = 2;
+const int DUMP_VERSION = 3;
 
 class CirclesMenu extends StatefulWidget {
   final CirclesMenuConfig config;
@@ -39,7 +40,6 @@ class CirclesMenu extends StatefulWidget {
 }
 
 class _CirclesMenuState extends State<CirclesMenu> {
-  late ScrollController _controller;
   bool _ready = false;
   late List<ActionMenuItemState> actionStatesList;
   late List<LabelMenuItemState> labelStatesList;
@@ -47,7 +47,8 @@ class _CirclesMenuState extends State<CirclesMenu> {
   List<LabelMenuItemState> _beforeLabelStatesList = [];
   double initialOffset = 0;
   bool isInEdit = false;
-  late double menuEditWidth;
+  late int numPagesInEdit;
+  PageController _pageController = PageController();
 
   @override
   void initState() {
@@ -55,23 +56,22 @@ class _CirclesMenuState extends State<CirclesMenu> {
     _prepare();
   }
 
+  int get curNumPages {
+    return max(
+        this.actionStatesList.fold<int>(
+            1, (int m, ActionMenuItemState s) => max(m, s.pageIndex + 1)),
+        this.labelStatesList.fold<int>(
+            1, (int m, LabelMenuItemState s) => max(m, s.pageIndex + 1)));
+  }
+
   Future<void> _prepare() async {
     await Future.delayed(Duration(milliseconds: 2));
     initialOffset = 0;
-    _controller = ScrollController(initialScrollOffset: initialOffset);
     await _buildStateLists();
+    numPagesInEdit = curNumPages;
     setState(() {
       _ready = true;
     });
-  }
-
-  double get pageWidth => MediaQuery.of(context).size.width;
-
-  double getMinWidth() {
-    double maxX = (List<BaseMenuItemState>.from(this.labelStatesList) +
-            List<BaseMenuItemState>.from(this.actionStatesList))
-        .fold(1, (soFar, s2) => max(soFar, s2.x + s2.width));
-    return max(maxX + 50, pageWidth);
   }
 
   @override
@@ -87,20 +87,20 @@ class _CirclesMenuState extends State<CirclesMenu> {
         String c = st.action.code;
         st.action = actionsByCode[c]!;
       });
-
-      return Scrollbar(
-        controller: _controller,
-        child: SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          reverse: Directionality.of(context) == TextDirection.rtl,
-          controller: _controller,
-          child: Container(
-              color: kDebugMode ? Colors.red.withAlpha(100) : null,
-              width: this.isInEdit ? menuEditWidth : getMinWidth(),
-              child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [getButtons(context)] + getItems())),
-        ),
+      List<Color> colors = [Colors.red, Colors.green, Colors.blue];
+      int numPages = this.isInEdit ? numPagesInEdit : curNumPages;
+      return PageView(
+        controller: _pageController,
+        children: [
+          for (var pi = 0; pi < numPages; pi++)
+            CircleMenuPage(
+              key: Key('$pi/$numPages'),
+              index: pi,
+              items: this.getItems(pageIndex: pi),
+              buttons: this.getButtons(context, pageIndex: pi),
+              color: colors[pi % colors.length],
+            ),
+        ],
       );
     } else {
       return Center(
@@ -111,16 +111,69 @@ class _CirclesMenuState extends State<CirclesMenu> {
     }
   }
 
+  List<BaseMenuItemState> get allLabelsAndActions =>
+      List<BaseMenuItemState>.from(actionStatesList) +
+      List<BaseMenuItemState>.from(labelStatesList);
+
+  void _fixCoordinatesIfTooSmall() {
+    Size pageSize = MediaQuery.of(context).size;
+    double maxX = pageSize.width;
+    double maxY = pageSize.height;
+    for (BaseMenuItemState s in this.allLabelsAndActions) {
+      if (s.maxX > maxX) {
+        double offset = s.maxX - maxX;
+        // if this is bit out of the page, this is ok
+        if (offset > s.width / 3) {
+          s.x = max(0, s.x - offset);
+          debugPrint('Moved in x!!!!');
+        }
+      }
+      if (s.maxY > maxY) {
+        double offset = s.maxY - maxY;
+        // if this is bit out of the page, this is ok
+        if (offset > s.height / 3) {
+          s.y = max(0, s.y - offset);
+          debugPrint('Moved in y!!!!');
+        }
+      }
+    }
+  }
+
+  void _removeEmptyPages() {
+    Map<int, List<BaseMenuItemState>> byPage =
+        Map<int, List<BaseMenuItemState>>();
+    for (BaseMenuItemState s in allLabelsAndActions) {
+      if (byPage.containsKey(s.pageIndex)) {
+        byPage[s.pageIndex]!.add(s);
+      } else {
+        byPage[s.pageIndex] = [s];
+      }
+    }
+    List<int> keys = byPage.keys.toList()..sort((k1, k2) => k1.compareTo(k2));
+    int nextIndex = 0;
+    for (int k in keys) {
+      byPage[k]!.forEach((s) {
+        s.pageIndex = nextIndex;
+      });
+      nextIndex++;
+    }
+  }
+
   void onChange() {
     actionStatesList.removeWhere((d) => d.isDeleted);
     labelStatesList.removeWhere((d) => d.isDeleted);
+    if (!isInEdit &&
+        actionStatesList.isNotEmpty &&
+        labelStatesList.isNotEmpty) {
+      _removeEmptyPages();
+    }
     _dumpStates();
     setState(() {});
   }
 
-  List<Widget> getItems() {
+  List<Widget> getItems({required int pageIndex}) {
     List<Widget> result = [];
-    for (var d in actionStatesList) {
+    for (var d in actionStatesList.where((pi) => pi.pageIndex == pageIndex)) {
       result.add(MenuItemWidget(
         config: widget.config,
         data: d,
@@ -143,14 +196,12 @@ class _CirclesMenuState extends State<CirclesMenu> {
           borderColor: d.borderColor,
         ),
         onChange: this.onChange,
-        controller: _controller,
       ));
     }
-    for (var d in labelStatesList) {
+    for (var d in labelStatesList.where((pi) => pi.pageIndex == pageIndex)) {
       result.add(MenuItemWidget(
         config: widget.config,
         isInEdit: this.isInEdit,
-        controller: _controller,
         data: d,
         onChange: this.onChange,
         onPressed: null,
@@ -159,7 +210,6 @@ class _CirclesMenuState extends State<CirclesMenu> {
           data: d,
           isInEdit: this.isInEdit,
           onChange: this.onChange,
-          controller: _controller,
         ),
       ));
     }
@@ -172,13 +222,33 @@ class _CirclesMenuState extends State<CirclesMenu> {
     return icons..sort((c1, c2) => c1.order.compareTo(c2.order));
   }
 
-  Widget getButtons(context) {
+  List<Widget> getButtons(BuildContext context, {required int pageIndex}) {
     bool isRtl = Directionality.of(context) == TextDirection.rtl;
     MainAxisAlignment mainAlignment =
         isRtl ? MainAxisAlignment.end : MainAxisAlignment.start;
-    return Align(
-      alignment: Alignment.bottomCenter,
-      child: Padding(
+    List<Widget> result = [];
+    if (isInEdit) {
+      Widget? startCenterWidget = getPageCenterColumn(
+        pageIndex: pageIndex,
+        numPages: numPagesInEdit,
+        isStartSide: true,
+      );
+      Widget? endCentertWidget = getPageCenterColumn(
+        pageIndex: pageIndex,
+        numPages: numPagesInEdit,
+        isStartSide: false,
+      );
+      if (startCenterWidget != null) {
+        result.add(startCenterWidget);
+      }
+      if (endCentertWidget != null) {
+        result.add(endCentertWidget);
+      }
+    }
+    result.add(
+      Align(
+        alignment: Alignment.bottomCenter,
+        child: Padding(
           padding: const EdgeInsets.all(16),
           child: (isInEdit)
               ? Column(
@@ -186,63 +256,71 @@ class _CirclesMenuState extends State<CirclesMenu> {
                   children: [
                     Row(
                       mainAxisAlignment: mainAlignment,
-                      children: reverseIfTrue(isRtl, [
-                        Padding(
-                          padding: const EdgeInsets.only(left: 8.0, right: 8),
-                          child: FloatingActionButton(
-                            heroTag: 'circles_menu_approve_edit',
-                            onPressed: () async {
-                              if (widget.config.onEditDone != null) {
-                                widget.config.onEditDone!();
-                              }
-                              setState(() {
+                      children: reverseIfTrue(
+                        isRtl,
+                        [
+                          Padding(
+                            padding: const EdgeInsets.only(left: 8.0, right: 8),
+                            child: FloatingActionButton(
+                              heroTag: 'circles_menu_approve_edit',
+                              onPressed: () async {
                                 this.isInEdit = false;
                                 this.actionStatesList.forEach((s) {
                                   s.showActions = false;
                                 });
-                              });
-                            },
-                            backgroundColor: Colors.green,
-                            child: Icon(Icons.check),
+                                this.onChange();
+                                if (widget.config.onEditDone != null) {
+                                  widget.config.onEditDone!();
+                                }
+                              },
+                              backgroundColor: Colors.green,
+                              child: Icon(Icons.check),
+                            ),
                           ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 8.0, right: 8),
-                          child: FloatingActionButton(
-                            heroTag: 'circle_menu_cancel_edit',
-                            onPressed: () async {
-                              if (await askConfirmation(context,
-                                  widget.config.cancelEditsConfirmation,
-                                  config: widget.config)) {
-                                setState(() {
-                                  this.actionStatesList = this
-                                      ._beforeActionStatesList
-                                      .map((d) => d.clone())
-                                      .toList();
-                                  this.labelStatesList = this
-                                      ._beforeLabelStatesList
-                                      .map((d) => d.clone())
-                                      .toList();
-                                });
-                              }
-                            },
-                            backgroundColor: Colors.red,
-                            child: Icon(Icons.cancel),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 8.0, right: 8),
+                            child: FloatingActionButton(
+                              heroTag: 'circle_menu_cancel_edit',
+                              onPressed: () async {
+                                if (await askConfirmation(context,
+                                    widget.config.cancelEditsConfirmation,
+                                    config: widget.config)) {
+                                  setState(() {
+                                    this.actionStatesList = this
+                                        ._beforeActionStatesList
+                                        .map((d) => d.clone())
+                                        .toList();
+                                    this.labelStatesList = this
+                                        ._beforeLabelStatesList
+                                        .map((d) => d.clone())
+                                        .toList();
+                                  });
+                                }
+                              },
+                              backgroundColor: Colors.red,
+                              child: Icon(Icons.cancel),
+                            ),
                           ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 8.0, right: 8),
-                          child: FloatingActionButton(
-                            heroTag: 'circle_menu_add_page',
-                            onPressed: () async {
-                              menuEditWidth += pageWidth;
-                              setState(() {});
-                            },
-                            backgroundColor: Colors.green,
-                            child: Icon(Icons.zoom_out_map_outlined),
-                          ),
-                        ),
-                      ]),
+                          if (widget.defaultDump != null)
+                            Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 8.0, right: 8),
+                              child: FloatingActionButton(
+                                heroTag: 'circle_menu_reset',
+                                onPressed: () async {
+                                  if (await askConfirmation(
+                                      context, widget.config.resetConfirmation,
+                                      config: widget.config)) {
+                                    await _buildStateLists(reset: true);
+                                    onChange();
+                                  }
+                                },
+                                backgroundColor: Colors.red,
+                                child: Icon(Icons.auto_delete),
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
                     SizedBox(height: 10),
                     Row(
@@ -256,10 +334,12 @@ class _CirclesMenuState extends State<CirclesMenu> {
                               heroTag: 'circle_menu_delete',
                               onPressed: () async {
                                 if (await askConfirmation(context,
-                                    widget.config.deleteAllConfirmation,
+                                    widget.config.emptyPageConfirmation,
                                     config: widget.config)) {
-                                  actionStatesList.clear();
-                                  labelStatesList.clear();
+                                  actionStatesList.removeWhere(
+                                      (s) => s.pageIndex == pageIndex);
+                                  labelStatesList.removeWhere(
+                                      (ls) => ls.pageIndex == pageIndex);
                                   onChange();
                                 }
                               },
@@ -267,24 +347,6 @@ class _CirclesMenuState extends State<CirclesMenu> {
                               child: Icon(Icons.delete),
                             ),
                           ),
-                          if (widget.defaultDump != null)
-                            Padding(
-                              padding:
-                                  const EdgeInsets.only(left: 8.0, right: 8),
-                              child: FloatingActionButton(
-                                heroTag: 'circle_menu_reset',
-                                onPressed: () async {
-                                  if (await askConfirmation(context,
-                                      widget.config.resetConfirmation,
-                                      config: widget.config)) {
-                                    await _buildStateLists(reset: true);
-                                    onChange();
-                                  }
-                                },
-                                backgroundColor: Colors.red,
-                                child: Icon(Icons.auto_delete),
-                              ),
-                            ),
                           for (var cat in actionsCategories)
                             Padding(
                               padding:
@@ -300,6 +362,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
                                     int index = actionStatesList.length;
                                     actionStatesList.add(
                                       ActionMenuItemState(
+                                        pageIndex: pageIndex,
                                         action: newAction,
                                         x: initialOffset + 100 + index * 10,
                                         y: MediaQuery.of(context).size.height -
@@ -329,6 +392,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
                                   int index = actionStatesList.length;
                                   labelStatesList.add(
                                     LabelMenuItemState(
+                                      pageIndex: pageIndex,
                                       label: newText,
                                       fontSize: 20,
                                       x: initialOffset + 100 + index * 10,
@@ -351,7 +415,12 @@ class _CirclesMenuState extends State<CirclesMenu> {
                               child: FloatingActionButton(
                                 heroTag: 'circle_menu_auto_order',
                                 onPressed: () async {
-                                  modifyCirclesToGrid(this.actionStatesList);
+                                  modifyCirclesToGrid(this
+                                      .actionStatesList
+                                      .where(
+                                        (a) => a.pageIndex == pageIndex,
+                                      )
+                                      .toList());
                                   onChange();
                                 },
                                 backgroundColor: Colors.green,
@@ -365,58 +434,107 @@ class _CirclesMenuState extends State<CirclesMenu> {
                 )
               : Row(
                   mainAxisAlignment: mainAlignment,
-                  children: reverseIfTrue(isRtl, [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8.0, right: 8),
-                      child: FloatingActionButton(
-                        heroTag: 'circles_menu_start_edit',
-                        onPressed: () async {
-                          // save the state before the start edit
-                          this._beforeActionStatesList = this
-                              .actionStatesList
-                              .map((d) => d.clone())
-                              .toList();
-                          this._beforeLabelStatesList = this
-                              .labelStatesList
-                              .map((d) => d.clone())
-                              .toList();
-                          setState(() {
-                            this.isInEdit = true;
-                          });
-                        },
-                        backgroundColor: Colors.red,
-                        child: Icon(Icons.edit),
-                      ),
-                    ),
-                    if (kDebugMode)
+                  children: reverseIfTrue(
+                    isRtl,
+                    [
                       Padding(
                         padding: const EdgeInsets.only(left: 8.0, right: 8),
                         child: FloatingActionButton(
-                          heroTag: 'circle_menu_debug',
+                          heroTag: 'circles_menu_start_edit',
                           onPressed: () async {
-                            await _debugStates();
+                            // save the state before the start edit
+                            this._beforeActionStatesList = this
+                                .actionStatesList
+                                .map((d) => d.clone())
+                                .toList();
+                            this._beforeLabelStatesList = this
+                                .labelStatesList
+                                .map((d) => d.clone())
+                                .toList();
+                            setState(() {
+                              this.isInEdit = true;
+                              numPagesInEdit = curNumPages;
+                            });
                           },
-                          backgroundColor: Colors.green,
-                          child: Icon(Icons.bug_report_outlined),
+                          backgroundColor: Colors.red,
+                          child: Icon(Icons.edit),
                         ),
-                      )
-                  ]),
-                )
-          //     if (!isInEdit && kDebugMode)
-          //       Padding(
-          //         padding: const EdgeInsets.only(left: 8.0, right: 8),
-          //         child: FloatingActionButton(
-          //           heroTag: 'circle_menu_debug',
-          //           onPressed: () async {
-          //             await _debugStates();
-          //           },
-          //           backgroundColor: Colors.green,
-          //           child: Icon(Icons.bug_report_outlined),
-          //         ),
-          //       )
-          //   ],
-          // ),
+                      ),
+                      if (kDebugMode)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8.0, right: 8),
+                          child: FloatingActionButton(
+                            heroTag: 'circle_menu_debug',
+                            onPressed: () async {
+                              await _debugStates();
+                            },
+                            backgroundColor: Colors.green,
+                            child: Icon(Icons.bug_report_outlined),
+                          ),
+                        )
+                    ],
+                  ),
+                ),
+        ),
+      ),
+    );
+    return result;
+  }
+
+  Widget? getPageCenterColumn(
+      {required int pageIndex,
+      required bool isStartSide,
+      required int numPages}) {
+    bool addSwap = isStartSide && pageIndex > 0 ||
+        numPages > 1 && !isStartSide && pageIndex < numPages - 1;
+    bool addPlus = !isStartSide && pageIndex == numPages - 1;
+    List<Widget> children = [
+      if (addSwap)
+        IconButton(
+          onPressed: () async {
+            bool cont = await askConfirmation(
+              context,
+              isStartSide
+                  ? widget.config.swapWithPrevPageConfirmation
+                  : widget.config.swapWithNextPageConfirmation,
+              config: widget.config,
+            );
+            if (!cont) {
+              return;
+            }
+            _swapPages(
+                pageIndex, isStartSide ? pageIndex - 1 : pageIndex + 1);
+            onChange();
+          },
+          icon: Icon(
+            Icons.swap_horiz,
+            size: 40,
           ),
+        ),
+      if (addPlus)
+        IconButton(
+          onPressed: () async {
+            int newIndex = numPagesInEdit;
+            numPagesInEdit++;
+            onChange();
+            this._pageController.jumpToPage(newIndex);
+          },
+          icon: Icon(
+            Icons.add,
+            size: 40,
+          ),
+        ),
+    ];
+    if (children.isEmpty) {
+      return null;
+    }
+    return Align(
+      alignment: isStartSide ? Alignment.topRight : Alignment.topLeft,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: children,
+      ),
     );
   }
 
@@ -478,7 +596,18 @@ class _CirclesMenuState extends State<CirclesMenu> {
     labelStatesList = restoreData.labelMaps
         .map((m) => LabelMenuItemState.fromMap(m))
         .toList();
-    menuEditWidth = getMinWidth() + pageWidth;
+    _removeEmptyPages();
+    _fixCoordinatesIfTooSmall();
+  }
+
+  void _swapPages(int pageIndex1, int pageIndex2) {
+    for (BaseMenuItemState s in allLabelsAndActions) {
+      if (s.pageIndex == pageIndex1) {
+        s.pageIndex = pageIndex2;
+      } else if (s.pageIndex == pageIndex2) {
+        s.pageIndex = pageIndex1;
+      }
+    }
   }
 
   RestoreFromStringData restoreFromStringSafe(String? dumpText) {

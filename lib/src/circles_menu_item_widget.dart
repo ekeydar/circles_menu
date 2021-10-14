@@ -10,7 +10,6 @@ class MenuItemWidget extends StatefulWidget {
   final BaseMenuItemState data;
   final VoidCallback? onPressed;
   final VoidCallback onChange;
-  final ScrollController controller;
   final CirclesMenuConfig config;
   final bool isInEdit;
   final Widget child;
@@ -23,7 +22,7 @@ class MenuItemWidget extends StatefulWidget {
       required this.onPressed,
       required this.onChange,
       required this.child,
-      required this.controller})
+      })
       : super(key: key);
 
   @override
@@ -163,7 +162,7 @@ class _MenuItemWidgetState extends State<MenuItemWidget> {
                     // debugPrint('w = $w details.offset = ${details.offset} widget.controller.offset = ${widget.controller.offset}');
                     // bool isRtl =
                     //     Directionality.of(context) == TextDirection.rtl;
-                    double newX = details.offset.dx + widget.controller.offset;
+                    double newX = details.offset.dx; // # + widget.controller.offset;
                     // if (isRtl) {
                     //   newX = w - newX;
                     // }

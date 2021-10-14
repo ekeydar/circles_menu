@@ -6,7 +6,6 @@ import 'circles_menu_models.dart';
 class LabelMenuButton extends StatefulWidget {
   final LabelMenuItemState data;
   final VoidCallback onChange;
-  final ScrollController controller;
   final CirclesMenuConfig config;
   final bool isInEdit;
 
@@ -16,7 +15,7 @@ class LabelMenuButton extends StatefulWidget {
       required this.isInEdit,
       required this.data,
       required this.onChange,
-      required this.controller})
+      })
       : super(key: key);
 
   @override
