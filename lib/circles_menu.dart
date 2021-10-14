@@ -111,11 +111,37 @@ class _CirclesMenuState extends State<CirclesMenu> {
     }
   }
 
-  List<BaseMenuItemState> get allLabelsAndActions => List<BaseMenuItemState>.from(actionStatesList) +
+  List<BaseMenuItemState> get allLabelsAndActions =>
+      List<BaseMenuItemState>.from(actionStatesList) +
       List<BaseMenuItemState>.from(labelStatesList);
 
+  void _fixCoordinatesIfTooSmall() {
+    Size pageSize = MediaQuery.of(context).size;
+    double maxX = pageSize.width;
+    double maxY = pageSize.height;
+    for (BaseMenuItemState s in this.allLabelsAndActions) {
+      if (s.maxX > maxX) {
+        double offset = s.maxX - maxX;
+        // if this is bit out of the page, this is ok
+        if (offset > s.width / 3) {
+          s.x = max(0, s.x - offset);
+          debugPrint('Moved in x!!!!');
+        }
+      }
+      if (s.maxY > maxY) {
+        double offset = s.maxY - maxY;
+        // if this is bit out of the page, this is ok
+        if (offset > s.height / 3) {
+          s.y = max(0, s.y - offset);
+          debugPrint('Moved in y!!!!');
+        }
+      }
+    }
+  }
+
   void _removeEmptyPages() {
-    Map<int, List<BaseMenuItemState>> byPage = Map<int, List<BaseMenuItemState>>();
+    Map<int, List<BaseMenuItemState>> byPage =
+        Map<int, List<BaseMenuItemState>>();
     for (BaseMenuItemState s in allLabelsAndActions) {
       if (byPage.containsKey(s.pageIndex)) {
         byPage[s.pageIndex]!.add(s);
@@ -127,7 +153,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
     int nextIndex = 0;
     for (int k in keys) {
       byPage[k]!.forEach((s) {
-          s.pageIndex = nextIndex;
+        s.pageIndex = nextIndex;
       });
       nextIndex++;
     }
@@ -136,7 +162,9 @@ class _CirclesMenuState extends State<CirclesMenu> {
   void onChange() {
     actionStatesList.removeWhere((d) => d.isDeleted);
     labelStatesList.removeWhere((d) => d.isDeleted);
-    if (!isInEdit && actionStatesList.isNotEmpty && labelStatesList.isNotEmpty) {
+    if (!isInEdit &&
+        actionStatesList.isNotEmpty &&
+        labelStatesList.isNotEmpty) {
       _removeEmptyPages();
     }
     _dumpStates();
@@ -225,7 +253,6 @@ class _CirclesMenuState extends State<CirclesMenu> {
                                 if (widget.config.onEditDone != null) {
                                   widget.config.onEditDone!();
                                 }
-
                               },
                               backgroundColor: Colors.green,
                               child: Icon(Icons.check),
@@ -271,22 +298,6 @@ class _CirclesMenuState extends State<CirclesMenu> {
                                 },
                                 backgroundColor: Colors.red,
                                 child: Icon(Icons.auto_delete),
-                              ),
-                            ),
-                          if (isLastPage)
-                            Padding(
-                              padding:
-                                  const EdgeInsets.only(left: 8.0, right: 8),
-                              child: FloatingActionButton(
-                                heroTag: 'circle_menu_add_page',
-                                onPressed: () async {
-                                  int newIndex = numPagesInEdit;
-                                  numPagesInEdit++;
-                                  onChange();
-                                  this._pageController.jumpToPage(newIndex);
-                                },
-                                backgroundColor: Colors.red,
-                                child: Icon(Icons.pages),
                               ),
                             ),
                         ],
@@ -518,6 +529,8 @@ class _CirclesMenuState extends State<CirclesMenu> {
     labelStatesList = restoreData.labelMaps
         .map((m) => LabelMenuItemState.fromMap(m))
         .toList();
+    _removeEmptyPages();
+    _fixCoordinatesIfTooSmall();
   }
 
   RestoreFromStringData restoreFromStringSafe(String? dumpText) {

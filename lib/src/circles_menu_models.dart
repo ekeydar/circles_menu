@@ -40,6 +40,9 @@ abstract class BaseMenuItemState {
   Color get color;
 
   set color(Color c);
+
+  double get maxX => x + width;
+  double get maxY => y + height;
 }
 
 class LabelMenuItemState extends BaseMenuItemState {
