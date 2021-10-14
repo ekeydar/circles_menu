@@ -88,13 +88,14 @@ class _CirclesMenuState extends State<CirclesMenu> {
         st.action = actionsByCode[c]!;
       });
       List<Color> colors = [Colors.red, Colors.green, Colors.blue];
+      int numPages = this.isInEdit ? numPagesInEdit : curNumPages;
+      debugPrint('numPages = $numPages');
       return PageView(
         controller: _pageController,
         children: [
-          for (var pi = 0;
-              pi < (this.isInEdit ? numPagesInEdit : curNumPages);
-              pi++)
+          for (var pi = 0; pi < numPages; pi++)
             CircleMenuPage(
+              key: Key('$pi/$numPages'),
               index: pi,
               items: this.getItems(pageIndex: pi),
               buttons: this.getButtons(context, pageIndex: pi),
@@ -222,14 +223,33 @@ class _CirclesMenuState extends State<CirclesMenu> {
     return icons..sort((c1, c2) => c1.order.compareTo(c2.order));
   }
 
-  Widget getButtons(BuildContext context, {required int pageIndex}) {
+  List<Widget> getButtons(BuildContext context, {required int pageIndex}) {
     bool isRtl = Directionality.of(context) == TextDirection.rtl;
     MainAxisAlignment mainAlignment =
         isRtl ? MainAxisAlignment.end : MainAxisAlignment.start;
-    bool isLastPage = (1 + pageIndex) == this.curNumPages;
-    return Align(
-      alignment: Alignment.bottomCenter,
-      child: Padding(
+    List<Widget> result = [];
+    if (isInEdit) {
+      Widget? startCenterWidget = getPageCenterColumn(
+        pageIndex: pageIndex,
+        numPages: numPagesInEdit,
+        isStartSide: true,
+      );
+      Widget? endCentertWidget = getPageCenterColumn(
+        pageIndex: pageIndex,
+        numPages: numPagesInEdit,
+        isStartSide: false,
+      );
+      if (startCenterWidget != null) {
+        result.add(startCenterWidget);
+      }
+      if (endCentertWidget != null) {
+        result.add(endCentertWidget);
+      }
+    }
+    result.add(
+      Align(
+        alignment: Alignment.bottomCenter,
+        child: Padding(
           padding: const EdgeInsets.all(16),
           child: (isInEdit)
               ? Column(
@@ -415,59 +435,97 @@ class _CirclesMenuState extends State<CirclesMenu> {
                 )
               : Row(
                   mainAxisAlignment: mainAlignment,
-                  children: reverseIfTrue(isRtl, [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8.0, right: 8),
-                      child: FloatingActionButton(
-                        heroTag: 'circles_menu_start_edit',
-                        onPressed: () async {
-                          // save the state before the start edit
-                          this._beforeActionStatesList = this
-                              .actionStatesList
-                              .map((d) => d.clone())
-                              .toList();
-                          this._beforeLabelStatesList = this
-                              .labelStatesList
-                              .map((d) => d.clone())
-                              .toList();
-                          setState(() {
-                            this.isInEdit = true;
-                            numPagesInEdit = curNumPages;
-                          });
-                        },
-                        backgroundColor: Colors.red,
-                        child: Icon(Icons.edit),
-                      ),
-                    ),
-                    if (kDebugMode)
+                  children: reverseIfTrue(
+                    isRtl,
+                    [
                       Padding(
                         padding: const EdgeInsets.only(left: 8.0, right: 8),
                         child: FloatingActionButton(
-                          heroTag: 'circle_menu_debug',
+                          heroTag: 'circles_menu_start_edit',
                           onPressed: () async {
-                            await _debugStates();
+                            // save the state before the start edit
+                            this._beforeActionStatesList = this
+                                .actionStatesList
+                                .map((d) => d.clone())
+                                .toList();
+                            this._beforeLabelStatesList = this
+                                .labelStatesList
+                                .map((d) => d.clone())
+                                .toList();
+                            setState(() {
+                              this.isInEdit = true;
+                              numPagesInEdit = curNumPages;
+                            });
                           },
-                          backgroundColor: Colors.green,
-                          child: Icon(Icons.bug_report_outlined),
+                          backgroundColor: Colors.red,
+                          child: Icon(Icons.edit),
                         ),
-                      )
-                  ]),
-                )
-          //     if (!isInEdit && kDebugMode)
-          //       Padding(
-          //         padding: const EdgeInsets.only(left: 8.0, right: 8),
-          //         child: FloatingActionButton(
-          //           heroTag: 'circle_menu_debug',
-          //           onPressed: () async {
-          //             await _debugStates();
-          //           },
-          //           backgroundColor: Colors.green,
-          //           child: Icon(Icons.bug_report_outlined),
-          //         ),
-          //       )
-          //   ],
-          // ),
+                      ),
+                      if (kDebugMode)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8.0, right: 8),
+                          child: FloatingActionButton(
+                            heroTag: 'circle_menu_debug',
+                            onPressed: () async {
+                              await _debugStates();
+                            },
+                            backgroundColor: Colors.green,
+                            child: Icon(Icons.bug_report_outlined),
+                          ),
+                        )
+                    ],
+                  ),
+                ),
+        ),
+      ),
+    );
+    return result;
+  }
+
+  Widget? getPageCenterColumn(
+      {required int pageIndex, required bool isStartSide, required int numPages}) {
+    bool addSwap = isStartSide && pageIndex > 0 || numPages > 1 && !isStartSide && pageIndex < numPages - 1;
+    bool addPlus = !isStartSide && pageIndex == numPages - 1;
+    List<Widget> children = [
+      if (addSwap)
+        Padding(
+          padding: const EdgeInsets.only(left: 8.0, right: 8),
+          child: TextButton(
+            onPressed: () async {
+              onChange();
+            },
+            child: Icon(
+              Icons.swap_horiz_outlined,
+              size: 40,
+            ),
           ),
+        ),
+      if (addPlus)
+        Padding(
+          padding: const EdgeInsets.only(left: 8.0, right: 8),
+          child: TextButton(
+            onPressed: () async {
+              int newIndex = numPagesInEdit;
+              numPagesInEdit++;
+              onChange();
+              this._pageController.jumpToPage(newIndex);
+            },
+            child: Icon(
+              Icons.add,
+              size: 40,
+            ),
+          ),
+        ),
+    ];
+    if (children.isEmpty) {
+      return null;
+    }
+    return Align(
+      alignment: isStartSide ? Alignment.centerRight : Alignment.centerLeft,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: children,
+      ),
     );
   }
 
