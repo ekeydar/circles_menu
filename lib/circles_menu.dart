@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:circles_menu/src/circle_menu_page.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -9,6 +8,7 @@ import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'src/circle_box.dart';
+import 'src/circle_menu_page.dart';
 import 'src/circles_menu_confirm.dart';
 import 'src/circles_menu_item_widget.dart';
 import 'src/circles_menu_models.dart';
