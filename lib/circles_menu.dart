@@ -89,7 +89,6 @@ class _CirclesMenuState extends State<CirclesMenu> {
       });
       List<Color> colors = [Colors.red, Colors.green, Colors.blue];
       int numPages = this.isInEdit ? numPagesInEdit : curNumPages;
-      debugPrint('numPages = $numPages');
       return PageView(
         controller: _pageController,
         children: [
@@ -497,12 +496,16 @@ class _CirclesMenuState extends State<CirclesMenu> {
             onPressed: () async {
               bool cont = await askConfirmation(
                 context,
-                isStartSide ? widget.config.swapWithPrevPageConfirmation : widget.config.swapWithNextPageConfirmation,
+                isStartSide
+                    ? widget.config.swapWithPrevPageConfirmation
+                    : widget.config.swapWithNextPageConfirmation,
                 config: widget.config,
               );
               if (!cont) {
                 return;
               }
+              _swapPages(
+                  pageIndex, isStartSide ? pageIndex - 1 : pageIndex + 1);
               onChange();
             },
             child: Icon(
@@ -600,6 +603,16 @@ class _CirclesMenuState extends State<CirclesMenu> {
         .toList();
     _removeEmptyPages();
     _fixCoordinatesIfTooSmall();
+  }
+
+  void _swapPages(int pageIndex1, int pageIndex2) {
+    for (BaseMenuItemState s in allLabelsAndActions) {
+      if (s.pageIndex == pageIndex1) {
+        s.pageIndex = pageIndex2;
+      } else if (s.pageIndex == pageIndex2) {
+        s.pageIndex = pageIndex1;
+      }
+    }
   }
 
   RestoreFromStringData restoreFromStringSafe(String? dumpText) {
