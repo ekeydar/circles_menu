@@ -19,7 +19,7 @@ import 'src/label_menu_button.dart';
 
 export 'src/circles_menu_models.dart';
 
-const int DUMP_VERSION = 2;
+const int DUMP_VERSION = 3;
 
 class CirclesMenu extends StatefulWidget {
   final CirclesMenuConfig config;
@@ -40,7 +40,6 @@ class CirclesMenu extends StatefulWidget {
 }
 
 class _CirclesMenuState extends State<CirclesMenu> {
-  late ScrollController _controller;
   bool _ready = false;
   late List<ActionMenuItemState> actionStatesList;
   late List<LabelMenuItemState> labelStatesList;
@@ -59,7 +58,6 @@ class _CirclesMenuState extends State<CirclesMenu> {
   Future<void> _prepare() async {
     await Future.delayed(Duration(milliseconds: 2));
     initialOffset = 0;
-    _controller = ScrollController(initialScrollOffset: initialOffset);
     await _buildStateLists();
     setState(() {
       _ready = true;
@@ -150,14 +148,12 @@ class _CirclesMenuState extends State<CirclesMenu> {
           borderColor: d.borderColor,
         ),
         onChange: this.onChange,
-        controller: _controller,
       ));
     }
     for (var d in labelStatesList) {
       result.add(MenuItemWidget(
         config: widget.config,
         isInEdit: this.isInEdit,
-        controller: _controller,
         data: d,
         onChange: this.onChange,
         onPressed: null,
@@ -166,7 +162,6 @@ class _CirclesMenuState extends State<CirclesMenu> {
           data: d,
           isInEdit: this.isInEdit,
           onChange: this.onChange,
-          controller: _controller,
         ),
       ));
     }
@@ -307,6 +302,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
                                     int index = actionStatesList.length;
                                     actionStatesList.add(
                                       ActionMenuItemState(
+                                        pageIndex: 0,
                                         action: newAction,
                                         x: initialOffset + 100 + index * 10,
                                         y: MediaQuery.of(context).size.height -
@@ -336,6 +332,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
                                   int index = actionStatesList.length;
                                   labelStatesList.add(
                                     LabelMenuItemState(
+                                      pageIndex: 0,
                                       label: newText,
                                       fontSize: 20,
                                       x: initialOffset + 100 + index * 10,
