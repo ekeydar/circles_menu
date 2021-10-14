@@ -111,9 +111,34 @@ class _CirclesMenuState extends State<CirclesMenu> {
     }
   }
 
+  List<BaseMenuItemState> get allLabelsAndActions => List<BaseMenuItemState>.from(actionStatesList) +
+      List<BaseMenuItemState>.from(labelStatesList);
+
+  void _removeEmptyPages() {
+    Map<int, List<BaseMenuItemState>> byPage = Map<int, List<BaseMenuItemState>>();
+    for (BaseMenuItemState s in allLabelsAndActions) {
+      if (byPage.containsKey(s.pageIndex)) {
+        byPage[s.pageIndex]!.add(s);
+      } else {
+        byPage[s.pageIndex] = [s];
+      }
+    }
+    List<int> keys = byPage.keys.toList()..sort((k1, k2) => k1.compareTo(k2));
+    int nextIndex = 0;
+    for (int k in keys) {
+      byPage[k]!.forEach((s) {
+          s.pageIndex = nextIndex;
+      });
+      nextIndex++;
+    }
+  }
+
   void onChange() {
     actionStatesList.removeWhere((d) => d.isDeleted);
     labelStatesList.removeWhere((d) => d.isDeleted);
+    if (!isInEdit && actionStatesList.isNotEmpty && labelStatesList.isNotEmpty) {
+      _removeEmptyPages();
+    }
     _dumpStates();
     setState(() {});
   }
@@ -192,15 +217,15 @@ class _CirclesMenuState extends State<CirclesMenu> {
                             child: FloatingActionButton(
                               heroTag: 'circles_menu_approve_edit',
                               onPressed: () async {
+                                this.isInEdit = false;
+                                this.actionStatesList.forEach((s) {
+                                  s.showActions = false;
+                                });
+                                this.onChange();
                                 if (widget.config.onEditDone != null) {
                                   widget.config.onEditDone!();
                                 }
-                                setState(() {
-                                  this.isInEdit = false;
-                                  this.actionStatesList.forEach((s) {
-                                    s.showActions = false;
-                                  });
-                                });
+
                               },
                               backgroundColor: Colors.green,
                               child: Icon(Icons.check),
