@@ -219,7 +219,7 @@ class CirclesMenuConfig {
   final String accept;
   final String cancel;
   final String pickAction;
-  final String deleteAllConfirmation;
+  final String emptyPageConfirmation;
   final String resetConfirmation;
   final String approveDialogTitle;
   final String moveToEditMessage;
@@ -238,8 +238,8 @@ class CirclesMenuConfig {
     this.accept = 'Accept',
     this.cancel = 'Cancel',
     this.pickAction = 'Pick action',
-    this.deleteAllConfirmation =
-        'Are you sure you want to delete the current menu',
+    this.emptyPageConfirmation =
+        'Are you sure you want to empty the current page',
     this.resetConfirmation =
         'Are you sure you want to delete the current menu and restore the defaults',
     this.approveDialogTitle = 'Action approval',
