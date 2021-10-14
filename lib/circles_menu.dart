@@ -490,44 +490,38 @@ class _CirclesMenuState extends State<CirclesMenu> {
     bool addPlus = !isStartSide && pageIndex == numPages - 1;
     List<Widget> children = [
       if (addSwap)
-        Padding(
-          padding: const EdgeInsets.only(left: 8.0, right: 8),
-          child: TextButton(
-            onPressed: () async {
-              bool cont = await askConfirmation(
-                context,
-                isStartSide
-                    ? widget.config.swapWithPrevPageConfirmation
-                    : widget.config.swapWithNextPageConfirmation,
-                config: widget.config,
-              );
-              if (!cont) {
-                return;
-              }
-              _swapPages(
-                  pageIndex, isStartSide ? pageIndex - 1 : pageIndex + 1);
-              onChange();
-            },
-            child: Icon(
-              Icons.swap_horiz_outlined,
-              size: 40,
-            ),
+        IconButton(
+          onPressed: () async {
+            bool cont = await askConfirmation(
+              context,
+              isStartSide
+                  ? widget.config.swapWithPrevPageConfirmation
+                  : widget.config.swapWithNextPageConfirmation,
+              config: widget.config,
+            );
+            if (!cont) {
+              return;
+            }
+            _swapPages(
+                pageIndex, isStartSide ? pageIndex - 1 : pageIndex + 1);
+            onChange();
+          },
+          icon: Icon(
+            Icons.swap_horiz,
+            size: 40,
           ),
         ),
       if (addPlus)
-        Padding(
-          padding: const EdgeInsets.only(left: 8.0, right: 8),
-          child: TextButton(
-            onPressed: () async {
-              int newIndex = numPagesInEdit;
-              numPagesInEdit++;
-              onChange();
-              this._pageController.jumpToPage(newIndex);
-            },
-            child: Icon(
-              Icons.add,
-              size: 40,
-            ),
+        IconButton(
+          onPressed: () async {
+            int newIndex = numPagesInEdit;
+            numPagesInEdit++;
+            onChange();
+            this._pageController.jumpToPage(newIndex);
+          },
+          icon: Icon(
+            Icons.add,
+            size: 40,
           ),
         ),
     ];
@@ -535,9 +529,10 @@ class _CirclesMenuState extends State<CirclesMenu> {
       return null;
     }
     return Align(
-      alignment: isStartSide ? Alignment.centerRight : Alignment.centerLeft,
+      alignment: isStartSide ? Alignment.topRight : Alignment.topLeft,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: children,
       ),
     );
