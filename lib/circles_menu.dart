@@ -483,8 +483,11 @@ class _CirclesMenuState extends State<CirclesMenu> {
   }
 
   Widget? getPageCenterColumn(
-      {required int pageIndex, required bool isStartSide, required int numPages}) {
-    bool addSwap = isStartSide && pageIndex > 0 || numPages > 1 && !isStartSide && pageIndex < numPages - 1;
+      {required int pageIndex,
+      required bool isStartSide,
+      required int numPages}) {
+    bool addSwap = isStartSide && pageIndex > 0 ||
+        numPages > 1 && !isStartSide && pageIndex < numPages - 1;
     bool addPlus = !isStartSide && pageIndex == numPages - 1;
     List<Widget> children = [
       if (addSwap)
@@ -492,6 +495,14 @@ class _CirclesMenuState extends State<CirclesMenu> {
           padding: const EdgeInsets.only(left: 8.0, right: 8),
           child: TextButton(
             onPressed: () async {
+              bool cont = await askConfirmation(
+                context,
+                isStartSide ? widget.config.swapWithPrevPageConfirmation : widget.config.swapWithNextPageConfirmation,
+                config: widget.config,
+              );
+              if (!cont) {
+                return;
+              }
               onChange();
             },
             child: Icon(

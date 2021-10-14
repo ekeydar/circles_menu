@@ -228,7 +228,8 @@ class CirclesMenuConfig {
   final String moveToEditMessage;
   final String cancelEditsConfirmation;
   final String editLabelTitle;
-
+  final String swapWithNextPageConfirmation;
+  final String swapWithPrevPageConfirmation;
   // key to hold the data in shared preferences
   final String spKey;
 
@@ -249,8 +250,11 @@ class CirclesMenuConfig {
     this.cancelEditsConfirmation =
         'Are you sure you want to cancel the current edits',
     this.moveToEditMessage = 'Press the edit icon to edit the menu',
+    this.swapWithPrevPageConfirmation = 'Replace this page with the previous page?',
+    this.swapWithNextPageConfirmation = 'Replace this page with the next page?',
     this.editLabelTitle = 'Edit label',
     this.spKey = 'circleButtons',
+
     this.onEditDone,
   });
 
