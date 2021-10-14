@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:circles_menu/src/circle_menu_page.dart';
 import 'package:flutter/foundation.dart';
@@ -64,15 +63,6 @@ class _CirclesMenuState extends State<CirclesMenu> {
     });
   }
 
-  double get pageWidth => MediaQuery.of(context).size.width;
-
-  double getMinWidth() {
-    double maxX = (List<BaseMenuItemState>.from(this.labelStatesList) +
-            List<BaseMenuItemState>.from(this.actionStatesList))
-        .fold(1, (soFar, s2) => max(soFar, s2.x + s2.width));
-    return max(maxX + 50, pageWidth);
-  }
-
   @override
   Widget build(BuildContext context) {
     if (_ready) {
@@ -86,25 +76,14 @@ class _CirclesMenuState extends State<CirclesMenu> {
         String c = st.action.code;
         st.action = actionsByCode[c]!;
       });
-
+      List<Color> colors = [Colors.red, Colors.green, Colors.blue];
       return PageView(children: [
+        for (var i = 0 ; i < 3 ; i++)
         CircleMenuPage(
-          index: 0,
-          items: this.getItems(),
+          index: i,
+          items: this.getItems(pageIndex: i),
           buttons: this.getButtons(context),
-          color: Colors.blue,
-        ),
-        CircleMenuPage(
-          index: 1,
-          items: this.getItems(),
-          buttons: this.getButtons(context),
-          color: Colors.red,
-        ),
-        CircleMenuPage(
-          index: 2,
-          items: this.getItems(),
-          buttons: this.getButtons(context),
-          color: Colors.green,
+          color: colors[i % colors.length],
         ),
       ]);
     } else {
@@ -123,9 +102,9 @@ class _CirclesMenuState extends State<CirclesMenu> {
     setState(() {});
   }
 
-  List<Widget> getItems() {
+  List<Widget> getItems({required int pageIndex}) {
     List<Widget> result = [];
-    for (var d in actionStatesList) {
+    for (var d in actionStatesList.where((pi) => pi.pageIndex == pageIndex)) {
       result.add(MenuItemWidget(
         config: widget.config,
         data: d,
@@ -150,7 +129,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
         onChange: this.onChange,
       ));
     }
-    for (var d in labelStatesList) {
+    for (var d in labelStatesList.where((pi) => pi.pageIndex == pageIndex)) {
       result.add(MenuItemWidget(
         config: widget.config,
         isInEdit: this.isInEdit,
@@ -165,6 +144,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
         ),
       ));
     }
+    debugPrint('pageIndex = $pageIndex result.length = ${result.length}');
     return result;
   }
 
@@ -230,18 +210,6 @@ class _CirclesMenuState extends State<CirclesMenu> {
                             },
                             backgroundColor: Colors.red,
                             child: Icon(Icons.cancel),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 8.0, right: 8),
-                          child: FloatingActionButton(
-                            heroTag: 'circle_menu_add_page',
-                            onPressed: () async {
-                              menuEditWidth += pageWidth;
-                              setState(() {});
-                            },
-                            backgroundColor: Colors.green,
-                            child: Icon(Icons.zoom_out_map_outlined),
                           ),
                         ),
                       ]),
@@ -482,7 +450,6 @@ class _CirclesMenuState extends State<CirclesMenu> {
     labelStatesList = restoreData.labelMaps
         .map((m) => LabelMenuItemState.fromMap(m))
         .toList();
-    menuEditWidth = getMinWidth() + pageWidth;
   }
 
   RestoreFromStringData restoreFromStringSafe(String? dumpText) {
