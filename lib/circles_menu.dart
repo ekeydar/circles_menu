@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:circles_menu/src/indicator.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -16,6 +15,7 @@ import 'src/circles_menu_models.dart';
 import 'src/circles_menu_pick_action_dialog.dart';
 import 'src/circles_menu_utils.dart';
 import 'src/circles_to_grid.dart';
+import 'src/indicator.dart';
 import 'src/label_menu_button.dart';
 
 export 'src/circles_menu_models.dart';
