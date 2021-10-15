@@ -50,6 +50,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
   bool isInEdit = false;
   late int numPagesInEdit;
   PageController _pageController = PageController();
+  int currentPageIndex = 0;
 
   @override
   void initState() {
@@ -90,19 +91,28 @@ class _CirclesMenuState extends State<CirclesMenu> {
       });
       List<Color> colors = [Colors.red, Colors.green, Colors.blue];
       int numPages = this.isInEdit ? numPagesInEdit : curNumPages;
-      return PageView(
-        controller: _pageController,
+      return Stack(
         children: [
-          for (var pi = 0; pi < numPages; pi++)
-            CircleMenuPage(
-              key: Key('$pi/$numPages'),
-              index: pi,
-              numPages: numPages,
-              items: this.getItems(pageIndex: pi),
-              buttons: this.getButtons(context, pageIndex: pi) +
-                  [getBottomActions()],
-              color: colors[pi % colors.length],
-            ),
+          PageView(
+            onPageChanged: (int newPageIndex) {
+              setState(() {
+                currentPageIndex = newPageIndex;
+              });
+            },
+            controller: _pageController,
+            children: [
+              for (var pi = 0; pi < numPages; pi++)
+                CircleMenuPage(
+                  key: Key('$pi/$numPages'),
+                  index: pi,
+                  numPages: numPages,
+                  items: this.getItems(pageIndex: pi),
+                  buttons: this.getButtons(context, pageIndex: pi),
+                  color: colors[pi % colors.length],
+                ),
+            ],
+          ),
+          getBottomActions(),
         ],
       );
     } else {
@@ -249,7 +259,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
   }
 
   Widget getBottomActions() {
-    int pageIndex = 1;
+    int pageIndex = this.currentPageIndex;
     bool isRtl = Directionality.of(context) == TextDirection.rtl;
     MainAxisAlignment mainAlignment =
         isRtl ? MainAxisAlignment.end : MainAxisAlignment.start;
