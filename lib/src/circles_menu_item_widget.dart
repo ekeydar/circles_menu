@@ -1,10 +1,8 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 
-import 'circles_menu_edit_button.dart';
 import 'circles_menu_models.dart';
 import 'circles_menu_utils.dart';
+import 'edit_action_dialog.dart';
 
 class MenuItemWidget extends StatefulWidget {
   final BaseMenuItemState data;
@@ -14,16 +12,15 @@ class MenuItemWidget extends StatefulWidget {
   final bool isInEdit;
   final Widget child;
 
-  MenuItemWidget(
-      {Key? key,
-      required this.config,
-      required this.isInEdit,
-      required this.data,
-      required this.onPressed,
-      required this.onChange,
-      required this.child,
-      })
-      : super(key: key);
+  MenuItemWidget({
+    Key? key,
+    required this.config,
+    required this.isInEdit,
+    required this.data,
+    required this.onPressed,
+    required this.onChange,
+    required this.child,
+  }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _MenuItemWidgetState();
@@ -41,95 +38,65 @@ class _MenuItemWidgetState extends State<MenuItemWidget> {
         width: widget.data.width,
         height: widget.data.height,
         //color: Colors.green.withAlpha(100),
-        child:
-            Stack(children: <Widget>[_getMainButton()] + _getActionButtons()),
+        child: Stack(children: <Widget>[_getMainButton()]),
       ),
     );
   }
 
-  List<Widget> _getActionButtons() {
+  List<StateAction> _getStateActions() {
     BaseMenuItemState d = widget.data;
-    List<Widget> result = [];
-    double innerRadius = min(min(widget.data.width / 6, 30), min(widget.data.height / 4, 30));
-    //debugPrint('$minSide = $minSide $innerRadius = $innerRadius');
-    if (widget.isInEdit && d.showActions && !d.isDragged) {
-      result.add(
-        CircleMenuActionButton(
-          radius: innerRadius,
-          left: 0,
-          top: 0,
-          icon: Icon(Icons.color_lens_outlined),
+    return [
+      StateAction(
+        icon: Icon(Icons.color_lens_outlined),
+        onPressed: () async {
+          Color? newColor = await pickColor(context,
+              initialColor: d.color, config: widget.config);
+          if (newColor != null) {
+            d.color = newColor;
+            d.showActions = false;
+            widget.onChange();
+          }
+        },
+      ),
+      if (widget.data is LabelMenuItemState)
+        StateAction(
+          icon: Icon(Icons.font_download_outlined),
           onPressed: () async {
-            Color? newColor = await pickColor(context,
-                initialColor: d.color, config: widget.config);
-            if (newColor != null) {
-              d.color = newColor;
-              d.showActions = false;
+            LabelMenuItemState ld = widget.data as LabelMenuItemState;
+            String? newText = await editText(
+              context,
+              config: widget.config,
+              initialText: ld.label,
+            );
+            if (newText != null) {
+              ld.label = newText;
               widget.onChange();
             }
           },
         ),
-      );
-
-      if (widget.data is LabelMenuItemState)
-        result.add(
-          CircleMenuActionButton(
-            radius: innerRadius,
-            left: widget.data.width/2 - innerRadius,
-            top: 0,
-            icon: Icon(Icons.font_download_outlined),
-            onPressed: () async {
-              LabelMenuItemState ld = widget.data as LabelMenuItemState;
-              String? newText = await editText(
-                context,
-                config: widget.config,
-                initialText: ld.label,
-              );
-              if (newText != null) {
-                ld.label = newText;
-                widget.onChange();
-              }
-            },
-          ),
-        );
-      result.add(
-        CircleMenuActionButton(
-          radius: innerRadius,
-          left: widget.data.width - 2 * innerRadius,
-          top: 0,
-          icon: Icon(Icons.delete_outline),
-          onPressed: () {
-            d.isDeleted = true;
-            widget.onChange();
-          },
-        ),
-      );
-      if (d.canIncr) {
-        result.add(CircleMenuActionButton(
-          radius: innerRadius,
-          left: 0,
-          top: widget.data.height - 2 * innerRadius,
+      StateAction(
+        icon: Icon(Icons.delete_outline),
+        onPressed: () {
+          d.isDeleted = true;
+          widget.onChange();
+        },
+      ),
+      StateAction(
           icon: Icon(Icons.zoom_in_outlined),
           onPressed: () {
             d.incr();
             widget.onChange();
           },
-        ));
-      }
-      if (d.canDecr) {
-        result.add(CircleMenuActionButton(
-          radius: innerRadius,
-          top: widget.data.height - 2 * innerRadius,
-          left: widget.data.width - 2 * innerRadius,
-          icon: Icon(Icons.zoom_out_outlined),
-          onPressed: () {
-            d.decr();
-            widget.onChange();
-          },
-        ));
-      }
-    }
-    return result;
+          enabledCallback: () => d.canIncr),
+      StateAction(
+        enabledCallback: () => d.canDecr,
+        icon: Icon(Icons.zoom_out_outlined),
+        onPressed: () {
+          d.decr();
+          widget.onChange();
+        },
+      ),
+    ];
   }
 
   Widget _getMainButton() {
@@ -141,9 +108,14 @@ class _MenuItemWidgetState extends State<MenuItemWidget> {
       left: 0,
       child: widget.isInEdit
           ? GestureDetector(
-              onLongPress: () {
-                widget.data.showActions = !widget.data.showActions;
-                widget.onChange();
+              onLongPress: () async {
+                await showEditItemDialog(
+                  context: context,
+                  data: widget.data,
+                  actions: _getStateActions(),
+                );
+                //widget.data.showActions = !widget.data.showActions;
+                //widget.onChange();
               },
               child: Draggable(
                 feedback: Container(
@@ -162,7 +134,8 @@ class _MenuItemWidgetState extends State<MenuItemWidget> {
                     // debugPrint('w = $w details.offset = ${details.offset} widget.controller.offset = ${widget.controller.offset}');
                     // bool isRtl =
                     //     Directionality.of(context) == TextDirection.rtl;
-                    double newX = details.offset.dx; // # + widget.controller.offset;
+                    double newX =
+                        details.offset.dx; // # + widget.controller.offset;
                     // if (isRtl) {
                     //   newX = w - newX;
                     // }

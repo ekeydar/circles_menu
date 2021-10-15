@@ -43,12 +43,16 @@ abstract class BaseMenuItemState {
 
   double get maxX => x + width;
   double get maxY => y + height;
+
+  String get title;
 }
 
 class LabelMenuItemState extends BaseMenuItemState {
   double fontSize;
   Color color;
   String label;
+
+  String get title => label;
 
   LabelMenuItemState(
       {required double x,
@@ -102,6 +106,8 @@ class ActionMenuItemState extends BaseMenuItemState {
   double radius;
   OpAction action;
   Color fillColor;
+
+  String get title => action.title;
 
   ActionMenuItemState(
       {required double x,
@@ -278,4 +284,13 @@ class RestoreFromStringData {
       : version = 0,
         actionMaps = [],
         labelMaps = [];
+}
+
+typedef bool BoolCallback();
+
+class StateAction {
+  final Icon icon;
+  final VoidCallback onPressed;
+  final BoolCallback? enabledCallback;
+  StateAction({required this.icon, required this.onPressed, this.enabledCallback});
 }

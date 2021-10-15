@@ -106,7 +106,7 @@ List<OpAction> _getActions(context, {required int disabledIndex}) {
   );
   List<OpAction> result = [];
   for (int x = 1; x <= 15; x++) {
-    String title = 'this is an action with long name $x';
+    String title = 'פעולה מספר ' + x.toString();
     OpAction oa = OpAction(
       code: 'action_$x',
       title: title,
