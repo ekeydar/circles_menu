@@ -292,5 +292,11 @@ class StateAction {
   final Icon icon;
   final VoidCallback onPressed;
   final BoolCallback? enabledCallback;
-  StateAction({required this.icon, required this.onPressed, this.enabledCallback});
+  final bool popAfterPress;
+
+  StateAction(
+      {required this.icon,
+      required this.onPressed,
+      this.enabledCallback,
+      this.popAfterPress = false});
 }

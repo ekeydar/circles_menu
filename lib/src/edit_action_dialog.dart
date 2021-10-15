@@ -19,24 +19,40 @@ class _EditItemDialogState extends State<EditItemDialog> {
   Widget build(BuildContext context) {
     return SimpleDialog(
       //insetPadding: insetPadding,
-      title: Text(widget.data.title),
+      contentPadding: EdgeInsets.all(0),
+      titlePadding: EdgeInsets.all(8.0),
+      title: Text(
+        widget.data.title,
+        style: TextStyle(fontSize: 16),
+        textAlign: TextAlign.center,
+      ),
       children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+        Container(
+          color: Theme.of(context).primaryColorLight,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              for (var action in widget.actions)
+              for (var i = 0; i < widget.actions.length; i++) ...[
+                if (i > 0)
+                  Container(
+                    height: 16,
+                    width: 3,
+                    color: Colors.white,
+                  ),
                 MenuButton(
-                  icon: action.icon,
-                  enabled: action.enabledCallback != null
-                      ? action.enabledCallback!()
+                  icon: widget.actions[i].icon,
+                  enabled: widget.actions[i].enabledCallback != null
+                      ? widget.actions[i].enabledCallback!()
                       : true,
                   onPressed: () {
-                    action.onPressed();
+                    widget.actions[i].onPressed();
                     setState(() {});
+                    if (widget.actions[i].popAfterPress) {
+                      Navigator.of(context).pop();
+                    }
                   },
-                )
+                ),
+              ]
             ],
           ),
         )
@@ -59,16 +75,11 @@ class MenuButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        primary: Theme.of(context).primaryColor,
-        //textStyle: TextStyle(color: Theme.of(context).primaryColor),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(40.0),
-        ),
-      ),
-      child: icon,
+    return IconButton(
+      padding: EdgeInsets.all(0),
       onPressed: enabled ? onPressed : null,
+      icon: icon,
+      iconSize: 20,
     );
   }
 }
@@ -89,7 +100,7 @@ Future<void> showEditItemDialog(
           children: [
             Positioned(
               child: EditItemDialog(data: data, actions: actions),
-              top: data.y,
+              top: data.y > 60 ? data.y - 30 : data.y + data.height + 60,
               left: 10,
             )
           ],

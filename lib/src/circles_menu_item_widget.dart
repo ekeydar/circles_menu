@@ -35,6 +35,7 @@ class _MenuItemWidgetState extends State<MenuItemWidget> {
       left: cx,
       top: cy,
       child: Container(
+        //color: Colors.green,
         width: widget.data.width,
         height: widget.data.height,
         //color: Colors.green.withAlpha(100),
@@ -80,9 +81,10 @@ class _MenuItemWidgetState extends State<MenuItemWidget> {
           d.isDeleted = true;
           widget.onChange();
         },
+        popAfterPress: true,
       ),
       StateAction(
-          icon: Icon(Icons.zoom_in_outlined),
+          icon: Icon(Icons.add),
           onPressed: () {
             d.incr();
             widget.onChange();
@@ -90,7 +92,7 @@ class _MenuItemWidgetState extends State<MenuItemWidget> {
           enabledCallback: () => d.canIncr),
       StateAction(
         enabledCallback: () => d.canDecr,
-        icon: Icon(Icons.zoom_out_outlined),
+        icon: Icon(Icons.remove),
         onPressed: () {
           d.decr();
           widget.onChange();
