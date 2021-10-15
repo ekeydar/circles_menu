@@ -7,6 +7,7 @@ class CircleMenuPage extends StatelessWidget {
   final List<Widget> buttons;
   final Color color;
   final int index;
+  final int numPages;
 
   CircleMenuPage({
     required Key key,
@@ -14,6 +15,7 @@ class CircleMenuPage extends StatelessWidget {
     required this.buttons,
     required this.color,
     required this.index,
+    required this.numPages,
   }) : super(key: key);
 
   @override

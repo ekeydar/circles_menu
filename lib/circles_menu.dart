@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:circles_menu/src/indicator.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -96,6 +97,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
             CircleMenuPage(
               key: Key('$pi/$numPages'),
               index: pi,
+              numPages: numPages,
               items: this.getItems(pageIndex: pi),
               buttons: this.getButtons(context, pageIndex: pi),
               color: colors[pi % colors.length],
@@ -233,7 +235,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
         numPages: numPagesInEdit,
         isStartSide: true,
       );
-      Widget? endCentertWidget = getPageCenterColumn(
+      Widget? endCenterWidget = getPageCenterColumn(
         pageIndex: pageIndex,
         numPages: numPagesInEdit,
         isStartSide: false,
@@ -241,8 +243,8 @@ class _CirclesMenuState extends State<CirclesMenu> {
       if (startCenterWidget != null) {
         result.add(startCenterWidget);
       }
-      if (endCentertWidget != null) {
-        result.add(endCentertWidget);
+      if (endCenterWidget != null) {
+        result.add(endCenterWidget);
       }
     }
     result.add(
@@ -250,189 +252,187 @@ class _CirclesMenuState extends State<CirclesMenu> {
         alignment: Alignment.bottomCenter,
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: (isInEdit)
-              ? Column(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              PagingIndicator(
+                activeIndex: pageIndex,
+                count: isInEdit ? numPagesInEdit : curNumPages,
+              ),
+              if (isInEdit) ...[
+                Row(
                   mainAxisAlignment: mainAlignment,
-                  children: [
-                    Row(
-                      mainAxisAlignment: mainAlignment,
-                      children: reverseIfTrue(
-                        isRtl,
-                        [
-                          Padding(
-                            padding: const EdgeInsets.only(left: 8.0, right: 8),
-                            child: FloatingActionButton(
-                              heroTag: 'circles_menu_approve_edit',
-                              onPressed: () async {
-                                this.isInEdit = false;
-                                this.actionStatesList.forEach((s) {
-                                  s.showActions = false;
-                                });
-                                this.onChange();
-                                if (widget.config.onEditDone != null) {
-                                  widget.config.onEditDone!();
-                                }
-                              },
-                              backgroundColor: Colors.green,
-                              child: Icon(Icons.check),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 8.0, right: 8),
-                            child: FloatingActionButton(
-                              heroTag: 'circle_menu_cancel_edit',
-                              onPressed: () async {
-                                if (await askConfirmation(context,
-                                    widget.config.cancelEditsConfirmation,
-                                    config: widget.config)) {
-                                  setState(() {
-                                    this.actionStatesList = this
-                                        ._beforeActionStatesList
-                                        .map((d) => d.clone())
-                                        .toList();
-                                    this.labelStatesList = this
-                                        ._beforeLabelStatesList
-                                        .map((d) => d.clone())
-                                        .toList();
-                                  });
-                                }
-                              },
-                              backgroundColor: Colors.red,
-                              child: Icon(Icons.cancel),
-                            ),
-                          ),
-                          if (widget.defaultDump != null)
-                            Padding(
-                              padding:
-                                  const EdgeInsets.only(left: 8.0, right: 8),
-                              child: FloatingActionButton(
-                                heroTag: 'circle_menu_reset',
-                                onPressed: () async {
-                                  if (await askConfirmation(
-                                      context, widget.config.resetConfirmation,
-                                      config: widget.config)) {
-                                    await _buildStateLists(reset: true);
-                                    onChange();
-                                  }
-                                },
-                                backgroundColor: Colors.red,
-                                child: Icon(Icons.auto_delete),
-                              ),
-                            ),
-                        ],
+                  children: reverseIfTrue(
+                    isRtl,
+                    [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8.0, right: 8),
+                        child: FloatingActionButton(
+                          heroTag: 'circles_menu_approve_edit',
+                          onPressed: () async {
+                            this.isInEdit = false;
+                            this.actionStatesList.forEach((s) {
+                              s.showActions = false;
+                            });
+                            this.onChange();
+                            if (widget.config.onEditDone != null) {
+                              widget.config.onEditDone!();
+                            }
+                          },
+                          backgroundColor: Colors.green,
+                          child: Icon(Icons.check),
+                        ),
                       ),
-                    ),
-                    SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: mainAlignment,
-                      children: reverseIfTrue(
-                        isRtl,
-                        [
-                          Padding(
-                            padding: const EdgeInsets.only(left: 8.0, right: 8),
-                            child: FloatingActionButton(
-                              heroTag: 'circle_menu_delete',
-                              onPressed: () async {
-                                if (await askConfirmation(context,
-                                    widget.config.emptyPageConfirmation,
-                                    config: widget.config)) {
-                                  actionStatesList.removeWhere(
-                                      (s) => s.pageIndex == pageIndex);
-                                  labelStatesList.removeWhere(
-                                      (ls) => ls.pageIndex == pageIndex);
-                                  onChange();
-                                }
-                              },
-                              backgroundColor: Colors.red,
-                              child: Icon(Icons.delete),
-                            ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8.0, right: 8),
+                        child: FloatingActionButton(
+                          heroTag: 'circle_menu_cancel_edit',
+                          onPressed: () async {
+                            if (await askConfirmation(
+                                context, widget.config.cancelEditsConfirmation,
+                                config: widget.config)) {
+                              setState(() {
+                                this.actionStatesList = this
+                                    ._beforeActionStatesList
+                                    .map((d) => d.clone())
+                                    .toList();
+                                this.labelStatesList = this
+                                    ._beforeLabelStatesList
+                                    .map((d) => d.clone())
+                                    .toList();
+                              });
+                            }
+                          },
+                          backgroundColor: Colors.red,
+                          child: Icon(Icons.cancel),
+                        ),
+                      ),
+                      if (widget.defaultDump != null)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8.0, right: 8),
+                          child: FloatingActionButton(
+                            heroTag: 'circle_menu_reset',
+                            onPressed: () async {
+                              if (await askConfirmation(
+                                  context, widget.config.resetConfirmation,
+                                  config: widget.config)) {
+                                await _buildStateLists(reset: true);
+                                onChange();
+                              }
+                            },
+                            backgroundColor: Colors.red,
+                            child: Icon(Icons.auto_delete),
                           ),
-                          for (var cat in actionsCategories)
-                            Padding(
-                              padding:
-                                  const EdgeInsets.only(left: 8.0, right: 8),
-                              child: FloatingActionButton(
-                                heroTag: 'circle_menu_add_${cat.code}',
-                                onPressed: () async {
-                                  OpAction? newAction = await pickAction(widget
-                                      .actions
-                                      .where((a) => a.category == cat)
-                                      .toList());
-                                  if (newAction != null) {
-                                    int index = actionStatesList.length;
-                                    actionStatesList.add(
-                                      ActionMenuItemState(
-                                        pageIndex: pageIndex,
-                                        action: newAction,
-                                        x: initialOffset + 100 + index * 10,
-                                        y: MediaQuery.of(context).size.height -
-                                            350,
-                                        radius: 50,
-                                        fillColor:
-                                            Theme.of(context).primaryColor,
-                                      ),
-                                    );
-                                    onChange();
-                                  }
-                                },
-                                backgroundColor: Colors.green,
-                                child: cat.icon,
-                              ),
-                            ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 8.0, right: 8),
-                            child: FloatingActionButton(
-                              heroTag: 'circle_menu_add_label',
-                              onPressed: () async {
-                                String? newText = await editText(
-                                  context,
-                                  config: widget.config,
+                        ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: mainAlignment,
+                  children: reverseIfTrue(
+                    isRtl,
+                    [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8.0, right: 8),
+                        child: FloatingActionButton(
+                          heroTag: 'circle_menu_delete',
+                          onPressed: () async {
+                            if (await askConfirmation(
+                                context, widget.config.emptyPageConfirmation,
+                                config: widget.config)) {
+                              actionStatesList
+                                  .removeWhere((s) => s.pageIndex == pageIndex);
+                              labelStatesList.removeWhere(
+                                  (ls) => ls.pageIndex == pageIndex);
+                              onChange();
+                            }
+                          },
+                          backgroundColor: Colors.red,
+                          child: Icon(Icons.delete),
+                        ),
+                      ),
+                      for (var cat in actionsCategories)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8.0, right: 8),
+                          child: FloatingActionButton(
+                            heroTag: 'circle_menu_add_${cat.code}',
+                            onPressed: () async {
+                              OpAction? newAction = await pickAction(widget
+                                  .actions
+                                  .where((a) => a.category == cat)
+                                  .toList());
+                              if (newAction != null) {
+                                int index = actionStatesList.length;
+                                actionStatesList.add(
+                                  ActionMenuItemState(
+                                    pageIndex: pageIndex,
+                                    action: newAction,
+                                    x: initialOffset + 100 + index * 10,
+                                    y: MediaQuery.of(context).size.height - 350,
+                                    radius: 50,
+                                    fillColor: Theme.of(context).primaryColor,
+                                  ),
                                 );
-                                if (newText != null) {
-                                  int index = actionStatesList.length;
-                                  labelStatesList.add(
-                                    LabelMenuItemState(
-                                      pageIndex: pageIndex,
-                                      label: newText,
-                                      fontSize: 20,
-                                      x: initialOffset + 100 + index * 10,
-                                      y: MediaQuery.of(context).size.height -
-                                          350,
-                                      color: Theme.of(context).primaryColor,
-                                    ),
-                                  );
-                                  onChange();
-                                }
-                              },
-                              backgroundColor: Colors.green,
-                              child: Icon(Icons.font_download_outlined),
-                            ),
+                                onChange();
+                              }
+                            },
+                            backgroundColor: Colors.green,
+                            child: cat.icon,
                           ),
-                          if (this.actionStatesList.isNotEmpty)
-                            Padding(
-                              padding:
-                                  const EdgeInsets.only(left: 8.0, right: 8),
-                              child: FloatingActionButton(
-                                heroTag: 'circle_menu_auto_order',
-                                onPressed: () async {
-                                  modifyCirclesToGrid(this
-                                      .actionStatesList
-                                      .where(
-                                        (a) => a.pageIndex == pageIndex,
-                                      )
-                                      .toList());
-                                  onChange();
-                                },
-                                backgroundColor: Colors.green,
-                                child: Icon(Icons.grid_on),
-                              ),
-                            )
-                        ],
+                        ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8.0, right: 8),
+                        child: FloatingActionButton(
+                          heroTag: 'circle_menu_add_label',
+                          onPressed: () async {
+                            String? newText = await editText(
+                              context,
+                              config: widget.config,
+                            );
+                            if (newText != null) {
+                              int index = actionStatesList.length;
+                              labelStatesList.add(
+                                LabelMenuItemState(
+                                  pageIndex: pageIndex,
+                                  label: newText,
+                                  fontSize: 20,
+                                  x: initialOffset + 100 + index * 10,
+                                  y: MediaQuery.of(context).size.height - 350,
+                                  color: Theme.of(context).primaryColor,
+                                ),
+                              );
+                              onChange();
+                            }
+                          },
+                          backgroundColor: Colors.green,
+                          child: Icon(Icons.font_download_outlined),
+                        ),
                       ),
-                    ),
-                  ],
-                )
-              : Row(
+                      if (this.actionStatesList.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8.0, right: 8),
+                          child: FloatingActionButton(
+                            heroTag: 'circle_menu_auto_order',
+                            onPressed: () async {
+                              modifyCirclesToGrid(this
+                                  .actionStatesList
+                                  .where(
+                                    (a) => a.pageIndex == pageIndex,
+                                  )
+                                  .toList());
+                              onChange();
+                            },
+                            backgroundColor: Colors.green,
+                            child: Icon(Icons.grid_on),
+                          ),
+                        )
+                    ],
+                  ),
+                ),
+              ],
+              if (!isInEdit)
+                Row(
                   mainAxisAlignment: mainAlignment,
                   children: reverseIfTrue(
                     isRtl,
@@ -474,7 +474,9 @@ class _CirclesMenuState extends State<CirclesMenu> {
                         )
                     ],
                   ),
-                ),
+                )
+            ],
+          ),
         ),
       ),
     );
@@ -502,8 +504,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
             if (!cont) {
               return;
             }
-            _swapPages(
-                pageIndex, isStartSide ? pageIndex - 1 : pageIndex + 1);
+            _swapPages(pageIndex, isStartSide ? pageIndex - 1 : pageIndex + 1);
             onChange();
           },
           icon: Icon(
