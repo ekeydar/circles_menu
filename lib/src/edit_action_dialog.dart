@@ -18,7 +18,6 @@ class _EditItemDialogState extends State<EditItemDialog> {
   @override
   Widget build(BuildContext context) {
     return SimpleDialog(
-      //insetPadding: insetPadding,
       contentPadding: EdgeInsets.all(0),
       titlePadding: EdgeInsets.all(8.0),
       title: Text(
@@ -44,8 +43,8 @@ class _EditItemDialogState extends State<EditItemDialog> {
                   enabled: widget.actions[i].enabledCallback != null
                       ? widget.actions[i].enabledCallback!()
                       : true,
-                  onPressed: () {
-                    widget.actions[i].onPressed();
+                  onPressed: () async {
+                    await widget.actions[i].callback();
                     setState(() {});
                     if (widget.actions[i].popAfterPress) {
                       Navigator.of(context).pop();

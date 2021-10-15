@@ -48,8 +48,19 @@ class _MenuItemWidgetState extends State<MenuItemWidget> {
     BaseMenuItemState d = widget.data;
     return [
       StateAction(
+        icon: Icon(
+          Icons.delete_outline,
+          color: Theme.of(context).errorColor,
+        ),
+        callback: () async {
+          d.isDeleted = true;
+          widget.onChange();
+        },
+        popAfterPress: true,
+      ),
+      StateAction(
         icon: Icon(Icons.color_lens_outlined),
-        onPressed: () async {
+        callback: () async {
           Color? newColor = await pickColor(context,
               initialColor: d.color, config: widget.config);
           if (newColor != null) {
@@ -62,7 +73,7 @@ class _MenuItemWidgetState extends State<MenuItemWidget> {
       if (widget.data is LabelMenuItemState)
         StateAction(
           icon: Icon(Icons.font_download_outlined),
-          onPressed: () async {
+          callback: () async {
             LabelMenuItemState ld = widget.data as LabelMenuItemState;
             String? newText = await editText(
               context,
@@ -76,16 +87,8 @@ class _MenuItemWidgetState extends State<MenuItemWidget> {
           },
         ),
       StateAction(
-        icon: Icon(Icons.delete_outline),
-        onPressed: () {
-          d.isDeleted = true;
-          widget.onChange();
-        },
-        popAfterPress: true,
-      ),
-      StateAction(
           icon: Icon(Icons.add),
-          onPressed: () {
+          callback: () async {
             d.incr();
             widget.onChange();
           },
@@ -93,7 +96,7 @@ class _MenuItemWidgetState extends State<MenuItemWidget> {
       StateAction(
         enabledCallback: () => d.canDecr,
         icon: Icon(Icons.remove),
-        onPressed: () {
+        callback: () async {
           d.decr();
           widget.onChange();
         },

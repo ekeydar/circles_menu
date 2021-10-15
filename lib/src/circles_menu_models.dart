@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -290,13 +291,13 @@ typedef bool BoolCallback();
 
 class StateAction {
   final Icon icon;
-  final VoidCallback onPressed;
+  final AsyncCallback callback;
   final BoolCallback? enabledCallback;
   final bool popAfterPress;
 
   StateAction(
       {required this.icon,
-      required this.onPressed,
+      required this.callback,
       this.enabledCallback,
       this.popAfterPress = false});
 }
