@@ -21,7 +21,7 @@ class CircleMenuPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: false && kDebugMode ? this.color.withAlpha(100) : null,
+      color: kDebugMode ? this.color.withAlpha(100) : null,
       child: Stack(
         clipBehavior: Clip.none,
         children: this.buttons + this.items,
