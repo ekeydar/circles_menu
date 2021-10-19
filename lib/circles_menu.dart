@@ -263,6 +263,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
     bool isRtl = Directionality.of(context) == TextDirection.rtl;
     MainAxisAlignment mainAlignment =
         isRtl ? MainAxisAlignment.end : MainAxisAlignment.start;
+    int pagesCount = isInEdit ? numPagesInEdit : curNumPages;
     return Align(
       alignment: Alignment.bottomCenter,
       child: Padding(
@@ -270,10 +271,8 @@ class _CirclesMenuState extends State<CirclesMenu> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            PagingIndicator(
-              activeIndex: pageIndex,
-              count: isInEdit ? numPagesInEdit : curNumPages,
-            ),
+            if (pagesCount > 1)
+              PagingIndicator(activeIndex: pageIndex, count: pagesCount),
             if (isInEdit) ...[
               Row(
                 mainAxisAlignment: mainAlignment,
@@ -290,6 +289,16 @@ class _CirclesMenuState extends State<CirclesMenu> {
                             s.showActions = false;
                           });
                           this.onChange();
+                          if (this.currentPageIndex > this.curNumPages) {
+                            this.currentPageIndex = this.curNumPages - 1;
+                          }
+                          // animate to current page - to refresh indicators
+                          // instead of page deleted at end or middle
+                          this._pageController.animateToPage(
+                                this.currentPageIndex,
+                                duration: Duration(milliseconds: 10),
+                                curve: Curves.easeIn,
+                              );
                           if (widget.config.onEditDone != null) {
                             widget.config.onEditDone!();
                           }
@@ -531,7 +540,11 @@ class _CirclesMenuState extends State<CirclesMenu> {
             int newIndex = numPagesInEdit;
             numPagesInEdit++;
             onChange();
-            this._pageController.jumpToPage(newIndex);
+            this._pageController.animateToPage(
+                  newIndex,
+                  duration: Duration(milliseconds: 10),
+                  curve: Curves.easeIn,
+                );
           },
           icon: Icon(
             Icons.add,

@@ -61,7 +61,8 @@ class PagingSingleIndicator extends StatelessWidget {
           shape: BoxShape.circle,
           color: isActive
               ? Theme.of(context).primaryColor
-              : Colors.white, //Theme.of(context).primaryColor : Colors.white,
+              : Color.fromRGBO(200, 200, 200,
+                  1), //Theme.of(context).primaryColor : Colors.white,
         ),
       ),
     );
