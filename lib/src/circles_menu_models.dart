@@ -9,25 +9,28 @@ class PageData {
   List<LabelMenuItemState> labelsStates;
   int index;
   String? externalId;
+  bool isOwner;
+  bool externalOwnedByMe = false;
 
   PageData(
-      {this.externalId,
+      {required this.externalId,
+      required this.isOwner,
       required this.index,
       required this.actionsStates,
       required this.labelsStates});
 
-  PageData.empty({int index = 0})
-      : this.index = index,
-        actionsStates = [],
-        labelsStates = [];
+  factory PageData.empty({int index = 0}) {
+    return PageData(
+        index: index,
+        isOwner: false,
+        externalId: null,
+        actionsStates: [],
+        labelsStates: []);
+  }
 
-  PageData.fromMap(Map<String, dynamic> m,
-      {required Map<String, OpAction> actionsByCode})
-      : index = m['index'] ?? 0,
-        externalId = m['externalId'] ?? null,
-        actionsStates = [],
-        labelsStates = [] {
-    actionsStates = List<ActionMenuItemState>.from(
+  factory PageData.fromMap(Map<String, dynamic> m,
+      {required Map<String, OpAction> actionsByCode}) {
+    List<ActionMenuItemState> actionsStates = List<ActionMenuItemState>.from(
       (m['states'] ?? [])
           .where((m) => actionsByCode.containsKey(m['actionCode']))
           .map(
@@ -37,15 +40,20 @@ class PageData {
             ),
           ),
     );
-    labelsStates = List<LabelMenuItemState>.from(
+    List<LabelMenuItemState> labelsStates = List<LabelMenuItemState>.from(
         m['labels'].map((m) => LabelMenuItemState.fromMap(m)));
+    return PageData(
+        index: m['index'] ?? 0,
+        externalId: m['externalId'] ?? null,
+        isOwner: m['isOwner'] ?? false,
+        actionsStates: actionsStates,
+        labelsStates: labelsStates);
   }
 
   bool get readonly => externalId != null;
 
-  bool get isEmpty => actionsStates.isEmpty && labelsStates.isEmpty;
-
-  bool get isNotEmpty => actionsStates.isNotEmpty || labelsStates.isNotEmpty;
+  bool get canBeDeleted =>
+      actionsStates.isEmpty && labelsStates.isEmpty && !externalOwnedByMe;
 
   List<BaseMenuItemState> get allLabelsAndActions =>
       List<BaseMenuItemState>.from(actionsStates) +
@@ -83,7 +91,8 @@ class PageData {
       'states': states,
       'labels': labels,
       'index': this.index,
-      'externalId': this.externalId
+      'externalId': this.externalId,
+      'isOwner': this.isOwner,
     };
   }
 }

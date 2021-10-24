@@ -215,13 +215,26 @@ class _CirclesMenuState extends State<CirclesMenu> {
     return result;
   }
 
+  void squeezeAndSortPages() {
+    pageDataList.removeWhere((p) => p.canBeDeleted);
+    if (pageDataList.length == 0) {
+      pageDataList.add(PageData.empty());
+    }
+    pageDataList.sort((p1, p2) => p1.index.compareTo(p2.index));
+    for (int i = 0; i < pageDataList.length; i++) {
+      pageDataList[i].index = i;
+    }
+    if (this.currentPageIndex >= pageDataList.length) {
+      this.currentPageIndex = pageDataList.length - 1;
+    }
+  }
+
   Widget getBottomActions() {
     int pageIndex = this.currentPageIndex;
     PageData curPageData = this.pageDataList[pageIndex];
     bool isRtl = Directionality.of(context) == TextDirection.rtl;
     MainAxisAlignment mainAlignment =
         isRtl ? MainAxisAlignment.end : MainAxisAlignment.start;
-    int pagesCount = isInEdit ? curNumPages : curNumPages;
     return Align(
       alignment: Alignment.bottomCenter,
       child: Padding(
@@ -229,8 +242,8 @@ class _CirclesMenuState extends State<CirclesMenu> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            if (pagesCount > 1)
-              PagingIndicator(activeIndex: pageIndex, count: pagesCount),
+            if (curNumPages > 1)
+              PagingIndicator(activeIndex: pageIndex, count: curNumPages),
             if (isInEdit) ...[
               Row(
                 mainAxisAlignment: mainAlignment,
@@ -244,9 +257,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
                         onPressed: () async {
                           this.isInEdit = false;
                           this.onChange();
-                          if (this.currentPageIndex > this.curNumPages) {
-                            this.currentPageIndex = this.curNumPages - 1;
-                          }
+                          this.squeezeAndSortPages();
                           // animate to current page - to refresh indicators
                           // instead of page deleted at end or middle
                           this._pageController.animateToPage(
@@ -336,7 +347,9 @@ class _CirclesMenuState extends State<CirclesMenu> {
                                 ActionMenuItemState(
                                   pageIndex: pageIndex,
                                   action: newAction,
-                                  x: initialOffset + 100,
+                                  x: initialOffset +
+                                      100 +
+                                      curPageData.actionsStates.length * 10,
                                   y: MediaQuery.of(context).size.height - 350,
                                   radius: 50,
                                   fillColor: Theme.of(context).primaryColor,
@@ -364,7 +377,9 @@ class _CirclesMenuState extends State<CirclesMenu> {
                                 pageIndex: pageIndex,
                                 label: newText,
                                 fontSize: 20,
-                                x: initialOffset + 100,
+                                x: initialOffset +
+                                    100 +
+                                    curPageData.labelsStates.length * 10,
                                 y: MediaQuery.of(context).size.height - 350,
                                 color: Theme.of(context).primaryColor,
                               ),
@@ -535,17 +550,15 @@ class _CirclesMenuState extends State<CirclesMenu> {
           ),
         )
         .toList();
-    if (this.pageDataList.length == 0) {
-      pageDataList = [PageData.empty()];
-    }
-    this.pageDataList.sort((p1, p2) => p1.index.compareTo(p1.index));
+    this.squeezeAndSortPages();
   }
 
   void _swapPages(int pageIndex1, int pageIndex2) {
     PageData p1 = pageDataList[pageIndex1];
     PageData p2 = pageDataList[pageIndex2];
-    pageDataList[pageIndex1] = p2;
-    pageDataList[pageIndex2] = p1;
+    p1.index = pageIndex2;
+    p2.index = pageIndex1;
+    pageDataList.sort((p1, p2) => p1.index.compareTo(p2.index));
   }
 
   RestoreFromStringData restoreFromStringSafe(String? dumpText) {
