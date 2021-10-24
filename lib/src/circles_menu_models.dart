@@ -102,10 +102,8 @@ abstract class BaseMenuItemState {
   double y;
   bool isDeleted = false;
   bool isDragged = false;
-  int pageIndex; // zero based
 
-  BaseMenuItemState(
-      {required this.x, required this.y, required this.pageIndex});
+  BaseMenuItemState({required this.x, required this.y});
 
   @mustCallSuper
   Map<String, dynamic> toMap() {
@@ -115,7 +113,6 @@ abstract class BaseMenuItemState {
       // width and height are not really needed, just as extra (not used on restore)
       'width': width,
       'height': height,
-      'pageIndex': pageIndex,
     };
   }
 
@@ -156,13 +153,13 @@ class LabelMenuItemState extends BaseMenuItemState {
       required this.fontSize,
       required this.color,
       required this.label})
-      : super(x: x, y: y, pageIndex: pageIndex);
+      : super(x: x, y: y);
 
   LabelMenuItemState.fromMap(Map<String, dynamic> m)
       : color = Color(m['colorValue']),
         fontSize = m['fontSize'],
         label = m['label'],
-        super(pageIndex: m['pageIndex'] ?? 0, x: m['x'], y: m['y']);
+        super(x: m['x'], y: m['y']);
 
   Map<String, dynamic> toMap() {
     return super.toMap()
@@ -200,14 +197,14 @@ class ActionMenuItemState extends BaseMenuItemState {
       required this.radius,
       required this.action,
       required this.fillColor})
-      : super(x: x, y: y, pageIndex: pageIndex);
+      : super(x: x, y: y);
 
   ActionMenuItemState.fromMap(Map<String, dynamic> m,
       {required Map<String, OpAction> actionsByCode})
       : action = actionsByCode[m['actionCode']]!,
         fillColor = Color(m['fillColorValue']),
         radius = m['radius'],
-        super(x: m['x'], y: m['y'], pageIndex: m['pageIndex'] ?? 0);
+        super(x: m['x'], y: m['y']);
 
   Color get color => fillColor;
 
