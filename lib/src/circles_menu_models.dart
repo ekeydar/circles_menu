@@ -10,7 +10,6 @@ class PageData {
   int index;
   String? externalId;
   bool isOwner;
-  bool externalOwnedByMe = false;
 
   PageData(
       {required this.externalId,
@@ -52,8 +51,8 @@ class PageData {
 
   bool get readonly => externalId != null;
 
-  bool get canBeDeleted =>
-      actionsStates.isEmpty && labelsStates.isEmpty && !externalOwnedByMe;
+  bool get canBeSqueezed =>
+      actionsStates.isEmpty && labelsStates.isEmpty && !isOwner;
 
   List<BaseMenuItemState> get allLabelsAndActions =>
       List<BaseMenuItemState>.from(actionsStates) +

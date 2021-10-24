@@ -216,7 +216,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
   }
 
   void squeezeAndSortPages() {
-    pageDataList.removeWhere((p) => p.canBeDeleted);
+    pageDataList.removeWhere((p) => p.canBeSqueezed);
     if (pageDataList.length == 0) {
       pageDataList.add(PageData.empty());
     }
