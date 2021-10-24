@@ -2,13 +2,13 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 
-class RestoreFromStringData {
+class RestoreData {
   final List<Map<String, dynamic>> pagesMaps;
   final int version;
 
-  RestoreFromStringData({required this.pagesMaps, required this.version});
+  RestoreData({required this.pagesMaps, required this.version});
 
-  RestoreFromStringData.empty()
+  RestoreData.empty()
       : version = 0,
         pagesMaps = [];
 
@@ -31,24 +31,15 @@ class RestoreFromStringData {
   }
 }
 
-RestoreFromStringData restoreFromStringSafe({
+RestoreData buildRestoreData({
   required String? dumpText,
-  required List<String>? readonlyPagesTexts,
+  required List<Map<String, dynamic>> readonlyPagesMaps,
 }) {
   // the dump text is the user dumps (either from external DB or from shared_preferences)
   // readonlyPagesTexts is dump of readonly pages (with external id), they will be merge and combined
-  RestoreFromStringData fromInitial = _restoreFromInitial(dumpText);
-  late List<Map<String, dynamic>> readonlyPageMaps;
-  try {
-    readonlyPageMaps = (readonlyPagesTexts ?? []).map((t) {
-      return Map<String, dynamic>.from(jsonDecode(t));
-    }).toList();
-  } catch (ex, stacktrace) {
-    debugPrint('ex = $ex\nstacktrace = $stacktrace');
-    readonlyPageMaps = [];
-  }
+  RestoreData fromInitial = _restoreFromInitial(dumpText);
   Set<String> externalIds = <String>{};
-  for (var m in readonlyPageMaps) {
+  for (var m in readonlyPagesMaps) {
     if (m['externalId'] != null) {
       fromInitial.mergeReadonlyPage(m);
       externalIds.add(m['externalId']);
@@ -60,19 +51,19 @@ RestoreFromStringData restoreFromStringSafe({
   return fromInitial;
 }
 
-RestoreFromStringData _restoreFromInitial(String? dumpText) {
+RestoreData _restoreFromInitial(String? dumpText) {
   if (dumpText == null) {
-    return RestoreFromStringData.empty();
+    return RestoreData.empty();
   }
   try {
     Map<String, dynamic> dump = jsonDecode(dumpText);
     int version = dump['version'];
-    return RestoreFromStringData(
+    return RestoreData(
         version: version,
         pagesMaps: List<Map<String, dynamic>>.from(dump['pages'] ?? []));
   } catch (ex, stacktrace) {
     debugPrint('ex = $ex');
     debugPrint('$stacktrace');
-    return RestoreFromStringData.empty();
+    return RestoreData.empty();
   }
 }

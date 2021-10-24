@@ -26,14 +26,14 @@ class CirclesMenu extends StatefulWidget {
   final CirclesMenuConfig config;
   final List<OpAction> actions;
   final String? initialDump;
-  final List<String>? readonlyPagesDumps;
+  final List<Map<String, dynamic>> readonlyPagesMaps;
 
   CirclesMenu(
       {Key? key,
       CirclesMenuConfig? config,
       required this.actions,
       this.initialDump,
-      this.readonlyPagesDumps})
+      required this.readonlyPagesMaps})
       : this.config = config ?? CirclesMenuConfig();
 
   @override
@@ -574,9 +574,9 @@ class _CirclesMenuState extends State<CirclesMenu> {
     } else {
       dumpText = sp.getString(widget.config.spKey);
     }
-    RestoreFromStringData restoreData = restoreFromStringSafe(
+    RestoreData restoreData = buildRestoreData(
       dumpText: dumpText,
-      readonlyPagesTexts: widget.readonlyPagesDumps,
+      readonlyPagesMaps: widget.readonlyPagesMaps,
     );
     this.pageDataList = restoreData.pagesMaps
         .map(
