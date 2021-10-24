@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -64,7 +63,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
   Future<void> _prepare() async {
     await Future.delayed(Duration(milliseconds: 2));
     initialOffset = 0;
-    await _buildStateLists();
+    await _buildPages();
     numPagesInEdit = curNumPages;
     setState(() {
       _ready = true;
@@ -78,12 +77,12 @@ class _CirclesMenuState extends State<CirclesMenu> {
       Map<String, OpAction> actionsByCode = {
         for (var a in widget.actions) a.code: a
       };
-      actionStatesList
-          .removeWhere((st) => !actionsByCode.containsKey(st.action.code));
-      actionStatesList.forEach((st) {
-        String c = st.action.code;
-        st.action = actionsByCode[c]!;
-      });
+      for (var p in pageDataList) {
+        p.removeNotApplicableActions(actionsByCode);
+      }
+      for (var p in pageDataList) {
+        p.updateActions(actionsByCode);
+      }
       List<Color> colors = [Colors.red, Colors.green, Colors.blue];
       int numPages = this.isInEdit ? numPagesInEdit : curNumPages;
       return Stack(
@@ -119,61 +118,9 @@ class _CirclesMenuState extends State<CirclesMenu> {
     }
   }
 
-  List<BaseMenuItemState> get allLabelsAndActions =>
-      List<BaseMenuItemState>.from(actionStatesList) +
-      List<BaseMenuItemState>.from(labelStatesList);
-
-  void _fixCoordinatesIfTooSmall() {
-    Size pageSize = MediaQuery.of(context).size;
-    double maxX = pageSize.width;
-    double maxY = pageSize.height;
-    for (BaseMenuItemState s in this.allLabelsAndActions) {
-      if (s.maxX > maxX) {
-        double offset = s.maxX - maxX;
-        // if this is bit out of the page, this is ok
-        if (offset > s.width / 3) {
-          s.x = max(0, s.x - offset);
-          debugPrint('Moved in x!!!!');
-        }
-      }
-      if (s.maxY > maxY) {
-        double offset = s.maxY - maxY;
-        // if this is bit out of the page, this is ok
-        if (offset > s.height / 3) {
-          s.y = max(0, s.y - offset);
-          debugPrint('Moved in y!!!!');
-        }
-      }
-    }
-  }
-
-  void _removeEmptyPages() {
-    Map<int, List<BaseMenuItemState>> byPage =
-        Map<int, List<BaseMenuItemState>>();
-    for (BaseMenuItemState s in allLabelsAndActions) {
-      if (byPage.containsKey(s.pageIndex)) {
-        byPage[s.pageIndex]!.add(s);
-      } else {
-        byPage[s.pageIndex] = [s];
-      }
-    }
-    List<int> keys = byPage.keys.toList()..sort((k1, k2) => k1.compareTo(k2));
-    int nextIndex = 0;
-    for (int k in keys) {
-      byPage[k]!.forEach((s) {
-        s.pageIndex = nextIndex;
-      });
-      nextIndex++;
-    }
-  }
-
   void onChange() {
-    actionStatesList.removeWhere((d) => d.isDeleted);
-    labelStatesList.removeWhere((d) => d.isDeleted);
-    if (!isInEdit &&
-        actionStatesList.isNotEmpty &&
-        labelStatesList.isNotEmpty) {
-      _removeEmptyPages();
+    for (var p in pageDataList) {
+      p.removeDeleted();
     }
     _dumpStates();
     setState(() {});
@@ -326,23 +273,23 @@ class _CirclesMenuState extends State<CirclesMenu> {
                         child: Icon(Icons.cancel),
                       ),
                     ),
-                    if (widget.defaultDump != null)
-                      Padding(
-                        padding: const EdgeInsets.only(left: 8.0, right: 8),
-                        child: FloatingActionButton(
-                          heroTag: 'circle_menu_reset',
-                          onPressed: () async {
-                            if (await askConfirmation(
-                                context, widget.config.resetConfirmation,
-                                config: widget.config)) {
-                              await _buildStateLists(reset: true);
-                              onChange();
-                            }
-                          },
-                          backgroundColor: Colors.red,
-                          child: Icon(Icons.auto_delete),
-                        ),
-                      ),
+                    // if (widget.defaultDump != null)
+                    //   Padding(
+                    //     padding: const EdgeInsets.only(left: 8.0, right: 8),
+                    //     child: FloatingActionButton(
+                    //       heroTag: 'circle_menu_reset',
+                    //       onPressed: () async {
+                    //         if (await askConfirmation(
+                    //             context, widget.config.resetConfirmation,
+                    //             config: widget.config)) {
+                    //           await _buildPages(reset: true);
+                    //           onChange();
+                    //         }
+                    //       },
+                    //       backgroundColor: Colors.red,
+                    //       child: Icon(Icons.auto_delete),
+                    //     ),
+                    //   ),
                   ],
                 ),
               ),
@@ -577,14 +524,9 @@ class _CirclesMenuState extends State<CirclesMenu> {
 
   Future<void> _dumpStates() async {
     SharedPreferences sp = await SharedPreferences.getInstance();
-    List<Map<String, dynamic>> states =
-        actionStatesList.map((m) => m.toMap()).toList();
-    List<Map<String, dynamic>> labels =
-        labelStatesList.map((m) => m.toMap()).toList();
 
     Map<String, dynamic> data = {
-      'states': states,
-      'labels': labels,
+      'pages': [for (var p in this.pageDataList) p.toMap()],
       'timestampMs': DateTime.now().millisecondsSinceEpoch,
       'version': DUMP_VERSION,
     };
@@ -592,44 +534,45 @@ class _CirclesMenuState extends State<CirclesMenu> {
     await sp.setString(widget.config.spKey, value);
   }
 
-  Future<void> _buildStateLists({bool reset = false}) async {
+  Future<void> _buildPages() async {
     Map<String, OpAction> actionsByCode = {
       for (var a in widget.actions) a.code: a
     };
     SharedPreferences sp = await SharedPreferences.getInstance();
     String? dumpText;
-    if (reset) {
-      dumpText = widget.defaultDump;
-    } else if (!sp.containsKey(widget.config.spKey)) {
+    if (!sp.containsKey(widget.config.spKey)) {
       dumpText = widget.initialDump ?? widget.defaultDump;
     } else {
       dumpText = sp.getString(widget.config.spKey);
     }
     RestoreFromStringData restoreData = restoreFromStringSafe(dumpText);
-    actionStatesList = restoreData.actionMaps
-        .where((m) => actionsByCode.containsKey(m['actionCode']))
+    if (restoreData.version <= 3) {
+      this.pageDataList = [
+        PageData(
+          index: 0,
+          actionsStates: [],
+          labelsStates: [],
+        )
+      ];
+    }
+    pageDataList = restoreData.pagesMaps
         .map(
-          (m) => ActionMenuItemState.fromMap(
+          (m) => PageData.fromMap(
             m,
             actionsByCode: actionsByCode,
           ),
         )
         .toList();
-    labelStatesList = restoreData.labelMaps
-        .map((m) => LabelMenuItemState.fromMap(m))
-        .toList();
-    _removeEmptyPages();
-    _fixCoordinatesIfTooSmall();
   }
 
   void _swapPages(int pageIndex1, int pageIndex2) {
-    for (BaseMenuItemState s in allLabelsAndActions) {
-      if (s.pageIndex == pageIndex1) {
-        s.pageIndex = pageIndex2;
-      } else if (s.pageIndex == pageIndex2) {
-        s.pageIndex = pageIndex1;
-      }
-    }
+    // for (BaseMenuItemState s in allLabelsAndActions) {
+    //   if (s.pageIndex == pageIndex1) {
+    //     s.pageIndex = pageIndex2;
+    //   } else if (s.pageIndex == pageIndex2) {
+    //     s.pageIndex = pageIndex1;
+    //   }
+    // }
   }
 
   RestoreFromStringData restoreFromStringSafe(String? dumpText) {
@@ -641,8 +584,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
       int version = dump['version'];
       return RestoreFromStringData(
           version: version,
-          labelMaps: List<Map<String, dynamic>>.from(dump['labels'] ?? []),
-          actionMaps: List<Map<String, dynamic>>.from(dump['states']));
+          pagesMaps: List<Map<String, dynamic>>.from(dump['pages'] ?? []));
     } catch (ex, stacktrace) {
       debugPrint('ex = $ex');
       debugPrint('$stacktrace');

@@ -5,18 +5,76 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PageData {
-  List<ActionMenuItemState> actions;
-  List<LabelMenuItemState> labels;
+  List<ActionMenuItemState> actionsStates;
+  List<LabelMenuItemState> labelsStates;
   int index;
   String? externalId;
 
   PageData(
       {this.externalId,
       required this.index,
-      required this.actions,
-      required this.labels});
+      required this.actionsStates,
+      required this.labelsStates});
+
+  PageData.fromMap(Map<String, dynamic> m,
+      {required Map<String, OpAction> actionsByCode})
+      : index = m['index'] ?? 0,
+        externalId = m['externalId'] ?? null,
+        actionsStates = [],
+        labelsStates = [] {
+    actionsStates = (m['states'] ?? [])
+        .where((m) => actionsByCode.containsKey(m['actionCode']))
+        .map(
+          (m) => ActionMenuItemState.fromMap(
+            m,
+            actionsByCode: actionsByCode,
+          ),
+        )
+        .toList();
+    labelsStates =
+        m['labels'].map((m) => LabelMenuItemState.fromMap(m)).toList();
+  }
 
   bool get readonly => externalId != null;
+
+  bool get isEmpty => actionsStates.isEmpty && labelsStates.isEmpty;
+
+  bool get isNotEmpty => actionsStates.isNotEmpty || labelsStates.isNotEmpty;
+
+  List<BaseMenuItemState> get allLabelsAndActions =>
+      List<BaseMenuItemState>.from(actionsStates) +
+      List<BaseMenuItemState>.from(labelsStates);
+
+  void removeNotApplicableActions(Map<String, OpAction> actionsByCode) {
+    this
+        .actionsStates
+        .removeWhere((st) => !actionsByCode.containsKey(st.action.code));
+  }
+
+  void removeDeleted() {
+    actionsStates.removeWhere((d) => d.isDeleted);
+    labelsStates.removeWhere((d) => d.isDeleted);
+  }
+
+  void updateActions(Map<String, OpAction> actionsByCode) {
+    this.actionsStates.forEach((st) {
+      String c = st.action.code;
+      st.action = actionsByCode[c]!;
+    });
+  }
+
+  Map<String, dynamic> toMap() {
+    List<Map<String, dynamic>> states =
+        actionsStates.map((m) => m.toMap()).toList();
+    List<Map<String, dynamic>> labels =
+        labelsStates.map((m) => m.toMap()).toList();
+    return {
+      'states': states,
+      'labels': labels,
+      'index': this.index,
+      'externalId': this.externalId
+    };
+  }
 }
 
 abstract class BaseMenuItemState {
@@ -59,6 +117,7 @@ abstract class BaseMenuItemState {
   set color(Color c);
 
   double get maxX => x + width;
+
   double get maxY => y + height;
 
   String get title;
@@ -74,7 +133,7 @@ class LabelMenuItemState extends BaseMenuItemState {
   LabelMenuItemState(
       {required double x,
       required double y,
-        required int pageIndex,
+      required int pageIndex,
       required this.fontSize,
       required this.color,
       required this.label})
@@ -129,7 +188,7 @@ class ActionMenuItemState extends BaseMenuItemState {
   ActionMenuItemState(
       {required double x,
       required double y,
-        required int pageIndex,
+      required int pageIndex,
       required this.radius,
       required this.action,
       required this.fillColor})
@@ -202,7 +261,7 @@ class ActionsCategory {
   final String code;
   final int order;
 
-  ActionsCategory({required this.icon, required this.code, this.order=100});
+  ActionsCategory({required this.icon, required this.code, this.order = 100});
 
   static ActionsCategory defaultCategory = ActionsCategory(
     icon: Icon(Icons.add),
@@ -253,6 +312,7 @@ class CirclesMenuConfig {
   final String editLabelTitle;
   final String swapWithNextPageConfirmation;
   final String swapWithPrevPageConfirmation;
+
   // key to hold the data in shared preferences
   final String spKey;
 
@@ -273,11 +333,11 @@ class CirclesMenuConfig {
     this.cancelEditsConfirmation =
         'Are you sure you want to cancel the current edits',
     this.moveToEditMessage = 'Press the edit icon to edit the menu',
-    this.swapWithPrevPageConfirmation = 'Replace this page with the previous page?',
+    this.swapWithPrevPageConfirmation =
+        'Replace this page with the previous page?',
     this.swapWithNextPageConfirmation = 'Replace this page with the next page?',
     this.editLabelTitle = 'Edit label',
     this.spKey = 'circleButtons',
-
     this.onEditDone,
   });
 
@@ -288,19 +348,14 @@ class CirclesMenuConfig {
 }
 
 class RestoreFromStringData {
-  final List<Map<String, dynamic>> actionMaps;
-  final List<Map<String, dynamic>> labelMaps;
+  final List<Map<String, dynamic>> pagesMaps;
   final int version;
 
-  RestoreFromStringData(
-      {required this.actionMaps,
-      required this.labelMaps,
-      required this.version});
+  RestoreFromStringData({required this.pagesMaps, required this.version});
 
   RestoreFromStringData.empty()
       : version = 0,
-        actionMaps = [],
-        labelMaps = [];
+        pagesMaps = [];
 }
 
 typedef bool BoolCallback();
