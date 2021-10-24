@@ -16,8 +16,8 @@ class PageData {
       required this.actionsStates,
       required this.labelsStates});
 
-  PageData.empty()
-      : index = 0,
+  PageData.empty({int index = 0})
+      : this.index = index,
         actionsStates = [],
         labelsStates = [];
 

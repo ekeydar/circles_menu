@@ -48,7 +48,6 @@ class _CirclesMenuState extends State<CirclesMenu> {
   //late List<LabelMenuItemState> labelStatesList;
   double initialOffset = 0;
   bool isInEdit = false;
-  late int numPagesInEdit;
   PageController _pageController = PageController();
   int currentPageIndex = 0;
 
@@ -81,7 +80,6 @@ class _CirclesMenuState extends State<CirclesMenu> {
     await Future.delayed(Duration(milliseconds: 2));
     initialOffset = 0;
     await _buildPages();
-    numPagesInEdit = curNumPages;
     setState(() {
       _ready = true;
     });
@@ -101,7 +99,6 @@ class _CirclesMenuState extends State<CirclesMenu> {
         p.updateActions(actionsByCode);
       }
       List<Color> colors = [Colors.red, Colors.green, Colors.blue];
-      int numPages = this.isInEdit ? numPagesInEdit : curNumPages;
       return Stack(
         children: [
           PageView(
@@ -112,11 +109,11 @@ class _CirclesMenuState extends State<CirclesMenu> {
             },
             controller: _pageController,
             children: [
-              for (var pi = 0; pi < numPages; pi++)
+              for (var pi = 0; pi < curNumPages; pi++)
                 CircleMenuPage(
-                  key: Key('$pi/$numPages'),
+                  key: Key('$pi/$curNumPages'),
                   index: pi,
-                  numPages: numPages,
+                  numPages: curNumPages,
                   items: this.getItems(pageIndex: pi),
                   buttons: this.getButtons(context, pageIndex: pi),
                   color: colors[pi % colors.length],
@@ -200,12 +197,12 @@ class _CirclesMenuState extends State<CirclesMenu> {
     if (isInEdit) {
       Widget? startCenterWidget = getPageCenterColumn(
         pageIndex: pageIndex,
-        numPages: numPagesInEdit,
+        numPages: curNumPages,
         isStartSide: true,
       );
       Widget? endCenterWidget = getPageCenterColumn(
         pageIndex: pageIndex,
-        numPages: numPagesInEdit,
+        numPages: curNumPages,
         isStartSide: false,
       );
       if (startCenterWidget != null) {
@@ -224,7 +221,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
     bool isRtl = Directionality.of(context) == TextDirection.rtl;
     MainAxisAlignment mainAlignment =
         isRtl ? MainAxisAlignment.end : MainAxisAlignment.start;
-    int pagesCount = isInEdit ? numPagesInEdit : curNumPages;
+    int pagesCount = isInEdit ? curNumPages : curNumPages;
     return Align(
       alignment: Alignment.bottomCenter,
       child: Padding(
@@ -411,7 +408,6 @@ class _CirclesMenuState extends State<CirclesMenu> {
                           this.clonePages();
                           setState(() {
                             this.isInEdit = true;
-                            numPagesInEdit = curNumPages;
                           });
                         },
                         backgroundColor: Colors.red,
@@ -471,11 +467,10 @@ class _CirclesMenuState extends State<CirclesMenu> {
       if (addPlus)
         IconButton(
           onPressed: () async {
-            int newIndex = numPagesInEdit;
-            numPagesInEdit++;
+            pageDataList.add(PageData.empty(index: pageDataList.length));
             onChange();
             this._pageController.animateToPage(
-                  newIndex,
+                  pageDataList.length - 1,
                   duration: Duration(milliseconds: 10),
                   curve: Curves.easeIn,
                 );
@@ -547,13 +542,10 @@ class _CirclesMenuState extends State<CirclesMenu> {
   }
 
   void _swapPages(int pageIndex1, int pageIndex2) {
-    // for (BaseMenuItemState s in allLabelsAndActions) {
-    //   if (s.pageIndex == pageIndex1) {
-    //     s.pageIndex = pageIndex2;
-    //   } else if (s.pageIndex == pageIndex2) {
-    //     s.pageIndex = pageIndex1;
-    //   }
-    // }
+    PageData p1 = pageDataList[pageIndex1];
+    PageData p2 = pageDataList[pageIndex2];
+    pageDataList[pageIndex1] = p2;
+    pageDataList[pageIndex2] = p1;
   }
 
   RestoreFromStringData restoreFromStringSafe(String? dumpText) {
@@ -575,8 +567,13 @@ class _CirclesMenuState extends State<CirclesMenu> {
 
   Future<OpAction?> pickAction(List<OpAction> actions) async {
     PageData curPageData = pageDataList[currentPageIndex];
-    Set<String> curCodes =
-        curPageData.actionsStates.map((d) => d.action.code).toSet();
+    Set<String> curCodes = pageDataList.fold(
+      <String>{},
+      (curSet, p) => curSet.union(
+        p.actionsStates.map((s) => s.action.code).toSet(),
+      ),
+    );
+    curPageData.actionsStates.map((d) => d.action.code).toSet();
     actions.sort((a1, a2) => a1.title.compareTo(a2.title));
     return await showDialog<OpAction>(
         context: context,
