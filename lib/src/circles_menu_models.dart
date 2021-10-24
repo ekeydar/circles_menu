@@ -41,15 +41,19 @@ class PageData {
     );
     List<LabelMenuItemState> labelsStates = List<LabelMenuItemState>.from(
         m['labels'].map((m) => LabelMenuItemState.fromMap(m)));
+    String? externalId = m['externalId'];
+    if (kDebugMode && m['index'] == 1) {
+      externalId = 'dummy.1';
+    }
     return PageData(
         index: m['index'] ?? 0,
-        externalId: m['externalId'] ?? null,
+        externalId: externalId,
         isOwner: m['isOwner'] ?? false,
         actionsStates: actionsStates,
         labelsStates: labelsStates);
   }
 
-  bool get readonly => externalId != null;
+  bool get readonly => externalId != null && !isOwner;
 
   bool get canBeSqueezed =>
       actionsStates.isEmpty && labelsStates.isEmpty && !isOwner;

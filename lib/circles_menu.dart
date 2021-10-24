@@ -244,7 +244,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
           children: [
             if (curNumPages > 1)
               PagingIndicator(activeIndex: pageIndex, count: curNumPages),
-            if (isInEdit) ...[
+            if (isInEdit && !curPageData.readonly) ...[
               Row(
                 mainAxisAlignment: mainAlignment,
                 children: reverseIfTrue(
