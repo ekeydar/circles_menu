@@ -218,6 +218,8 @@ class _CirclesMenuState extends State<CirclesMenu> {
 
   Widget getBottomActions() {
     int pageIndex = this.currentPageIndex;
+    PageData curPageData =
+        this.pageDataList.firstWhere((p) => p.index == this.currentPageIndex);
     bool isRtl = Directionality.of(context) == TextDirection.rtl;
     MainAxisAlignment mainAlignment =
         isRtl ? MainAxisAlignment.end : MainAxisAlignment.start;
@@ -243,9 +245,6 @@ class _CirclesMenuState extends State<CirclesMenu> {
                         heroTag: 'circles_menu_approve_edit',
                         onPressed: () async {
                           this.isInEdit = false;
-                          this.actionStatesList.forEach((s) {
-                            s.showActions = false;
-                          });
                           this.onChange();
                           if (this.currentPageIndex > this.curNumPages) {
                             this.currentPageIndex = this.curNumPages - 1;
@@ -316,10 +315,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
                           if (await askConfirmation(
                               context, widget.config.emptyPageConfirmation,
                               config: widget.config)) {
-                            actionStatesList
-                                .removeWhere((s) => s.pageIndex == pageIndex);
-                            labelStatesList
-                                .removeWhere((ls) => ls.pageIndex == pageIndex);
+                            curPageData.empty();
                             onChange();
                           }
                         },
@@ -338,12 +334,11 @@ class _CirclesMenuState extends State<CirclesMenu> {
                                 .where((a) => a.category == cat)
                                 .toList());
                             if (newAction != null) {
-                              int index = actionStatesList.length;
-                              actionStatesList.add(
+                              curPageData.actionsStates.add(
                                 ActionMenuItemState(
                                   pageIndex: pageIndex,
                                   action: newAction,
-                                  x: initialOffset + 100 + index * 10,
+                                  x: initialOffset + 100,
                                   y: MediaQuery.of(context).size.height - 350,
                                   radius: 50,
                                   fillColor: Theme.of(context).primaryColor,
@@ -366,13 +361,12 @@ class _CirclesMenuState extends State<CirclesMenu> {
                             config: widget.config,
                           );
                           if (newText != null) {
-                            int index = actionStatesList.length;
-                            labelStatesList.add(
+                            curPageData.labelsStates.add(
                               LabelMenuItemState(
                                 pageIndex: pageIndex,
                                 label: newText,
                                 fontSize: 20,
-                                x: initialOffset + 100 + index * 10,
+                                x: initialOffset + 100,
                                 y: MediaQuery.of(context).size.height - 350,
                                 color: Theme.of(context).primaryColor,
                               ),
@@ -384,18 +378,13 @@ class _CirclesMenuState extends State<CirclesMenu> {
                         child: Icon(Icons.font_download_outlined),
                       ),
                     ),
-                    if (this.actionStatesList.isNotEmpty)
+                    if (curPageData.actionsStates.isNotEmpty)
                       Padding(
                         padding: const EdgeInsets.only(left: 8.0, right: 8),
                         child: FloatingActionButton(
                           heroTag: 'circle_menu_auto_order',
                           onPressed: () async {
-                            modifyCirclesToGrid(this
-                                .actionStatesList
-                                .where(
-                                  (a) => a.pageIndex == pageIndex,
-                                )
-                                .toList());
+                            modifyCirclesToGrid(curPageData.actionsStates);
                             onChange();
                           },
                           backgroundColor: Colors.green,

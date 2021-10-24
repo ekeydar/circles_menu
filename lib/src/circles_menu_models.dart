@@ -63,6 +63,11 @@ class PageData {
     });
   }
 
+  void empty() {
+    this.labelsStates.clear();
+    this.actionsStates.clear();
+  }
+
   Map<String, dynamic> toMap() {
     List<Map<String, dynamic>> states =
         actionsStates.map((m) => m.toMap()).toList();
@@ -81,7 +86,6 @@ abstract class BaseMenuItemState {
   double x;
   double y;
   bool isDeleted = false;
-  bool showActions = false;
   bool isDragged = false;
   int pageIndex; // zero based
 

@@ -65,7 +65,6 @@ class _MenuItemWidgetState extends State<MenuItemWidget> {
               initialColor: d.color, config: widget.config);
           if (newColor != null) {
             d.color = newColor;
-            d.showActions = false;
             widget.onChange();
           }
         },
