@@ -25,14 +25,14 @@ const int DUMP_VERSION = 4;
 class CirclesMenu extends StatefulWidget {
   final CirclesMenuConfig config;
   final List<OpAction> actions;
-  final String? initialDump;
+  final Map<String, dynamic>? extSavedMap;
   final List<Map<String, dynamic>> readonlyPagesMaps;
 
   CirclesMenu(
       {Key? key,
       CirclesMenuConfig? config,
       required this.actions,
-      this.initialDump,
+      this.extSavedMap,
       required this.readonlyPagesMaps})
       : this.config = config ?? CirclesMenuConfig();
 
@@ -568,17 +568,22 @@ class _CirclesMenuState extends State<CirclesMenu> {
       for (var a in widget.actions) a.code: a
     };
     SharedPreferences sp = await SharedPreferences.getInstance();
-    String? dumpText;
-    if (!sp.containsKey(widget.config.spKey)) {
-      dumpText = widget.initialDump;
-    } else {
-      dumpText = sp.getString(widget.config.spKey);
+    String? localSavedText = sp.getString(widget.config.spKey);
+    Map<String, dynamic>? savedMap;
+    if (localSavedText != null) {
+      try {
+        savedMap = jsonDecode(localSavedText);
+      } catch (ex, stacktrace) {
+        debugPrint('$ex\n$stacktrace');
+        savedMap = null;
+      }
     }
-    RestoreData restoreData = buildRestoreData(
-      dumpText: dumpText,
-      readonlyPagesMaps: widget.readonlyPagesMaps,
+    savedMap ??= widget.extSavedMap;
+    List<Map<String, dynamic>> pagesMaps = getStartMenuPages(
+      savedMap,
+      widget.readonlyPagesMaps,
     );
-    this.pageDataList = restoreData.pagesMaps
+    this.pageDataList = pagesMaps
         .map(
           (m) => PageData.fromMap(
             m,
