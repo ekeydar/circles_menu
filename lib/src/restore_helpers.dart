@@ -47,9 +47,16 @@ RestoreFromStringData restoreFromStringSafe({
     debugPrint('ex = $ex\nstacktrace = $stacktrace');
     readonlyPageMaps = [];
   }
+  Set<String> externalIds = <String>{};
   for (var m in readonlyPageMaps) {
-    fromInitial.mergeReadonlyPage(m);
+    if (m['externalId'] != null) {
+      fromInitial.mergeReadonlyPage(m);
+      externalIds.add(m['externalId']);
+    }
   }
+  // remove pages with externalId if it does not appear any more
+  fromInitial.pagesMaps.removeWhere(
+      (m) => m['externalId'] != null && !externalIds.contains(m['externalId']));
   return fromInitial;
 }
 
