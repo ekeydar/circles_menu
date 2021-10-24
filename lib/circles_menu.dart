@@ -16,6 +16,7 @@ import 'src/circles_menu_utils.dart';
 import 'src/circles_to_grid.dart';
 import 'src/indicator.dart';
 import 'src/label_menu_button.dart';
+import 'src/restore_helpers.dart';
 
 export 'src/circles_menu_models.dart';
 
@@ -25,14 +26,14 @@ class CirclesMenu extends StatefulWidget {
   final CirclesMenuConfig config;
   final List<OpAction> actions;
   final String? initialDump;
-  final String? defaultDump;
+  final List<String>? readonlyPagesDumps;
 
   CirclesMenu(
       {Key? key,
       CirclesMenuConfig? config,
       required this.actions,
       this.initialDump,
-      this.defaultDump})
+      this.readonlyPagesDumps})
       : this.config = config ?? CirclesMenuConfig();
 
   @override
@@ -568,11 +569,14 @@ class _CirclesMenuState extends State<CirclesMenu> {
     SharedPreferences sp = await SharedPreferences.getInstance();
     String? dumpText;
     if (!sp.containsKey(widget.config.spKey)) {
-      dumpText = widget.initialDump ?? widget.defaultDump;
+      dumpText = widget.initialDump;
     } else {
       dumpText = sp.getString(widget.config.spKey);
     }
-    RestoreFromStringData restoreData = restoreFromStringSafe(dumpText);
+    RestoreFromStringData restoreData = restoreFromStringSafe(
+      dumpText: dumpText,
+      readonlyPagesTexts: widget.readonlyPagesDumps,
+    );
     this.pageDataList = restoreData.pagesMaps
         .map(
           (m) => PageData.fromMap(
@@ -590,23 +594,6 @@ class _CirclesMenuState extends State<CirclesMenu> {
     p1.index = pageIndex2;
     p2.index = pageIndex1;
     pageDataList.sort((p1, p2) => p1.index.compareTo(p2.index));
-  }
-
-  RestoreFromStringData restoreFromStringSafe(String? dumpText) {
-    if (dumpText == null) {
-      return RestoreFromStringData.empty();
-    }
-    try {
-      Map<String, dynamic> dump = jsonDecode(dumpText);
-      int version = dump['version'];
-      return RestoreFromStringData(
-          version: version,
-          pagesMaps: List<Map<String, dynamic>>.from(dump['pages'] ?? []));
-    } catch (ex, stacktrace) {
-      debugPrint('ex = $ex');
-      debugPrint('$stacktrace');
-      return RestoreFromStringData.empty();
-    }
   }
 
   Future<OpAction?> pickAction(List<OpAction> actions) async {

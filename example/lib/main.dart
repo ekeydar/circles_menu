@@ -63,7 +63,6 @@ class CirclesMenuExampleState extends State<CirclesMenuExample> {
         body: CirclesMenu(
           actions: _getActions(context, disabledIndex: disabledIndex),
           config: config,
-          defaultDump: defaultDump,
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerTop,
         floatingActionButton: Padding(

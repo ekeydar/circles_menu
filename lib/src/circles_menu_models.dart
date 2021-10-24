@@ -346,17 +346,6 @@ class CirclesMenuConfig {
   }
 }
 
-class RestoreFromStringData {
-  final List<Map<String, dynamic>> pagesMaps;
-  final int version;
-
-  RestoreFromStringData({required this.pagesMaps, required this.version});
-
-  RestoreFromStringData.empty()
-      : version = 0,
-        pagesMaps = [];
-}
-
 typedef bool BoolCallback();
 
 class StateAction {
