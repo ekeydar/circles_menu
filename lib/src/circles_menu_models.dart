@@ -10,19 +10,23 @@ class PageData {
   int index;
   String? externalId;
   bool isOwner;
+  String? internalTitle;
 
-  PageData(
-      {required this.externalId,
-      required this.isOwner,
-      required this.index,
-      required this.actionsStates,
-      required this.labelsStates});
+  PageData({
+    required this.externalId,
+    required this.isOwner,
+    required this.index,
+    required this.actionsStates,
+    required this.labelsStates,
+    required this.internalTitle,
+  });
 
   factory PageData.empty({int index = 0}) {
     return PageData(
         index: index,
         isOwner: false,
         externalId: null,
+        internalTitle: null,
         actionsStates: [],
         labelsStates: []);
   }
@@ -51,6 +55,7 @@ class PageData {
         index: m['index'] ?? 0,
         externalId: externalId,
         isOwner: isOwner,
+        internalTitle: m['internalTitle'],
         actionsStates: actionsStates,
         labelsStates: labelsStates);
   }
@@ -98,6 +103,7 @@ class PageData {
       'index': this.index,
       'externalId': this.externalId,
       'isOwner': this.isOwner,
+      'internalTitle': this.internalTitle,
     };
   }
 }

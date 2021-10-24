@@ -300,6 +300,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
                           heroTag: 'circle_menu_lock_for_owner',
                           onPressed: null,
                           backgroundColor: Colors.red,
+                          tooltip: curPageData.internalTitle ?? 'unknown',
                           child: Icon(Icons.lock),
                         ),
                       ),
