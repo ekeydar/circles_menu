@@ -507,29 +507,23 @@ class _CirclesMenuState extends State<CirclesMenu> {
     );
   }
 
-  Future<void> _debugStates() async {
-    List<Map<String, dynamic>> states =
-        actionStatesList.map((m) => m.toMap()).toList();
-    List<Map<String, dynamic>> labels =
-        labelStatesList.map((m) => m.toMap()).toList();
-    Map<String, dynamic> data = {
-      'states': states,
-      'labels': labels,
+  Map<String, dynamic> toMap() {
+    return {
+      'pages': [for (var p in this.pageDataList) p.toMap()],
       'timestampMs': DateTime.now().millisecondsSinceEpoch,
       'version': DUMP_VERSION,
     };
+  }
+
+  Future<void> _debugStates() async {
+    Map<String, dynamic> data = this.toMap();
     String debugData = JsonEncoder.withIndent('    ').convert(data);
     debugPrint('data = $debugData');
   }
 
   Future<void> _dumpStates() async {
     SharedPreferences sp = await SharedPreferences.getInstance();
-
-    Map<String, dynamic> data = {
-      'pages': [for (var p in this.pageDataList) p.toMap()],
-      'timestampMs': DateTime.now().millisecondsSinceEpoch,
-      'version': DUMP_VERSION,
-    };
+    Map<String, dynamic> data = this.toMap();
     String value = jsonEncode(data);
     await sp.setString(widget.config.spKey, value);
   }
