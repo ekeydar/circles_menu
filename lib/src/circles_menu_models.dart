@@ -4,6 +4,21 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+class PageData {
+  List<ActionMenuItemState> actions;
+  List<LabelMenuItemState> labels;
+  int index;
+  String? externalId;
+
+  PageData(
+      {this.externalId,
+      required this.index,
+      required this.actions,
+      required this.labels});
+
+  bool get readonly => externalId != null;
+}
+
 abstract class BaseMenuItemState {
   double x;
   double y;
@@ -12,7 +27,8 @@ abstract class BaseMenuItemState {
   bool isDragged = false;
   int pageIndex; // zero based
 
-  BaseMenuItemState({required this.x, required this.y, required this.pageIndex});
+  BaseMenuItemState(
+      {required this.x, required this.y, required this.pageIndex});
 
   @mustCallSuper
   Map<String, dynamic> toMap() {

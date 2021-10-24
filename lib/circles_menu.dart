@@ -20,7 +20,7 @@ import 'src/label_menu_button.dart';
 
 export 'src/circles_menu_models.dart';
 
-const int DUMP_VERSION = 3;
+const int DUMP_VERSION = 4;
 
 class CirclesMenu extends StatefulWidget {
   final CirclesMenuConfig config;
@@ -42,6 +42,7 @@ class CirclesMenu extends StatefulWidget {
 
 class _CirclesMenuState extends State<CirclesMenu> {
   bool _ready = false;
+  late List<PageData> pageDataList;
   late List<ActionMenuItemState> actionStatesList;
   late List<LabelMenuItemState> labelStatesList;
   List<ActionMenuItemState> _beforeActionStatesList = [];
@@ -58,13 +59,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
     _prepare();
   }
 
-  int get curNumPages {
-    return max(
-        this.actionStatesList.fold<int>(
-            1, (int m, ActionMenuItemState s) => max(m, s.pageIndex + 1)),
-        this.labelStatesList.fold<int>(
-            1, (int m, LabelMenuItemState s) => max(m, s.pageIndex + 1)));
-  }
+  int get curNumPages => pageDataList.length;
 
   Future<void> _prepare() async {
     await Future.delayed(Duration(milliseconds: 2));
