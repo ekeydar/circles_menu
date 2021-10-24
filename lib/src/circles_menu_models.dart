@@ -154,17 +154,6 @@ class LabelMenuItemState extends BaseMenuItemState {
       });
   }
 
-  LabelMenuItemState clone() {
-    return LabelMenuItemState(
-      x: this.x,
-      y: this.y,
-      fontSize: this.fontSize,
-      label: this.label,
-      color: this.color,
-      pageIndex: this.pageIndex,
-    );
-  }
-
   double get width => max(90, 20 + 0.6 * fontSize * label.length);
 
   double get height => 50 + fontSize;
@@ -200,17 +189,6 @@ class ActionMenuItemState extends BaseMenuItemState {
         fillColor = Color(m['fillColorValue']),
         radius = m['radius'],
         super(x: m['x'], y: m['y'], pageIndex: m['pageIndex'] ?? 0);
-
-  ActionMenuItemState clone() {
-    return ActionMenuItemState(
-      x: this.x,
-      y: this.y,
-      action: this.action,
-      fillColor: this.fillColor,
-      radius: this.radius,
-      pageIndex: this.pageIndex,
-    );
-  }
 
   Color get color => fillColor;
 

@@ -42,15 +42,31 @@ class CirclesMenu extends StatefulWidget {
 class _CirclesMenuState extends State<CirclesMenu> {
   bool _ready = false;
   late List<PageData> pageDataList;
+  late String _clonedData;
   late List<ActionMenuItemState> actionStatesList;
   late List<LabelMenuItemState> labelStatesList;
-  List<ActionMenuItemState> _beforeActionStatesList = [];
-  List<LabelMenuItemState> _beforeLabelStatesList = [];
   double initialOffset = 0;
   bool isInEdit = false;
   late int numPagesInEdit;
   PageController _pageController = PageController();
   int currentPageIndex = 0;
+
+  void clonePages() {
+    _clonedData = jsonEncode(this.toMap());
+  }
+
+  void restorePagesFromClone() {
+    Map<String, OpAction> actionsByCode = {
+      for (var a in widget.actions) a.code: a
+    };
+    List<Map<String, dynamic>> _clonedPages =
+        List<Map<String, dynamic>>.from(jsonDecode(_clonedData));
+    pageDataList = _clonedPages
+        .map(
+          (m) => PageData.fromMap(m, actionsByCode: actionsByCode),
+        )
+        .toList();
+  }
 
   @override
   void initState() {
@@ -258,14 +274,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
                               context, widget.config.cancelEditsConfirmation,
                               config: widget.config)) {
                             setState(() {
-                              this.actionStatesList = this
-                                  ._beforeActionStatesList
-                                  .map((d) => d.clone())
-                                  .toList();
-                              this.labelStatesList = this
-                                  ._beforeLabelStatesList
-                                  .map((d) => d.clone())
-                                  .toList();
+                              this.restorePagesFromClone();
                             });
                           }
                         },
@@ -320,7 +329,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
                     ),
                     for (var cat in actionsCategories)
                       Padding(
-                        padding: const EdgeInsets.only(left: 8.0, right: 8),
+                        padding: const EdgeInsets.only(left: 8.0, right: 8.0),
                         child: FloatingActionButton(
                           heroTag: 'circle_menu_add_${cat.code}',
                           onPressed: () async {
@@ -409,14 +418,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
                         heroTag: 'circles_menu_start_edit',
                         onPressed: () async {
                           // save the state before the start edit
-                          this._beforeActionStatesList = this
-                              .actionStatesList
-                              .map((d) => d.clone())
-                              .toList();
-                          this._beforeLabelStatesList = this
-                              .labelStatesList
-                              .map((d) => d.clone())
-                              .toList();
+                          this.clonePages();
                           setState(() {
                             this.isInEdit = true;
                             numPagesInEdit = curNumPages;
@@ -540,16 +542,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
       dumpText = sp.getString(widget.config.spKey);
     }
     RestoreFromStringData restoreData = restoreFromStringSafe(dumpText);
-    if (restoreData.version <= 3) {
-      this.pageDataList = [
-        PageData(
-          index: 0,
-          actionsStates: [],
-          labelsStates: [],
-        )
-      ];
-    }
-    pageDataList = restoreData.pagesMaps
+    this.pageDataList = restoreData.pagesMaps
         .map(
           (m) => PageData.fromMap(
             m,
@@ -557,6 +550,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
           ),
         )
         .toList();
+    this.pageDataList.sort((p1, p2) => p1.index.compareTo(p1.index));
   }
 
   void _swapPages(int pageIndex1, int pageIndex2) {
