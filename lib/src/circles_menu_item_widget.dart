@@ -10,12 +10,14 @@ class MenuItemWidget extends StatefulWidget {
   final VoidCallback onChange;
   final CirclesMenuConfig config;
   final bool isInEdit;
+  final bool isReadonly;
   final Widget child;
 
   MenuItemWidget({
     Key? key,
     required this.config,
     required this.isInEdit,
+    required this.isReadonly,
     required this.data,
     required this.onPressed,
     required this.onChange,
@@ -112,43 +114,47 @@ class _MenuItemWidgetState extends State<MenuItemWidget> {
       left: 0,
       child: widget.isInEdit
           ? GestureDetector(
-              onLongPress: () async {
-                await showEditItemDialog(
-                  context: context,
-                  data: widget.data,
-                  actions: _getStateActions(),
-                );
-                //widget.data.showActions = !widget.data.showActions;
-                //widget.onChange();
-              },
-              child: Draggable(
-                feedback: Container(
-                  child: widget.child,
-                ),
-                child: widget.child,
-                childWhenDragging: Container(),
-                onDragStarted: () {
-                  widget.data.isDragged = true;
-                  setState(() {});
-                },
-                onDragEnd: (details) {
-                  widget.data.isDragged = false;
-                  setState(() {
-                    // double w = MediaQuery.of(context).size.width;
-                    // debugPrint('w = $w details.offset = ${details.offset} widget.controller.offset = ${widget.controller.offset}');
-                    // bool isRtl =
-                    //     Directionality.of(context) == TextDirection.rtl;
-                    double newX =
-                        details.offset.dx; // # + widget.controller.offset;
-                    // if (isRtl) {
-                    //   newX = w - newX;
-                    // }
-                    widget.data.x = newX;
-                    widget.data.y = details.offset.dy - 80;
-                    widget.onChange();
-                  });
-                },
-              ),
+              onLongPress: widget.isReadonly
+                  ? null
+                  : () async {
+                      await showEditItemDialog(
+                        context: context,
+                        data: widget.data,
+                        actions: _getStateActions(),
+                      );
+                      //widget.data.showActions = !widget.data.showActions;
+                      //widget.onChange();
+                    },
+              child: widget.isReadonly
+                  ? widget.child
+                  : Draggable(
+                      feedback: Container(
+                        child: widget.child,
+                      ),
+                      child: widget.child,
+                      childWhenDragging: Container(),
+                      onDragStarted: () {
+                        widget.data.isDragged = true;
+                        setState(() {});
+                      },
+                      onDragEnd: (details) {
+                        widget.data.isDragged = false;
+                        setState(() {
+                          // double w = MediaQuery.of(context).size.width;
+                          // debugPrint('w = $w details.offset = ${details.offset} widget.controller.offset = ${widget.controller.offset}');
+                          // bool isRtl =
+                          //     Directionality.of(context) == TextDirection.rtl;
+                          double newX = details
+                              .offset.dx; // # + widget.controller.offset;
+                          // if (isRtl) {
+                          //   newX = w - newX;
+                          // }
+                          widget.data.x = newX;
+                          widget.data.y = details.offset.dy - 80;
+                          widget.onChange();
+                        });
+                      },
+                    ),
             )
           : GestureDetector(
               onLongPress: () {

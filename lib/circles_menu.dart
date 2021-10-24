@@ -148,6 +148,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
         config: widget.config,
         data: d,
         isInEdit: this.isInEdit,
+        isReadonly: curPageData.readonly,
         onPressed: () {
           if (d.action.enabled) {
             d.action.onPressed();
@@ -172,6 +173,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
       result.add(MenuItemWidget(
         config: widget.config,
         isInEdit: this.isInEdit,
+        isReadonly: curPageData.readonly,
         data: d,
         onChange: this.onChange,
         onPressed: null,
@@ -242,8 +244,6 @@ class _CirclesMenuState extends State<CirclesMenu> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            if (curNumPages > 1)
-              PagingIndicator(activeIndex: pageIndex, count: curNumPages),
             if (isInEdit && !curPageData.readonly) ...[
               Row(
                 mainAxisAlignment: mainAlignment,
@@ -290,6 +290,19 @@ class _CirclesMenuState extends State<CirclesMenu> {
                         child: Icon(Icons.cancel),
                       ),
                     ),
+                    if (curPageData.isOwner &&
+                        curPageData.externalId != null) ...[
+                      Spacer(),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8.0, right: 8),
+                        child: FloatingActionButton(
+                          heroTag: 'circle_menu_lock_for_owner',
+                          onPressed: null,
+                          backgroundColor: Colors.red,
+                          child: Icon(Icons.lock),
+                        ),
+                      ),
+                    ]
                     // if (widget.defaultDump != null)
                     //   Padding(
                     //     padding: const EdgeInsets.only(left: 8.0, right: 8),
@@ -408,6 +421,21 @@ class _CirclesMenuState extends State<CirclesMenu> {
                 ),
               ),
             ],
+            if (isInEdit && curPageData.readonly)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8.0, right: 8),
+                    child: FloatingActionButton(
+                      heroTag: 'circles_menu_lock',
+                      onPressed: null,
+                      backgroundColor: Colors.red,
+                      child: Icon(Icons.lock),
+                    ),
+                  )
+                ],
+              ),
             if (!isInEdit)
               Row(
                 mainAxisAlignment: mainAlignment,
@@ -443,7 +471,10 @@ class _CirclesMenuState extends State<CirclesMenu> {
                       )
                   ],
                 ),
-              )
+              ),
+            if (curNumPages > 1) ...[
+              PagingIndicator(activeIndex: pageIndex, count: curNumPages),
+            ],
           ],
         ),
       ),

@@ -42,13 +42,15 @@ class PageData {
     List<LabelMenuItemState> labelsStates = List<LabelMenuItemState>.from(
         m['labels'].map((m) => LabelMenuItemState.fromMap(m)));
     String? externalId = m['externalId'];
+    bool isOwner = m['isOwner'] ?? false;
     if (kDebugMode && m['index'] == 1) {
       externalId = 'dummy.1';
+      isOwner = true;
     }
     return PageData(
         index: m['index'] ?? 0,
         externalId: externalId,
-        isOwner: m['isOwner'] ?? false,
+        isOwner: isOwner,
         actionsStates: actionsStates,
         labelsStates: labelsStates);
   }
