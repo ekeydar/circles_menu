@@ -43,8 +43,9 @@ class _CirclesMenuState extends State<CirclesMenu> {
   bool _ready = false;
   late List<PageData> pageDataList;
   late String _clonedData;
-  late List<ActionMenuItemState> actionStatesList;
-  late List<LabelMenuItemState> labelStatesList;
+
+  // late List<ActionMenuItemState> actionStatesList;
+  //late List<LabelMenuItemState> labelStatesList;
   double initialOffset = 0;
   bool isInEdit = false;
   late int numPagesInEdit;
@@ -144,7 +145,8 @@ class _CirclesMenuState extends State<CirclesMenu> {
 
   List<Widget> getItems({required int pageIndex}) {
     List<Widget> result = [];
-    for (var d in actionStatesList.where((pi) => pi.pageIndex == pageIndex)) {
+    PageData curPageData = this.pageDataList[pageIndex];
+    for (var d in curPageData.actionsStates) {
       result.add(MenuItemWidget(
         config: widget.config,
         data: d,
@@ -169,7 +171,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
         onChange: this.onChange,
       ));
     }
-    for (var d in labelStatesList.where((pi) => pi.pageIndex == pageIndex)) {
+    for (LabelMenuItemState d in curPageData.labelsStates) {
       result.add(MenuItemWidget(
         config: widget.config,
         isInEdit: this.isInEdit,
@@ -218,8 +220,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
 
   Widget getBottomActions() {
     int pageIndex = this.currentPageIndex;
-    PageData curPageData =
-        this.pageDataList.firstWhere((p) => p.index == this.currentPageIndex);
+    PageData curPageData = this.pageDataList[pageIndex];
     bool isRtl = Directionality.of(context) == TextDirection.rtl;
     MainAxisAlignment mainAlignment =
         isRtl ? MainAxisAlignment.end : MainAxisAlignment.start;
@@ -539,6 +540,9 @@ class _CirclesMenuState extends State<CirclesMenu> {
           ),
         )
         .toList();
+    if (this.pageDataList.length == 0) {
+      pageDataList = [PageData.empty()];
+    }
     this.pageDataList.sort((p1, p2) => p1.index.compareTo(p1.index));
   }
 
@@ -570,7 +574,9 @@ class _CirclesMenuState extends State<CirclesMenu> {
   }
 
   Future<OpAction?> pickAction(List<OpAction> actions) async {
-    Set<String> curCodes = actionStatesList.map((d) => d.action.code).toSet();
+    PageData curPageData = pageDataList[currentPageIndex];
+    Set<String> curCodes =
+        curPageData.actionsStates.map((d) => d.action.code).toSet();
     actions.sort((a1, a2) => a1.title.compareTo(a2.title));
     return await showDialog<OpAction>(
         context: context,

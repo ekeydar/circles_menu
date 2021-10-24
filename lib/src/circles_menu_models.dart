@@ -16,23 +16,29 @@ class PageData {
       required this.actionsStates,
       required this.labelsStates});
 
+  PageData.empty()
+      : index = 0,
+        actionsStates = [],
+        labelsStates = [];
+
   PageData.fromMap(Map<String, dynamic> m,
       {required Map<String, OpAction> actionsByCode})
       : index = m['index'] ?? 0,
         externalId = m['externalId'] ?? null,
         actionsStates = [],
         labelsStates = [] {
-    actionsStates = (m['states'] ?? [])
-        .where((m) => actionsByCode.containsKey(m['actionCode']))
-        .map(
-          (m) => ActionMenuItemState.fromMap(
-            m,
-            actionsByCode: actionsByCode,
+    actionsStates = List<ActionMenuItemState>.from(
+      (m['states'] ?? [])
+          .where((m) => actionsByCode.containsKey(m['actionCode']))
+          .map(
+            (m) => ActionMenuItemState.fromMap(
+              m,
+              actionsByCode: actionsByCode,
+            ),
           ),
-        )
-        .toList();
-    labelsStates =
-        m['labels'].map((m) => LabelMenuItemState.fromMap(m)).toList();
+    );
+    labelsStates = List<LabelMenuItemState>.from(
+        m['labels'].map((m) => LabelMenuItemState.fromMap(m)));
   }
 
   bool get readonly => externalId != null;
