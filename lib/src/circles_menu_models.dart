@@ -47,10 +47,6 @@ class PageData {
         m['labels'].map((m) => LabelMenuItemState.fromMap(m)));
     String? externalId = m['externalId'];
     bool isOwner = m['isOwner'] ?? false;
-    if (kDebugMode && m['index'] == 1) {
-      externalId = 'dummy.1';
-      isOwner = true;
-    }
     return PageData(
         index: m['index'] ?? 0,
         externalId: externalId,
