@@ -44,52 +44,7 @@ class _PagesScreenState extends State<PagesScreen> {
                 });
                 setState(() {});
               },
-              children: widget.pages
-                  .map(
-                    (page) => Dismissible(
-                      confirmDismiss: (DismissDirection direction) async {
-                        String p = widget.config.deletePageConfirmation;
-                        String t = page.title;
-                        return await askConfirmation(
-                          context,
-                          '$p: $t',
-                          config: widget.config,
-                        );
-                      },
-                      direction: DismissDirection.startToEnd,
-                      background: Container(
-                        color: Colors.red,
-                        child: Align(
-                          alignment: Alignment.centerRight,
-                          child: Padding(
-                            padding:
-                                const EdgeInsets.only(left: 32.0, right: 32.0),
-                            child: Icon(Icons.delete),
-                          ),
-                        ),
-                      ),
-                      onDismissed: (DismissDirection direction) {
-                        setState(() {
-                          widget.pages.remove(page);
-                        });
-                      },
-                      key: ValueKey(page),
-                      child: Card(
-                        elevation: 5,
-                        child: ListTile(
-                          title: Text(page.title),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (page.readonly) Icon(Icons.lock),
-                              Text('${page.actionsStates.length}'),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  )
-                  .toList(),
+              children: widget.pages.map((page) => getListItem(page)).toList(),
             ),
             Card(
               elevation: 1,
@@ -121,6 +76,53 @@ class _PagesScreenState extends State<PagesScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget getListItem(PageData page) {
+    Widget child = Card(
+        elevation: 5,
+        child: ListTile(
+          title: Text(page.title),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (page.externalId != null) Icon(Icons.lock),
+              Text('${page.actionsStates.length}'),
+            ],
+          ),
+        ));
+    if (page.externalId != null) {
+      return child;
+    }
+    return Dismissible(
+      confirmDismiss: (DismissDirection direction) async {
+        String p = widget.config.deletePageConfirmation;
+        String t = page.title;
+        return await askConfirmation(
+          context,
+          '$p: $t',
+          config: widget.config,
+        );
+      },
+      direction: DismissDirection.startToEnd,
+      background: Container(
+        color: Colors.red,
+        child: Align(
+          alignment: Alignment.centerRight,
+          child: Padding(
+            padding: const EdgeInsets.only(left: 32.0, right: 32.0),
+            child: Icon(Icons.delete),
+          ),
+        ),
+      ),
+      onDismissed: (DismissDirection direction) {
+        setState(() {
+          widget.pages.remove(page);
+        });
+      },
+      key: ValueKey(page),
+      child: child,
     );
   }
 }
