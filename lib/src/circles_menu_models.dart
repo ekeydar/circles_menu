@@ -156,7 +156,6 @@ class LabelMenuItemState extends BaseMenuItemState {
   LabelMenuItemState(
       {required double x,
       required double y,
-      required int pageIndex,
       required this.fontSize,
       required this.color,
       required this.label})
@@ -200,7 +199,6 @@ class ActionMenuItemState extends BaseMenuItemState {
   ActionMenuItemState(
       {required double x,
       required double y,
-      required int pageIndex,
       required this.radius,
       required this.action,
       required this.fillColor})

@@ -232,12 +232,16 @@ class _CirclesMenuState extends State<CirclesMenu> {
     }
   }
 
+  PageData get curPageData {
+    return this.pageDataList[currentPageIndex];
+  }
+
+  bool get isRtl => Directionality.of(context) == TextDirection.rtl;
+
+  MainAxisAlignment get mainAlignmentForBottom =>
+      isRtl ? MainAxisAlignment.end : MainAxisAlignment.start;
+
   Widget getBottomActions() {
-    int pageIndex = this.currentPageIndex;
-    PageData curPageData = this.pageDataList[pageIndex];
-    bool isRtl = Directionality.of(context) == TextDirection.rtl;
-    MainAxisAlignment mainAlignment =
-        isRtl ? MainAxisAlignment.end : MainAxisAlignment.start;
     return Align(
       alignment: Alignment.bottomCenter,
       child: Padding(
@@ -247,7 +251,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
           children: [
             if (isInEdit && !curPageData.readonly) ...[
               Row(
-                mainAxisAlignment: mainAlignment,
+                mainAxisAlignment: mainAlignmentForBottom,
                 children: reverseIfTrue(
                   isRtl,
                   [
@@ -327,7 +331,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
               ),
               SizedBox(height: 10),
               Row(
-                mainAxisAlignment: mainAlignment,
+                mainAxisAlignment: mainAlignmentForBottom,
                 children: reverseIfTrue(
                   isRtl,
                   [
@@ -360,7 +364,6 @@ class _CirclesMenuState extends State<CirclesMenu> {
                             if (newAction != null) {
                               curPageData.actionsStates.add(
                                 ActionMenuItemState(
-                                  pageIndex: pageIndex,
                                   action: newAction,
                                   x: initialOffset +
                                       100 +
@@ -389,7 +392,6 @@ class _CirclesMenuState extends State<CirclesMenu> {
                           if (newText != null) {
                             curPageData.labelsStates.add(
                               LabelMenuItemState(
-                                pageIndex: pageIndex,
                                 label: newText,
                                 fontSize: 20,
                                 x: initialOffset +
@@ -440,7 +442,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
               ),
             if (!isInEdit)
               Row(
-                mainAxisAlignment: mainAlignment,
+                mainAxisAlignment: mainAlignmentForBottom,
                 children: reverseIfTrue(
                   isRtl,
                   [
@@ -475,7 +477,8 @@ class _CirclesMenuState extends State<CirclesMenu> {
                 ),
               ),
             if (curNumPages > 1) ...[
-              PagingIndicator(activeIndex: pageIndex, count: curNumPages),
+              PagingIndicator(
+                  activeIndex: currentPageIndex, count: curNumPages),
             ],
           ],
         ),
