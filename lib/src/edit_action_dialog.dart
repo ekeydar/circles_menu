@@ -88,21 +88,22 @@ Future<void> showEditItemDialog(
     required BaseMenuItemState data,
     required List<StateAction> actions}) async {
   showGeneralDialog(
-      context: context,
-      barrierDismissible: true,
-      barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-      barrierColor: Colors.black45,
-      transitionDuration: const Duration(milliseconds: 200),
-      pageBuilder: (BuildContext buildContext, Animation animation,
-          Animation secondaryAnimation) {
-        return Stack(
-          children: [
-            Positioned(
-              child: EditItemDialog(data: data, actions: actions),
-              top: data.y > 60 ? data.y - 30 : data.y + data.height + 60,
-              left: 10,
-            )
-          ],
-        );
-      });
+    context: context,
+    barrierDismissible: true,
+    barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+    barrierColor: Colors.black45,
+    transitionDuration: const Duration(milliseconds: 200),
+    pageBuilder: (BuildContext buildContext, Animation animation,
+        Animation secondaryAnimation) {
+      return Stack(
+        children: [
+          Positioned(
+            child: EditItemDialog(data: data, actions: actions),
+            top: data.y > 60 ? data.y - 30 : data.y + data.height + 60,
+            left: 10,
+          )
+        ],
+      );
+    },
+  );
 }

@@ -1,7 +1,7 @@
-import 'package:circles_menu/src/circle_box.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
+import '../circle_box.dart';
 import '../circles_menu_confirm.dart';
 import '../circles_menu_models.dart';
 import '../circles_menu_utils.dart';

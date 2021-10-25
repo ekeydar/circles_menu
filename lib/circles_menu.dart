@@ -247,17 +247,18 @@ class _CirclesMenuState extends State<CirclesMenu> {
               child: Icon(Icons.settings),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(left: 8.0, right: 8),
-            child: FloatingActionButton(
-              heroTag: 'circle_menu_debug',
-              onPressed: () async {
-                await _debugStates();
-              },
-              backgroundColor: Colors.green,
-              child: Icon(Icons.bug_report_outlined),
-            ),
-          )
+          if (kDebugMode)
+            Padding(
+              padding: const EdgeInsets.only(left: 8.0, right: 8),
+              child: FloatingActionButton(
+                heroTag: 'circle_menu_debug',
+                onPressed: () async {
+                  await _debugStates();
+                },
+                backgroundColor: Colors.green,
+                child: Icon(Icons.bug_report_outlined),
+              ),
+            )
         ],
       ),
     );
