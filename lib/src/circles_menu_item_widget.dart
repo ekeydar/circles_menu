@@ -5,18 +5,16 @@ import 'circles_menu_utils.dart';
 import 'edit_action_dialog.dart';
 
 class MenuItemWidget extends StatefulWidget {
-  final BaseMenuItemState data;
+  final ActionMenuItemState data;
   final VoidCallback? onPressed;
   final VoidCallback onChange;
   final CirclesMenuConfig config;
-  final bool isInEdit;
   final bool isReadonly;
   final Widget child;
 
   MenuItemWidget({
     Key? key,
     required this.config,
-    required this.isInEdit,
     required this.isReadonly,
     required this.data,
     required this.onPressed,
@@ -90,70 +88,56 @@ class _MenuItemWidgetState extends State<MenuItemWidget> {
   }
 
   Widget _getMainButton() {
-    BaseMenuItemState d = widget.data;
-    VoidCallback? onPressed =
-        d is ActionMenuItemState ? d.action.onPressed : null;
+    ActionMenuItemState d = widget.data;
     return Positioned(
       top: 0,
       left: 0,
-      child: widget.isInEdit
-          ? GestureDetector(
-              onLongPress: widget.isReadonly
-                  ? null
-                  : () async {
-                      await showEditItemDialog(
-                        context: context,
-                        data: widget.data,
-                        actions: _getStateActions(),
-                      );
-                      //widget.data.showActions = !widget.data.showActions;
-                      //widget.onChange();
-                    },
-              child: widget.isReadonly
-                  ? widget.child
-                  : Draggable(
-                      feedback: Container(
-                        child: widget.child,
-                      ),
-                      child: widget.child,
-                      childWhenDragging: Container(),
-                      onDragStarted: () {
-                        widget.data.isDragged = true;
-                        setState(() {});
-                      },
-                      onDragEnd: (details) {
-                        widget.data.isDragged = false;
-                        setState(() {
-                          // double w = MediaQuery.of(context).size.width;
-                          // debugPrint('w = $w details.offset = ${details.offset} widget.controller.offset = ${widget.controller.offset}');
-                          // bool isRtl =
-                          //     Directionality.of(context) == TextDirection.rtl;
-                          double newX = details
-                              .offset.dx; // # + widget.controller.offset;
-                          // if (isRtl) {
-                          //   newX = w - newX;
-                          // }
-                          widget.data.x = newX;
-                          widget.data.y = details.offset.dy - 80;
-                          widget.onChange();
-                        });
-                      },
-                    ),
-            )
-          : GestureDetector(
-              onLongPress: () {
-                final snackBar = SnackBar(
-                  content: Text(widget.config.moveToEditMessage),
-                  backgroundColor: Colors.red,
-                  duration: Duration(milliseconds: 1000),
+      child: GestureDetector(
+        onTap: () {
+          d.action.onPressed();
+        },
+        onLongPress: widget.isReadonly
+            ? null
+            : () async {
+                await showEditItemDialog(
+                  context: context,
+                  data: widget.data,
+                  actions: _getStateActions(),
                 );
-                ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                //widget.data.showActions = !widget.data.showActions;
+                //widget.onChange();
               },
-              child: GestureDetector(
-                onTap: onPressed,
+        child: widget.isReadonly
+            ? widget.child
+            : Draggable(
+                feedback: Container(
+                  child: widget.child,
+                ),
                 child: widget.child,
+                childWhenDragging: Container(),
+                onDragStarted: () {
+                  widget.data.isDragged = true;
+                  setState(() {});
+                },
+                onDragEnd: (details) {
+                  widget.data.isDragged = false;
+                  setState(() {
+                    // double w = MediaQuery.of(context).size.width;
+                    // debugPrint('w = $w details.offset = ${details.offset} widget.controller.offset = ${widget.controller.offset}');
+                    // bool isRtl =
+                    //     Directionality.of(context) == TextDirection.rtl;
+                    double newX =
+                        details.offset.dx; // # + widget.controller.offset;
+                    // if (isRtl) {
+                    //   newX = w - newX;
+                    // }
+                    widget.data.x = newX;
+                    widget.data.y = details.offset.dy - 80;
+                    widget.onChange();
+                  });
+                },
               ),
-            ),
+      ),
     );
   }
 }

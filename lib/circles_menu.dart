@@ -127,7 +127,6 @@ class _CirclesMenuState extends State<CirclesMenu> {
       result.add(MenuItemWidget(
         config: widget.config,
         data: d,
-        isInEdit: true,
         isReadonly: curPageData.notEditable,
         onPressed: () {
           if (d.action.enabled) {
