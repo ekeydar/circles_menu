@@ -7,14 +7,14 @@ class PageData {
   int index;
   String? externalId;
   bool isOwner;
-  String? internalTitle;
+  String? title;
 
   PageData({
     required this.externalId,
     required this.isOwner,
     required this.index,
     required this.actionsStates,
-    required this.internalTitle,
+    required this.title,
   });
 
   factory PageData.empty({int index = 0}) {
@@ -22,7 +22,7 @@ class PageData {
       index: index,
       isOwner: false,
       externalId: null,
-      internalTitle: null,
+      title: null,
       actionsStates: [],
     );
   }
@@ -45,10 +45,12 @@ class PageData {
       index: m['index'] ?? 0,
       externalId: externalId,
       isOwner: isOwner,
-      internalTitle: m['internalTitle'],
+      title: m['title'],
       actionsStates: actionsStates,
     );
   }
+
+  String get displayTitle => title ?? '# $index';
 
   bool get readonly => externalId != null && !isOwner;
 
@@ -83,7 +85,7 @@ class PageData {
       'index': this.index,
       'externalId': this.externalId,
       'isOwner': this.isOwner,
-      'internalTitle': this.internalTitle,
+      'title': this.title,
     };
   }
 }

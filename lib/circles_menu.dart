@@ -113,11 +113,13 @@ class _CirclesMenuState extends State<CirclesMenu> {
               for (var pi = 0; pi < curNumPages; pi++)
                 CircleMenuPage(
                   key: Key('$pi/$curNumPages'),
+                  pageData: this.pageDataList[pi],
                   index: pi,
                   numPages: curNumPages,
                   items: this.getItems(pageIndex: pi),
                   buttons: this.getButtons(context, pageIndex: pi),
                   color: colors[pi % colors.length],
+                  config: widget.config,
                 ),
             ],
           ),
@@ -279,9 +281,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
                 heroTag: 'circle_menu_lock_for_owner',
                 onPressed: null,
                 backgroundColor: Colors.red,
-                tooltip: curPageData.isOwner
-                    ? (curPageData.internalTitle ?? 'unknown')
-                    : null,
+                tooltip: curPageData.isOwner ? (curPageData.displayTitle) : null,
                 child: Icon(Icons.lock),
               ),
             ),
