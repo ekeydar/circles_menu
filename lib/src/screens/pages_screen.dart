@@ -88,18 +88,20 @@ class _PagesScreenState extends State<PagesScreen> {
         elevation: 5,
         child: ListTile(
           leading: GestureDetector(
-            onTap: () async {
-              Color? c = await pickColor(
-                context,
-                initialColor: page.color,
-                config: widget.config,
-              );
-              if (c != null) {
-                setState(() {
-                  page.color = c;
-                });
-              }
-            },
+            onTap: page.canBeEdited
+                ? () async {
+                    Color? c = await pickColor(
+                      context,
+                      initialColor: page.color,
+                      config: widget.config,
+                    );
+                    if (c != null) {
+                      setState(() {
+                        page.color = c;
+                      });
+                    }
+                  }
+                : null,
             child: CircleBox(
               borderColor: Colors.grey,
               fillColor: page.color,
