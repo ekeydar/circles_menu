@@ -444,7 +444,6 @@ class _CirclesMenuState extends State<CirclesMenu> {
                 children: reverseIfTrue(
                   isRtl,
                   [
-                    if (curPageData.readonly)
                     Padding(
                       padding: const EdgeInsets.only(left: 8.0, right: 8),
                       child: FloatingActionButton(
@@ -460,7 +459,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
                         child: Icon(Icons.edit),
                       ),
                     ),
-                    if (kDebugMode && false)
+                    if (kDebugMode)
                       Padding(
                         padding: const EdgeInsets.only(left: 8.0, right: 8),
                         child: FloatingActionButton(

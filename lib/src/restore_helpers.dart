@@ -7,6 +7,8 @@ List<Map<String, dynamic>> getStartMenuPages(
   for (var p in readonlyPages) {
     mergeReadonlyPage(pages, p);
   }
+  pages[1]['externalId'] = 'dummy.dum.1';
+  pages[1]['isOwner'] = false;
   return pages;
 }
 
