@@ -10,7 +10,7 @@ class CircleBox extends StatelessWidget {
       {required this.radius,
       required this.child,
       required this.fillColor,
-      required this.borderColor});
+      this.borderColor});
 
   @override
   Widget build(BuildContext context) {
@@ -20,6 +20,9 @@ class CircleBox extends StatelessWidget {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: fillColor,
+        border: borderColor != null
+            ? Border.all(width: 1, color: borderColor!)
+            : null,
       ),
       child: Center(
         child: child,

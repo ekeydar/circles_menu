@@ -104,7 +104,6 @@ class _CirclesMenuState extends State<CirclesMenu> {
       for (var p in pageDataList) {
         p.updateActions(actionsByCode);
       }
-      List<Color> colors = [Colors.red, Colors.green, Colors.blue];
       return Stack(
         children: [
           PageView(
@@ -122,7 +121,6 @@ class _CirclesMenuState extends State<CirclesMenu> {
                   index: pi,
                   numPages: curNumPages,
                   items: this.getItems(pageIndex: pi),
-                  color: colors[pi % colors.length],
                   config: widget.config,
                 ),
             ],
@@ -171,7 +169,6 @@ class _CirclesMenuState extends State<CirclesMenu> {
                 ),
           ),
           fillColor: d.actualFillColor,
-          borderColor: d.borderColor,
         ),
         onChange: this.onChange,
       ));

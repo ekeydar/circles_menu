@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PageData {
+  static Color defaultColor = Colors.white;
   List<ActionMenuItemState> actionsStates;
   int index;
   String? externalId;
   bool isOwner;
   String title;
+  Color color;
 
   PageData({
     required this.externalId,
@@ -15,6 +17,7 @@ class PageData {
     required this.index,
     required this.actionsStates,
     required this.title,
+    required this.color,
   });
 
   factory PageData.empty({int index = 0, required String title}) {
@@ -23,32 +26,35 @@ class PageData {
       isOwner: false,
       externalId: null,
       title: title,
+      color: PageData.defaultColor,
       actionsStates: [],
     );
   }
 
   factory PageData.fromMap(Map<String, dynamic> m,
       {required Map<String, OpAction> actionsByCode,
-      required String defaultTitle}) {
+        required String defaultTitle}) {
     List<ActionMenuItemState> actionsStates = List<ActionMenuItemState>.from(
       (m['states'] ?? [])
           .where((m) => actionsByCode.containsKey(m['actionCode']))
           .map(
             (m) => ActionMenuItemState.fromMap(
-              m,
-              actionsByCode: actionsByCode,
-            ),
-          ),
+          m,
+          actionsByCode: actionsByCode,
+        ),
+      ),
     );
     String? externalId = m['externalId'];
     bool isOwner = m['isOwner'] ?? false;
     return PageData(
-      index: m['index'] ?? 0,
-      externalId: externalId,
-      isOwner: isOwner,
-      title: m['title'] ?? defaultTitle,
-      actionsStates: actionsStates,
-    );
+        index: m['index'] ?? 0,
+        externalId: externalId,
+        isOwner: isOwner,
+        title: m['title'] ?? defaultTitle,
+        actionsStates: actionsStates,
+        color: m['colorCode'] != null
+            ? Color(m['colorCode'])
+            : PageData.defaultColor);
   }
 
   bool get readonly => externalId != null && !isOwner;
@@ -78,7 +84,7 @@ class PageData {
 
   Map<String, dynamic> toMap() {
     List<Map<String, dynamic>> states =
-        actionsStates.map((m) => m.toMap()).toList();
+    actionsStates.map((m) => m.toMap()).toList();
     return {
       'states': states,
       'index': this.index,
@@ -236,8 +242,6 @@ class ActionMenuItemState extends BaseMenuItemState {
         'fillColorValue': fillColor.value,
       });
   }
-
-  Color? get borderColor => null;
 
   @override
   String toString() {

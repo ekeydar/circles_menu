@@ -1,3 +1,4 @@
+import 'package:circles_menu/src/circle_box.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 
@@ -62,6 +63,7 @@ class _PagesScreenState extends State<PagesScreen> {
                       externalId: null,
                       actionsStates: [],
                       isOwner: false,
+                      color: PageData.defaultColor,
                     ));
                     setState(() {});
                   }
@@ -80,9 +82,31 @@ class _PagesScreenState extends State<PagesScreen> {
   }
 
   Widget getListItem(PageData page) {
+    bool isDismissible = page.externalId == null;
     Widget child = Card(
+        key: isDismissible ? null : ValueKey(page),
         elevation: 5,
         child: ListTile(
+          leading: GestureDetector(
+            onTap: () async {
+              Color? c = await pickColor(
+                context,
+                initialColor: page.color,
+                config: widget.config,
+              );
+              if (c != null) {
+                setState(() {
+                  page.color = c;
+                });
+              }
+            },
+            child: CircleBox(
+              borderColor: Colors.grey,
+              fillColor: page.color,
+              child: SizedBox.shrink(),
+              radius: 14,
+            ),
+          ),
           title: Text(page.title),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
@@ -92,7 +116,7 @@ class _PagesScreenState extends State<PagesScreen> {
             ],
           ),
         ));
-    if (page.externalId != null) {
+    if (!isDismissible) {
       return child;
     }
     return Dismissible(
