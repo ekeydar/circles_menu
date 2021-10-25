@@ -57,7 +57,9 @@ class PageData {
             : PageData.defaultColor);
   }
 
-  bool get readonly => externalId != null && !isOwner;
+  bool get canBeEdited => externalId != null && !isOwner;
+
+  bool get readonly => externalId != null;
 
   bool get canBeSqueezed => false; //actionsStates.isEmpty && !isOwner;
 

@@ -153,7 +153,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
         config: widget.config,
         data: d,
         isInEdit: this.isInEdit,
-        isReadonly: curPageData.readonly,
+        isReadonly: curPageData.canBeEdited,
         onPressed: () {
           if (d.action.enabled) {
             d.action.onPressed();
@@ -255,19 +255,6 @@ class _CirclesMenuState extends State<CirclesMenu> {
               child: Icon(Icons.cancel),
             ),
           ),
-          if (curPageData.externalId != null) ...[
-            Spacer(),
-            Padding(
-              padding: const EdgeInsets.only(left: 8.0, right: 8),
-              child: FloatingActionButton(
-                heroTag: 'circle_menu_lock_indication',
-                onPressed: null,
-                backgroundColor: Colors.red,
-                tooltip: curPageData.isOwner ? (curPageData.title) : null,
-                child: Icon(Icons.lock),
-              ),
-            ),
-          ]
         ],
       ),
     );
@@ -390,7 +377,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
           children: [
             if (isInEdit) ...[
               _getGlobalEditRow(),
-              if (!curPageData.readonly) ...[
+              if (!curPageData.canBeEdited) ...[
                 SizedBox(height: 10),
                 _getPageEditRow(),
               ]

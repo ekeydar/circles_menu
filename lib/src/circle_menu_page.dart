@@ -25,11 +25,25 @@ class CircleMenuPage extends StatelessWidget {
       alignment: Alignment.topCenter,
       child: Padding(
         padding: const EdgeInsets.only(top: 8.0),
-        child: Text(
-          pageData.title,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (pageData.readonly)
+              Icon(
+                Icons.lock,
+                size: 20,
+              ),
+            SizedBox(
+              width: 10,
+            ),
+            Text(
+              pageData.title,
+              style: TextStyle(
+                //fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
+            ),
+          ],
         ),
       ),
     );

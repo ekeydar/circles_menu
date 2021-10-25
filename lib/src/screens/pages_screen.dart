@@ -82,7 +82,7 @@ class _PagesScreenState extends State<PagesScreen> {
   }
 
   Widget getListItem(PageData page) {
-    bool isDismissible = page.externalId == null;
+    bool isDismissible = !page.readonly;
     Widget child = Card(
         key: isDismissible ? null : ValueKey(page),
         elevation: 5,
@@ -111,7 +111,7 @@ class _PagesScreenState extends State<PagesScreen> {
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (page.externalId != null) Icon(Icons.lock),
+              if (page.readonly) Icon(Icons.lock),
               Text('${page.actionsStates.length}'),
             ],
           ),
