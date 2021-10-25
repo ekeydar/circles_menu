@@ -71,22 +71,6 @@ class _MenuItemWidgetState extends State<MenuItemWidget> {
           }
         },
       ),
-      if (widget.data is LabelMenuItemState)
-        StateAction(
-          icon: Icon(Icons.font_download_outlined),
-          callback: () async {
-            LabelMenuItemState ld = widget.data as LabelMenuItemState;
-            String? newText = await editText(
-              context,
-              config: widget.config,
-              initialText: ld.label,
-            );
-            if (newText != null) {
-              ld.label = newText;
-              widget.onChange();
-            }
-          },
-        ),
       StateAction(
           icon: Icon(Icons.add),
           callback: () async {

@@ -15,7 +15,6 @@ import 'src/circles_menu_pick_action_dialog.dart';
 import 'src/circles_menu_utils.dart';
 import 'src/circles_to_grid.dart';
 import 'src/indicator.dart';
-import 'src/label_menu_button.dart';
 import 'src/restore_helpers.dart';
 
 export 'src/circles_menu_models.dart';
@@ -169,22 +168,6 @@ class _CirclesMenuState extends State<CirclesMenu> {
           borderColor: d.borderColor,
         ),
         onChange: this.onChange,
-      ));
-    }
-    for (LabelMenuItemState d in curPageData.labelsStates) {
-      result.add(MenuItemWidget(
-        config: widget.config,
-        isInEdit: this.isInEdit,
-        isReadonly: curPageData.readonly,
-        data: d,
-        onChange: this.onChange,
-        onPressed: null,
-        child: LabelMenuButton(
-          config: widget.config,
-          data: d,
-          isInEdit: this.isInEdit,
-          onChange: this.onChange,
-        ),
       ));
     }
     return result;
@@ -357,34 +340,6 @@ class _CirclesMenuState extends State<CirclesMenu> {
                 child: cat.icon,
               ),
             ),
-          Padding(
-            padding: const EdgeInsets.only(left: 8.0, right: 8),
-            child: FloatingActionButton(
-              heroTag: 'circle_menu_add_label',
-              onPressed: () async {
-                String? newText = await editText(
-                  context,
-                  config: widget.config,
-                );
-                if (newText != null) {
-                  curPageData.labelsStates.add(
-                    LabelMenuItemState(
-                      label: newText,
-                      fontSize: 20,
-                      x: initialOffset +
-                          100 +
-                          curPageData.labelsStates.length * 10,
-                      y: MediaQuery.of(context).size.height - 350,
-                      color: Theme.of(context).primaryColor,
-                    ),
-                  );
-                  onChange();
-                }
-              },
-              backgroundColor: Colors.green,
-              child: Icon(Icons.font_download_outlined),
-            ),
-          ),
           if (curPageData.actionsStates.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(left: 8.0, right: 8),

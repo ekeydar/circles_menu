@@ -1,12 +1,9 @@
-import 'dart:math';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PageData {
   List<ActionMenuItemState> actionsStates;
-  List<LabelMenuItemState> labelsStates;
   int index;
   String? externalId;
   bool isOwner;
@@ -17,18 +14,17 @@ class PageData {
     required this.isOwner,
     required this.index,
     required this.actionsStates,
-    required this.labelsStates,
     required this.internalTitle,
   });
 
   factory PageData.empty({int index = 0}) {
     return PageData(
-        index: index,
-        isOwner: false,
-        externalId: null,
-        internalTitle: null,
-        actionsStates: [],
-        labelsStates: []);
+      index: index,
+      isOwner: false,
+      externalId: null,
+      internalTitle: null,
+      actionsStates: [],
+    );
   }
 
   factory PageData.fromMap(Map<String, dynamic> m,
@@ -43,27 +39,20 @@ class PageData {
             ),
           ),
     );
-    List<LabelMenuItemState> labelsStates = List<LabelMenuItemState>.from(
-        m['labels'].map((m) => LabelMenuItemState.fromMap(m)));
     String? externalId = m['externalId'];
     bool isOwner = m['isOwner'] ?? false;
     return PageData(
-        index: m['index'] ?? 0,
-        externalId: externalId,
-        isOwner: isOwner,
-        internalTitle: m['internalTitle'],
-        actionsStates: actionsStates,
-        labelsStates: labelsStates);
+      index: m['index'] ?? 0,
+      externalId: externalId,
+      isOwner: isOwner,
+      internalTitle: m['internalTitle'],
+      actionsStates: actionsStates,
+    );
   }
 
   bool get readonly => externalId != null && !isOwner;
 
-  bool get canBeSqueezed =>
-      actionsStates.isEmpty && labelsStates.isEmpty && !isOwner;
-
-  List<BaseMenuItemState> get allLabelsAndActions =>
-      List<BaseMenuItemState>.from(actionsStates) +
-      List<BaseMenuItemState>.from(labelsStates);
+  bool get canBeSqueezed => actionsStates.isEmpty && !isOwner;
 
   void removeNotApplicableActions(Map<String, OpAction> actionsByCode) {
     this
@@ -73,7 +62,6 @@ class PageData {
 
   void removeDeleted() {
     actionsStates.removeWhere((d) => d.isDeleted);
-    labelsStates.removeWhere((d) => d.isDeleted);
   }
 
   void updateActions(Map<String, OpAction> actionsByCode) {
@@ -84,18 +72,14 @@ class PageData {
   }
 
   void empty() {
-    this.labelsStates.clear();
     this.actionsStates.clear();
   }
 
   Map<String, dynamic> toMap() {
     List<Map<String, dynamic>> states =
         actionsStates.map((m) => m.toMap()).toList();
-    List<Map<String, dynamic>> labels =
-        labelsStates.map((m) => m.toMap()).toList();
     return {
       'states': states,
-      'labels': labels,
       'index': this.index,
       'externalId': this.externalId,
       'isOwner': this.isOwner,
@@ -146,48 +130,48 @@ abstract class BaseMenuItemState {
   String get title;
 }
 
-class LabelMenuItemState extends BaseMenuItemState {
-  double fontSize;
-  Color color;
-  String label;
-
-  String get title => label;
-
-  LabelMenuItemState(
-      {required double x,
-      required double y,
-      required this.fontSize,
-      required this.color,
-      required this.label})
-      : super(x: x, y: y);
-
-  LabelMenuItemState.fromMap(Map<String, dynamic> m)
-      : color = Color(m['colorValue']),
-        fontSize = m['fontSize'],
-        label = m['label'],
-        super(x: m['x'], y: m['y']);
-
-  Map<String, dynamic> toMap() {
-    return super.toMap()
-      ..addAll({
-        'fontSize': fontSize,
-        'label': label,
-        'colorValue': color.value,
-      });
-  }
-
-  double get width => max(90, 20 + 0.6 * fontSize * label.length);
-
-  double get height => 50 + fontSize;
-
-  bool get canIncr => fontSize < 34;
-
-  bool get canDecr => fontSize > 16;
-
-  void incr() => fontSize += 2;
-
-  void decr() => fontSize -= 2;
-}
+// class LabelMenuItemState extends BaseMenuItemState {
+//   double fontSize;
+//   Color color;
+//   String label;
+//
+//   String get title => label;
+//
+//   LabelMenuItemState(
+//       {required double x,
+//       required double y,
+//       required this.fontSize,
+//       required this.color,
+//       required this.label})
+//       : super(x: x, y: y);
+//
+//   LabelMenuItemState.fromMap(Map<String, dynamic> m)
+//       : color = Color(m['colorValue']),
+//         fontSize = m['fontSize'],
+//         label = m['label'],
+//         super(x: m['x'], y: m['y']);
+//
+//   Map<String, dynamic> toMap() {
+//     return super.toMap()
+//       ..addAll({
+//         'fontSize': fontSize,
+//         'label': label,
+//         'colorValue': color.value,
+//       });
+//   }
+//
+//   double get width => max(90, 20 + 0.6 * fontSize * label.length);
+//
+//   double get height => 50 + fontSize;
+//
+//   bool get canIncr => fontSize < 34;
+//
+//   bool get canDecr => fontSize > 16;
+//
+//   void incr() => fontSize += 2;
+//
+//   void decr() => fontSize -= 2;
+// }
 
 class ActionMenuItemState extends BaseMenuItemState {
   double radius;
