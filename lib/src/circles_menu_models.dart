@@ -294,7 +294,7 @@ class CirclesMenuConfig {
   final String approveDialogTitle;
   final String moveToEditMessage;
   final String cancelEditsConfirmation;
-  final String editLabelTitle;
+  final String editPageTitle;
   final String swapWithNextPageConfirmation;
   final String swapWithPrevPageConfirmation;
 
@@ -321,7 +321,7 @@ class CirclesMenuConfig {
     this.swapWithPrevPageConfirmation =
         'Replace this page with the previous page?',
     this.swapWithNextPageConfirmation = 'Replace this page with the next page?',
-    this.editLabelTitle = 'Edit label',
+    this.editPageTitle = 'Edit page title',
     this.spKey = 'circleButtons',
     this.onEditDone,
   });

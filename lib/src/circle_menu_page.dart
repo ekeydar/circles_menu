@@ -29,10 +29,12 @@ class CircleMenuPage extends StatelessWidget {
       alignment: Alignment.topCenter,
       child: Padding(
         padding: const EdgeInsets.only(top: 8.0),
-        child: Text(pageData.displayTitle,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-            )),
+        child: Text(
+          pageData.displayTitle,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
     );
   }

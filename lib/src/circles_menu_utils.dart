@@ -40,13 +40,15 @@ Future<Color?> pickColor(BuildContext context,
 }
 
 Future<String?> editText(BuildContext context,
-    {String? initialText, required CirclesMenuConfig config}) async {
+    {String? initialText,
+    required CirclesMenuConfig config,
+    required String title}) async {
   TextEditingController controller = TextEditingController(text: initialText);
   return await showDialog<String>(
     context: context,
     builder: (context) {
       return AlertDialog(
-        title: Text(config.editLabelTitle),
+        title: Text(title),
         content: TextField(
           controller: controller,
           decoration: InputDecoration(

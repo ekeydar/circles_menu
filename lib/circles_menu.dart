@@ -352,7 +352,27 @@ class _CirclesMenuState extends State<CirclesMenu> {
                 backgroundColor: Colors.green,
                 child: Icon(Icons.grid_on),
               ),
-            )
+            ),
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0, right: 8),
+            child: FloatingActionButton(
+              heroTag: 'circle_menu_edit_title',
+              onPressed: () async {
+                String? newTitle = await editText(
+                  context,
+                  initialText: curPageData.title,
+                  config: widget.config,
+                  title: widget.config.editPageTitle,
+                );
+                if (newTitle != null) {
+                  curPageData.title = newTitle;
+                }
+                onChange();
+              },
+              backgroundColor: Colors.green,
+              child: Icon(Icons.font_download_outlined),
+            ),
+          ),
         ],
       ),
     );
