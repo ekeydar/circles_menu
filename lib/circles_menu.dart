@@ -46,7 +46,6 @@ class _CirclesMenuState extends State<CirclesMenu> {
   // late List<ActionMenuItemState> actionStatesList;
   //late List<LabelMenuItemState> labelStatesList;
   double initialOffset = 0;
-  bool isInEdit = true;
   PageController _pageController = PageController();
   int currentPageIndex = 0;
 
@@ -128,7 +127,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
       result.add(MenuItemWidget(
         config: widget.config,
         data: d,
-        isInEdit: this.isInEdit,
+        isInEdit: true,
         isReadonly: curPageData.notEditable,
         onPressed: () {
           if (d.action.enabled) {
@@ -273,11 +272,9 @@ class _CirclesMenuState extends State<CirclesMenu> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            if (isInEdit) ...[
-              if (!curPageData.notEditable) ...[
-                SizedBox(height: 10),
-                _getPageEditRow(),
-              ]
+            if (!curPageData.notEditable) ...[
+              SizedBox(height: 10),
+              _getPageEditRow(),
             ],
             if (curNumPages > 1) ...[
               PagingIndicator(
