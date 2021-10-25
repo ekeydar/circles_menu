@@ -52,8 +52,8 @@ class PageData {
         isOwner: isOwner,
         title: m['title'] ?? defaultTitle,
         actionsStates: actionsStates,
-        color: m['colorCode'] != null
-            ? Color(m['colorCode'])
+        color: m['colorValue'] != null
+            ? Color(m['colorValue'])
             : PageData.defaultColor);
   }
 
@@ -93,6 +93,7 @@ class PageData {
       'externalId': this.externalId,
       'isOwner': this.isOwner,
       'title': this.title,
+      'colorValue': this.color.value,
     };
   }
 
