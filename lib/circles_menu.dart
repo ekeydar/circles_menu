@@ -153,7 +153,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
         config: widget.config,
         data: d,
         isInEdit: this.isInEdit,
-        isReadonly: curPageData.canBeEdited,
+        isReadonly: curPageData.notEditable,
         onPressed: () {
           if (d.action.enabled) {
             d.action.onPressed();
@@ -377,7 +377,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
           children: [
             if (isInEdit) ...[
               _getGlobalEditRow(),
-              if (!curPageData.canBeEdited) ...[
+              if (!curPageData.notEditable) ...[
                 SizedBox(height: 10),
                 _getPageEditRow(),
               ]

@@ -88,7 +88,7 @@ class _PagesScreenState extends State<PagesScreen> {
         elevation: 5,
         child: ListTile(
           leading: GestureDetector(
-            onTap: page.canBeEdited
+            onTap: !page.notEditable
                 ? () async {
                     Color? c = await pickColor(
                       context,

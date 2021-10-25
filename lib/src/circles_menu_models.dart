@@ -57,7 +57,7 @@ class PageData {
             : PageData.defaultColor);
   }
 
-  bool get canBeEdited => externalId != null && !isOwner;
+  bool get notEditable => externalId != null && !isOwner;
 
   bool get readonly => externalId != null;
 
