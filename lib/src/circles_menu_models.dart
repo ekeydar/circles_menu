@@ -7,7 +7,7 @@ class PageData {
   int index;
   String? externalId;
   bool isOwner;
-  String? title;
+  String title;
 
   PageData({
     required this.externalId,
@@ -17,18 +17,19 @@ class PageData {
     required this.title,
   });
 
-  factory PageData.empty({int index = 0}) {
+  factory PageData.empty({int index = 0, required String title}) {
     return PageData(
       index: index,
       isOwner: false,
       externalId: null,
-      title: null,
+      title: title,
       actionsStates: [],
     );
   }
 
   factory PageData.fromMap(Map<String, dynamic> m,
-      {required Map<String, OpAction> actionsByCode}) {
+      {required Map<String, OpAction> actionsByCode,
+      required String defaultTitle}) {
     List<ActionMenuItemState> actionsStates = List<ActionMenuItemState>.from(
       (m['states'] ?? [])
           .where((m) => actionsByCode.containsKey(m['actionCode']))
@@ -45,16 +46,14 @@ class PageData {
       index: m['index'] ?? 0,
       externalId: externalId,
       isOwner: isOwner,
-      title: m['title'],
+      title: m['title'] ?? defaultTitle,
       actionsStates: actionsStates,
     );
   }
 
-  String get displayTitle => title ?? '# $index';
-
   bool get readonly => externalId != null && !isOwner;
 
-  bool get canBeSqueezed => actionsStates.isEmpty && !isOwner;
+  bool get canBeSqueezed => false; //actionsStates.isEmpty && !isOwner;
 
   void removeNotApplicableActions(Map<String, OpAction> actionsByCode) {
     this
@@ -87,6 +86,11 @@ class PageData {
       'isOwner': this.isOwner,
       'title': this.title,
     };
+  }
+
+  @override
+  String toString() {
+    return '$index: $title';
   }
 }
 
@@ -289,7 +293,7 @@ class CirclesMenuConfig {
   final String accept;
   final String cancel;
   final String pickAction;
-  final String emptyPageConfirmation;
+  final String deletePageConfirmation;
   final String resetConfirmation;
   final String approveDialogTitle;
   final String moveToEditMessage;
@@ -297,6 +301,9 @@ class CirclesMenuConfig {
   final String editPageTitle;
   final String swapWithNextPageConfirmation;
   final String swapWithPrevPageConfirmation;
+  final String editPages;
+  final String addPage;
+  final String defaultPageTitle;
 
   // key to hold the data in shared preferences
   final String spKey;
@@ -310,18 +317,20 @@ class CirclesMenuConfig {
     this.accept = 'Accept',
     this.cancel = 'Cancel',
     this.pickAction = 'Pick action',
-    this.emptyPageConfirmation =
-        'Are you sure you want to empty the current page',
+    this.deletePageConfirmation = 'Are you sure you want to delete the page',
     this.resetConfirmation =
         'Are you sure you want to delete the current menu and restore the defaults',
     this.approveDialogTitle = 'Action approval',
     this.cancelEditsConfirmation =
         'Are you sure you want to cancel the current edits',
     this.moveToEditMessage = 'Press the edit icon to edit the menu',
+    this.editPages = 'Edit pages',
     this.swapWithPrevPageConfirmation =
         'Replace this page with the previous page?',
     this.swapWithNextPageConfirmation = 'Replace this page with the next page?',
     this.editPageTitle = 'Edit page title',
+    this.addPage = 'add page',
+    this.defaultPageTitle = 'shortcuts screen',
     this.spKey = 'circleButtons',
     this.onEditDone,
   });

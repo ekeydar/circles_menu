@@ -6,7 +6,6 @@ import 'circles_menu_models.dart';
 
 class CircleMenuPage extends StatelessWidget {
   final List<Widget> items;
-  final List<Widget> buttons;
   final Color color;
   final int index;
   final int numPages;
@@ -16,7 +15,6 @@ class CircleMenuPage extends StatelessWidget {
   CircleMenuPage({
     required Key key,
     required this.items,
-    required this.buttons,
     required this.color,
     required this.index,
     required this.numPages,
@@ -30,7 +28,7 @@ class CircleMenuPage extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.only(top: 8.0),
         child: Text(
-          pageData.displayTitle,
+          pageData.title,
           style: TextStyle(
             fontWeight: FontWeight.bold,
           ),
@@ -45,7 +43,7 @@ class CircleMenuPage extends StatelessWidget {
       color: kDebugMode ? this.color.withAlpha(100) : null,
       child: Stack(
         clipBehavior: Clip.none,
-        children: this.buttons + this.items + [this.titleWidget],
+        children: this.items + [this.titleWidget],
       ),
     );
   }

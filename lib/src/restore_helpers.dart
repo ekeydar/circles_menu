@@ -4,13 +4,20 @@ List<Map<String, dynamic>> getStartMenuPages(
 ) {
   List<Map<String, dynamic>> pages = List<Map<String, dynamic>>.from(
       saved == null ? [] : (saved['pages'] ?? []));
+  Set<String> externalIds = {};
   for (var p in readonlyPages) {
-    mergeReadonlyPage(pages, p);
+    if (p['externalId'] != null) {
+      _mergeReadonlyPage(pages, p);
+      externalIds.add(p['externalId']);
+    }
   }
+  pages.removeWhere(
+      (p) => p['externalId'] != null && !externalIds.contains(p['externalId']));
   return pages;
 }
 
-mergeReadonlyPage(List<Map<String, dynamic>> pages, Map<String, dynamic> pm) {
+void _mergeReadonlyPage(
+    List<Map<String, dynamic>> pages, Map<String, dynamic> pm) {
   // check if map with externalId exists
   // if so, copy the index to the new one and delete the old one (in case there were updates)
   // otherwise, just add at the end

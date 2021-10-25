@@ -16,6 +16,7 @@ import 'src/circles_menu_utils.dart';
 import 'src/circles_to_grid.dart';
 import 'src/indicator.dart';
 import 'src/restore_helpers.dart';
+import 'src/screens/pages_screen.dart';
 
 export 'src/circles_menu_models.dart';
 
@@ -64,7 +65,11 @@ class _CirclesMenuState extends State<CirclesMenu> {
         List<Map<String, dynamic>>.from(_clonedMap['pages']);
     this.pageDataList = pageMaps
         .map(
-          (m) => PageData.fromMap(m, actionsByCode: actionsByCode),
+          (m) => PageData.fromMap(
+            m,
+            actionsByCode: actionsByCode,
+            defaultTitle: widget.config.defaultPageTitle,
+          ),
         )
         .toList();
   }
@@ -117,7 +122,6 @@ class _CirclesMenuState extends State<CirclesMenu> {
                   index: pi,
                   numPages: curNumPages,
                   items: this.getItems(pageIndex: pi),
-                  buttons: this.getButtons(context, pageIndex: pi),
                   color: colors[pi % colors.length],
                   config: widget.config,
                 ),
@@ -181,33 +185,14 @@ class _CirclesMenuState extends State<CirclesMenu> {
     return icons..sort((c1, c2) => c1.order.compareTo(c2.order));
   }
 
-  List<Widget> getButtons(BuildContext context, {required int pageIndex}) {
-    List<Widget> result = [];
-    if (isInEdit) {
-      Widget? startCenterWidget = getPageCenterColumn(
-        pageIndex: pageIndex,
-        numPages: curNumPages,
-        isStartSide: true,
-      );
-      Widget? endCenterWidget = getPageCenterColumn(
-        pageIndex: pageIndex,
-        numPages: curNumPages,
-        isStartSide: false,
-      );
-      if (startCenterWidget != null) {
-        result.add(startCenterWidget);
-      }
-      if (endCenterWidget != null) {
-        result.add(endCenterWidget);
-      }
-    }
-    return result;
-  }
-
   void squeezeAndSortPages() {
     pageDataList.removeWhere((p) => p.canBeSqueezed);
     if (pageDataList.length == 0) {
-      pageDataList.add(PageData.empty());
+      pageDataList.add(
+        PageData.empty(
+          title: widget.config.defaultPageTitle,
+        ),
+      );
     }
     pageDataList.sort((p1, p2) => p1.index.compareTo(p2.index));
     for (int i = 0; i < pageDataList.length; i++) {
@@ -278,10 +263,10 @@ class _CirclesMenuState extends State<CirclesMenu> {
             Padding(
               padding: const EdgeInsets.only(left: 8.0, right: 8),
               child: FloatingActionButton(
-                heroTag: 'circle_menu_lock_for_owner',
+                heroTag: 'circle_menu_lock_indication',
                 onPressed: null,
                 backgroundColor: Colors.red,
-                tooltip: curPageData.isOwner ? (curPageData.displayTitle) : null,
+                tooltip: curPageData.isOwner ? (curPageData.title) : null,
                 child: Icon(Icons.lock),
               ),
             ),
@@ -297,22 +282,6 @@ class _CirclesMenuState extends State<CirclesMenu> {
       children: reverseIfTrue(
         isRtl,
         [
-          Padding(
-            padding: const EdgeInsets.only(left: 8.0, right: 8),
-            child: FloatingActionButton(
-              heroTag: 'circle_menu_delete',
-              onPressed: () async {
-                if (await askConfirmation(
-                    context, widget.config.emptyPageConfirmation,
-                    config: widget.config)) {
-                  curPageData.empty();
-                  onChange();
-                }
-              },
-              backgroundColor: Colors.red,
-              child: Icon(Icons.delete),
-            ),
-          ),
           for (var cat in actionsCategories)
             Padding(
               padding: const EdgeInsets.only(left: 8.0, right: 8.0),
@@ -353,26 +322,6 @@ class _CirclesMenuState extends State<CirclesMenu> {
                 child: Icon(Icons.grid_on),
               ),
             ),
-          Padding(
-            padding: const EdgeInsets.only(left: 8.0, right: 8),
-            child: FloatingActionButton(
-              heroTag: 'circle_menu_edit_title',
-              onPressed: () async {
-                String? newTitle = await editText(
-                  context,
-                  initialText: curPageData.title,
-                  config: widget.config,
-                  title: widget.config.editPageTitle,
-                );
-                if (newTitle != null) {
-                  curPageData.title = newTitle;
-                }
-                onChange();
-              },
-              backgroundColor: Colors.green,
-              child: Icon(Icons.font_download_outlined),
-            ),
-          ),
         ],
       ),
     );
@@ -397,6 +346,24 @@ class _CirclesMenuState extends State<CirclesMenu> {
               },
               backgroundColor: Colors.red,
               child: Icon(Icons.edit),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0, right: 8),
+            child: FloatingActionButton(
+              heroTag: 'circles_menu_settings',
+              onPressed: () async {
+                await Navigator.of(context).push(
+                  MaterialPageRoute(
+                    settings: RouteSettings(name: 'TripObsScreen'),
+                    builder: (context) =>
+                        PagesScreen(config: widget.config, pages: pageDataList),
+                  ),
+                );
+                onChange();
+              },
+              backgroundColor: Colors.green,
+              child: Icon(Icons.settings),
             ),
           ),
           if (kDebugMode)
@@ -457,65 +424,6 @@ class _CirclesMenuState extends State<CirclesMenu> {
     );
   }
 
-  Widget? getPageCenterColumn(
-      {required int pageIndex,
-      required bool isStartSide,
-      required int numPages}) {
-    bool addSwap = isStartSide && pageIndex > 0 ||
-        numPages > 1 && !isStartSide && pageIndex < numPages - 1;
-    bool addPlus = !isStartSide && pageIndex == numPages - 1;
-    List<Widget> children = [
-      if (addSwap)
-        IconButton(
-          onPressed: () async {
-            bool cont = await askConfirmation(
-              context,
-              isStartSide
-                  ? widget.config.swapWithPrevPageConfirmation
-                  : widget.config.swapWithNextPageConfirmation,
-              config: widget.config,
-            );
-            if (!cont) {
-              return;
-            }
-            _swapPages(pageIndex, isStartSide ? pageIndex - 1 : pageIndex + 1);
-            onChange();
-          },
-          icon: Icon(
-            Icons.swap_horiz,
-            size: 40,
-          ),
-        ),
-      if (addPlus)
-        IconButton(
-          onPressed: () async {
-            pageDataList.add(PageData.empty(index: pageDataList.length));
-            onChange();
-            this._pageController.animateToPage(
-                  pageDataList.length - 1,
-                  duration: Duration(milliseconds: 10),
-                  curve: Curves.easeIn,
-                );
-          },
-          icon: Icon(
-            Icons.add,
-            size: 40,
-          ),
-        ),
-    ];
-    if (children.isEmpty) {
-      return null;
-    }
-    return Align(
-      alignment: isStartSide ? Alignment.topRight : Alignment.topLeft,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: children,
-      ),
-    );
-  }
-
   Map<String, dynamic> toMap() {
     return {
       'pages': [for (var p in this.pageDataList) p.toMap()],
@@ -562,18 +470,11 @@ class _CirclesMenuState extends State<CirclesMenu> {
           (m) => PageData.fromMap(
             m,
             actionsByCode: actionsByCode,
+            defaultTitle: widget.config.defaultPageTitle,
           ),
         )
         .toList();
     this.squeezeAndSortPages();
-  }
-
-  void _swapPages(int pageIndex1, int pageIndex2) {
-    PageData p1 = pageDataList[pageIndex1];
-    PageData p2 = pageDataList[pageIndex2];
-    p1.index = pageIndex2;
-    p2.index = pageIndex1;
-    pageDataList.sort((p1, p2) => p1.index.compareTo(p2.index));
   }
 
   Future<OpAction?> pickAction(List<OpAction> actions) async {

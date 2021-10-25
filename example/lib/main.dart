@@ -11,14 +11,15 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       localizationsDelegates: [
-         GlobalCupertinoLocalizations.delegate,
-         GlobalMaterialLocalizations.delegate,
-         GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
       ],
       supportedLocales: [
-         Locale('he', 'IL'), // OR Locale('ar', 'AE') OR Other RTL locales
+        Locale('he', 'IL'), // OR Locale('ar', 'AE') OR Other RTL locales
       ],
-      locale: Locale('he', 'IL'), // OR Loc
+      locale: Locale('he', 'IL'),
+      // OR Loc
       title: 'Circles Menu Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
@@ -72,6 +73,7 @@ class CirclesMenuExampleState extends State<CirclesMenuExample> {
             mainAxisSize: MainAxisSize.min,
             children: [
               FloatingActionButton(
+                  heroTag: 'main',
                   child: Icon(Icons.add),
                   onPressed: () {
                     setState(() {
@@ -86,11 +88,11 @@ class CirclesMenuExampleState extends State<CirclesMenuExample> {
                 width: 10,
               ),
               FloatingActionButton(
+                  heroTag: 'main_save',
                   child: Icon(Icons.save_alt),
                   onPressed: () async {
-                      defaultDump = await config.getCurrent();
-                      setState(() {
-                      });
+                    defaultDump = await config.getCurrent();
+                    setState(() {});
                   }),
             ],
           ),
@@ -98,12 +100,9 @@ class CirclesMenuExampleState extends State<CirclesMenuExample> {
   }
 }
 
-
 List<OpAction> _getActions(context, {required int disabledIndex}) {
-  ActionsCategory bigCat = ActionsCategory(
-    icon: Icon(Icons.sports_tennis),
-    code: 'big'
-  );
+  ActionsCategory bigCat =
+      ActionsCategory(icon: Icon(Icons.sports_tennis), code: 'big');
   List<OpAction> result = [];
   for (int x = 1; x <= 15; x++) {
     String title = 'פעולה מספר ' + x.toString();
