@@ -109,7 +109,30 @@ class _PagesScreenState extends State<PagesScreen> {
               radius: 14,
             ),
           ),
-          title: Text(page.title),
+          title: Row(
+            children: [
+              Text(page.title),
+              if (!page.readonly)
+                IconButton(
+                    onPressed: () async {
+                      String? newTitle = await editText(
+                        context,
+                        config: widget.config,
+                        title: widget.config.editPageTitle,
+                        initialText: page.title,
+                      );
+                      if (newTitle != null) {
+                        setState(() {
+                          page.title = newTitle;
+                        });
+                      }
+                    },
+                    icon: Icon(
+                      Icons.edit,
+                      size: 18,
+                    )),
+            ],
+          ),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
