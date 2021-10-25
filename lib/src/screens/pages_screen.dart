@@ -1,8 +1,9 @@
-import 'package:circles_menu/circles_menu.dart';
-import 'package:circles_menu/src/circles_menu_confirm.dart';
-import 'package:circles_menu/src/circles_menu_utils.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+
+import '../circles_menu_confirm.dart';
+import '../circles_menu_models.dart';
+import '../circles_menu_utils.dart';
 
 class PagesScreen extends StatefulWidget {
   final CirclesMenuConfig config;
