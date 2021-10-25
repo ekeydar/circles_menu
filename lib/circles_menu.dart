@@ -8,7 +8,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'src/circle_box.dart';
 import 'src/circle_menu_page.dart';
-import 'src/circles_menu_confirm.dart';
 import 'src/circles_menu_item_widget.dart';
 import 'src/circles_menu_models.dart';
 import 'src/circles_menu_pick_action_dialog.dart';
@@ -43,36 +42,13 @@ class CirclesMenu extends StatefulWidget {
 class _CirclesMenuState extends State<CirclesMenu> {
   bool _ready = false;
   late List<PageData> pageDataList;
-  late String _clonedData;
 
   // late List<ActionMenuItemState> actionStatesList;
   //late List<LabelMenuItemState> labelStatesList;
   double initialOffset = 0;
-  bool isInEdit = false;
+  bool isInEdit = true;
   PageController _pageController = PageController();
   int currentPageIndex = 0;
-
-  void clonePages() {
-    _clonedData = jsonEncode(this.toMap());
-  }
-
-  void restorePagesFromClone() {
-    Map<String, OpAction> actionsByCode = {
-      for (var a in widget.actions) a.code: a
-    };
-    Map<String, dynamic> _clonedMap = jsonDecode(_clonedData);
-    List<Map<String, dynamic>> pageMaps =
-        List<Map<String, dynamic>>.from(_clonedMap['pages']);
-    this.pageDataList = pageMaps
-        .map(
-          (m) => PageData.fromMap(
-            m,
-            actionsByCode: actionsByCode,
-            defaultTitle: widget.config.defaultPageTitle,
-          ),
-        )
-        .toList();
-  }
 
   @override
   void initState() {
@@ -209,57 +185,6 @@ class _CirclesMenuState extends State<CirclesMenu> {
   MainAxisAlignment get mainAlignmentForBottom =>
       isRtl ? MainAxisAlignment.end : MainAxisAlignment.start;
 
-  Widget _getGlobalEditRow() {
-    return Row(
-      mainAxisAlignment: mainAlignmentForBottom,
-      children: reverseIfTrue(
-        isRtl,
-        [
-          Padding(
-            padding: const EdgeInsets.only(left: 8.0, right: 8),
-            child: FloatingActionButton(
-              heroTag: 'circles_menu_approve_edit',
-              onPressed: () async {
-                this.isInEdit = false;
-                this.onChange();
-                this.squeezeAndSortPages();
-                // animate to current page - to refresh indicators
-                // instead of page deleted at end or middle
-                this._pageController.animateToPage(
-                      this.currentPageIndex,
-                      duration: Duration(milliseconds: 10),
-                      curve: Curves.easeIn,
-                    );
-                if (widget.config.onEditDone != null) {
-                  widget.config.onEditDone!();
-                }
-              },
-              backgroundColor: Colors.green,
-              child: Icon(Icons.check),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 8.0, right: 8),
-            child: FloatingActionButton(
-              heroTag: 'circle_menu_cancel_edit',
-              onPressed: () async {
-                if (await askConfirmation(
-                    context, widget.config.cancelEditsConfirmation,
-                    config: widget.config)) {
-                  setState(() {
-                    this.restorePagesFromClone();
-                  });
-                }
-              },
-              backgroundColor: Colors.red,
-              child: Icon(Icons.cancel),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _getPageEditRow() {
     return Row(
       mainAxisAlignment: mainAlignmentForBottom,
@@ -293,7 +218,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
                 child: cat.icon,
               ),
             ),
-          if (curPageData.actionsStates.isNotEmpty)
+          if (curPageData.actionsStates.length > 1)
             Padding(
               padding: const EdgeInsets.only(left: 8.0, right: 8),
               child: FloatingActionButton(
@@ -306,32 +231,6 @@ class _CirclesMenuState extends State<CirclesMenu> {
                 child: Icon(Icons.grid_on),
               ),
             ),
-        ],
-      ),
-    );
-  }
-
-  _getNonEditRow() {
-    return Row(
-      mainAxisAlignment: mainAlignmentForBottom,
-      children: reverseIfTrue(
-        isRtl,
-        [
-          Padding(
-            padding: const EdgeInsets.only(left: 8.0, right: 8),
-            child: FloatingActionButton(
-              heroTag: 'circles_menu_start_edit',
-              onPressed: () async {
-                // save the state before the start edit
-                this.clonePages();
-                setState(() {
-                  this.isInEdit = true;
-                });
-              },
-              backgroundColor: Colors.red,
-              child: Icon(Icons.edit),
-            ),
-          ),
           Padding(
             padding: const EdgeInsets.only(left: 8.0, right: 8),
             child: FloatingActionButton(
@@ -350,18 +249,17 @@ class _CirclesMenuState extends State<CirclesMenu> {
               child: Icon(Icons.settings),
             ),
           ),
-          if (kDebugMode)
-            Padding(
-              padding: const EdgeInsets.only(left: 8.0, right: 8),
-              child: FloatingActionButton(
-                heroTag: 'circle_menu_debug',
-                onPressed: () async {
-                  await _debugStates();
-                },
-                backgroundColor: Colors.green,
-                child: Icon(Icons.bug_report_outlined),
-              ),
-            )
+          Padding(
+            padding: const EdgeInsets.only(left: 8.0, right: 8),
+            child: FloatingActionButton(
+              heroTag: 'circle_menu_debug',
+              onPressed: () async {
+                await _debugStates();
+              },
+              backgroundColor: Colors.green,
+              child: Icon(Icons.bug_report_outlined),
+            ),
+          )
         ],
       ),
     );
@@ -376,28 +274,11 @@ class _CirclesMenuState extends State<CirclesMenu> {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             if (isInEdit) ...[
-              _getGlobalEditRow(),
               if (!curPageData.notEditable) ...[
                 SizedBox(height: 10),
                 _getPageEditRow(),
               ]
             ],
-            // if (isInEdit && curPageData.readonly)
-            //   Row(
-            //     mainAxisAlignment: MainAxisAlignment.center,
-            //     children: [
-            //       Padding(
-            //         padding: const EdgeInsets.only(left: 8.0, right: 8),
-            //         child: FloatingActionButton(
-            //           heroTag: 'circles_menu_lock',
-            //           onPressed: null,
-            //           backgroundColor: Colors.red,
-            //           child: Icon(Icons.lock),
-            //         ),
-            //       )
-            //     ],
-            //   ),
-            if (!isInEdit) _getNonEditRow(),
             if (curNumPages > 1) ...[
               PagingIndicator(
                   activeIndex: currentPageIndex, count: curNumPages),
