@@ -60,9 +60,10 @@ class _CirclesMenuState extends State<CirclesMenu> {
     Map<String, OpAction> actionsByCode = {
       for (var a in widget.actions) a.code: a
     };
-    List<Map<String, dynamic>> _clonedPages =
-        List<Map<String, dynamic>>.from(jsonDecode(_clonedData));
-    pageDataList = _clonedPages
+    Map<String, dynamic> _clonedMap = jsonDecode(_clonedData);
+    List<Map<String, dynamic>> pageMaps =
+        List<Map<String, dynamic>>.from(_clonedMap['pages']);
+    this.pageDataList = pageMaps
         .map(
           (m) => PageData.fromMap(m, actionsByCode: actionsByCode),
         )
@@ -287,7 +288,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
               child: Icon(Icons.cancel),
             ),
           ),
-          if (curPageData.isOwner && curPageData.externalId != null) ...[
+          if (curPageData.externalId != null) ...[
             Spacer(),
             Padding(
               padding: const EdgeInsets.only(left: 8.0, right: 8),
@@ -295,7 +296,9 @@ class _CirclesMenuState extends State<CirclesMenu> {
                 heroTag: 'circle_menu_lock_for_owner',
                 onPressed: null,
                 backgroundColor: Colors.red,
-                tooltip: curPageData.internalTitle ?? 'unknown',
+                tooltip: curPageData.isOwner
+                    ? (curPageData.internalTitle ?? 'unknown')
+                    : null,
                 child: Icon(Icons.lock),
               ),
             ),
@@ -446,10 +449,12 @@ class _CirclesMenuState extends State<CirclesMenu> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            if (isInEdit && !curPageData.readonly) ...[
+            if (isInEdit) ...[
               _getGlobalEditRow(),
-              SizedBox(height: 10),
-              _getPageEditRow(),
+              if (!curPageData.readonly) ...[
+                SizedBox(height: 10),
+                _getPageEditRow(),
+              ]
             ],
             // if (isInEdit && curPageData.readonly)
             //   Row(
