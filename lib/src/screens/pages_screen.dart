@@ -40,9 +40,7 @@ class _PagesScreenState extends State<PagesScreen> {
                 widget.pages.insert(newIndex, p);
                 widget.pages
                     .removeAt(oldIndex < newIndex ? oldIndex : oldIndex + 1);
-                widget.pages.forEachIndexed((index, p) {
-                  p.index = index;
-                });
+                _fixPages();
                 setState(() {});
               },
               children: widget.pages.map((page) => getListItem(page)).toList(),
@@ -57,14 +55,16 @@ class _PagesScreenState extends State<PagesScreen> {
                     title: widget.config.editPageTitle,
                   );
                   if (title != null) {
-                    widget.pages.add(PageData(
-                      title: title,
-                      index: widget.pages.length,
-                      externalId: null,
-                      actionsStates: [],
-                      isOwner: false,
-                      color: PageData.defaultColor,
-                    ));
+                    widget.pages.add(
+                      PageData(
+                        title: title,
+                        index: widget.pages.length,
+                        externalId: null,
+                        actionsStates: [],
+                        isOwner: false,
+                        color: PageData.defaultColor,
+                      ),
+                    );
                     setState(() {});
                   }
                 },
@@ -168,10 +168,24 @@ class _PagesScreenState extends State<PagesScreen> {
       onDismissed: (DismissDirection direction) {
         setState(() {
           widget.pages.remove(page);
+          _fixPages();
         });
       },
       key: ValueKey(page),
       child: child,
     );
+  }
+
+  _fixPages() {
+    if (widget.pages.isEmpty) {
+      widget.pages.add(
+        PageData.empty(
+          title: widget.config.defaultPageTitle,
+        ),
+      );
+    }
+    widget.pages.forEachIndexed((index, p) {
+      p.index = index;
+    });
   }
 }

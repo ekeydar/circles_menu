@@ -116,6 +116,9 @@ class _CirclesMenuState extends State<CirclesMenu> {
     for (var p in pageDataList) {
       p.removeDeleted();
     }
+    if (this.currentPageIndex >= pageDataList.length) {
+      this.currentPageIndex = pageDataList.length - 1;
+    }
     _dumpStates();
     setState(() {});
   }
@@ -189,46 +192,49 @@ class _CirclesMenuState extends State<CirclesMenu> {
       children: reverseIfTrue(
         isRtl,
         [
-          for (var cat in actionsCategories)
-            Padding(
-              padding: const EdgeInsets.only(left: 8.0, right: 8.0),
-              child: FloatingActionButton(
-                heroTag: 'circle_menu_add_${cat.code}',
-                onPressed: () async {
-                  OpAction? newAction = await pickAction(
-                      widget.actions.where((a) => a.category == cat).toList());
-                  if (newAction != null) {
-                    curPageData.actionsStates.add(
-                      ActionMenuItemState(
-                        action: newAction,
-                        x: initialOffset +
-                            100 +
-                            curPageData.actionsStates.length * 10,
-                        y: MediaQuery.of(context).size.height - 350,
-                        radius: 50,
-                        fillColor: Theme.of(context).primaryColor,
-                      ),
-                    );
+          if (!curPageData.notEditable) ...[
+            for (var cat in actionsCategories)
+              Padding(
+                padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+                child: FloatingActionButton(
+                  heroTag: 'circle_menu_add_${cat.code}',
+                  onPressed: () async {
+                    OpAction? newAction = await pickAction(widget.actions
+                        .where((a) => a.category == cat)
+                        .toList());
+                    if (newAction != null) {
+                      curPageData.actionsStates.add(
+                        ActionMenuItemState(
+                          action: newAction,
+                          x: initialOffset +
+                              100 +
+                              curPageData.actionsStates.length * 10,
+                          y: MediaQuery.of(context).size.height - 350,
+                          radius: 50,
+                          fillColor: Theme.of(context).primaryColor,
+                        ),
+                      );
+                      onChange();
+                    }
+                  },
+                  backgroundColor: Colors.green,
+                  child: cat.icon,
+                ),
+              ),
+            if (curPageData.actionsStates.length > 1)
+              Padding(
+                padding: const EdgeInsets.only(left: 8.0, right: 8),
+                child: FloatingActionButton(
+                  heroTag: 'circle_menu_auto_order',
+                  onPressed: () async {
+                    modifyCirclesToGrid(curPageData.actionsStates);
                     onChange();
-                  }
-                },
-                backgroundColor: Colors.green,
-                child: cat.icon,
+                  },
+                  backgroundColor: Colors.green,
+                  child: Icon(Icons.grid_on),
+                ),
               ),
-            ),
-          if (curPageData.actionsStates.length > 1)
-            Padding(
-              padding: const EdgeInsets.only(left: 8.0, right: 8),
-              child: FloatingActionButton(
-                heroTag: 'circle_menu_auto_order',
-                onPressed: () async {
-                  modifyCirclesToGrid(curPageData.actionsStates);
-                  onChange();
-                },
-                backgroundColor: Colors.green,
-                child: Icon(Icons.grid_on),
-              ),
-            ),
+          ],
           Padding(
             padding: const EdgeInsets.only(left: 8.0, right: 8),
             child: FloatingActionButton(
@@ -272,10 +278,8 @@ class _CirclesMenuState extends State<CirclesMenu> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            if (!curPageData.notEditable) ...[
-              SizedBox(height: 10),
-              _getPageEditRow(),
-            ],
+            SizedBox(height: 10),
+            _getPageEditRow(),
             if (curNumPages > 1) ...[
               PagingIndicator(
                   activeIndex: currentPageIndex, count: curNumPages),
