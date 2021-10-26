@@ -73,6 +73,12 @@ class PageData {
     actionsStates.removeWhere((d) => d.isDeleted);
   }
 
+  void resetEditInProgress() {
+    actionsStates.forEach((s) {
+      s.editInProgress = false;
+    });
+  }
+
   void updateActions(Map<String, OpAction> actionsByCode) {
     this.actionsStates.forEach((st) {
       String c = st.action.code;
@@ -192,6 +198,7 @@ class ActionMenuItemState extends BaseMenuItemState {
   double radius;
   OpAction action;
   Color fillColor;
+  bool editInProgress = false;
 
   String get title => action.title;
 
@@ -349,6 +356,7 @@ class CirclesMenuConfig {
 }
 
 typedef bool BoolCallback();
+typedef EditChangedCallback(ActionMenuItemState p, {required bool isStart});
 
 class StateAction {
   final Icon icon;

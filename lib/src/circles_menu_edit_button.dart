@@ -16,9 +16,7 @@ class CircleMenuActionButton extends StatefulWidget {
       {Key? key,
         required this.icon,
         required this.top,
-        //this.right,
         required this.left,
-        //this.bottom,
         required this.radius,
         required this.onPressed});
 

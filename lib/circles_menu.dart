@@ -97,6 +97,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
                   numPages: curNumPages,
                   items: this.getItems(pageIndex: pi),
                   config: widget.config,
+                  onChange: this.onChange,
                 ),
             ],
           ),
@@ -127,28 +128,39 @@ class _CirclesMenuState extends State<CirclesMenu> {
     List<Widget> result = [];
     PageData curPageData = this.pageDataList[pageIndex];
     for (var d in curPageData.actionsStates) {
-      result.add(MenuItemWidget(
-        config: widget.config,
-        data: d,
-        isReadonly: curPageData.notEditable,
-        onPressed: () {
-          if (d.action.enabled) {
-            d.action.onPressed();
-          }
-        },
-        child: CircleBox(
-          radius: d.radius,
-          child: Text(
-            d.text,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyText1!.apply(
-                  color: Colors.white,
-                ),
+      result.add(
+        MenuItemWidget(
+          config: widget.config,
+          data: d,
+          isReadonly: curPageData.notEditable,
+          onPressed: () {
+            if (d.action.enabled) {
+              d.action.onPressed();
+            }
+          },
+          onEditChange: (ActionMenuItemState data, {required bool isStart}) {
+            for (var p in this.pageDataList) {
+              p.resetEditInProgress();
+            }
+            if (isStart) {
+              data.editInProgress = true;
+            }
+            this.onChange();
+          },
+          child: CircleBox(
+            radius: d.radius,
+            child: Text(
+              d.text,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyText1!.apply(
+                    color: Colors.white,
+                  ),
+            ),
+            fillColor: d.actualFillColor,
           ),
-          fillColor: d.actualFillColor,
+          onChange: this.onChange,
         ),
-        onChange: this.onChange,
-      ));
+      );
     }
     return result;
   }
