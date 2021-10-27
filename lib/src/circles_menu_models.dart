@@ -262,15 +262,22 @@ class ActionMenuItemState extends BaseMenuItemState {
 class ActionsCategory {
   final Widget icon;
   final String code;
+  final String title;
   final int order;
 
-  ActionsCategory({required this.icon, required this.code, this.order = 100});
+  ActionsCategory(
+      {required this.icon,
+      required this.code,
+      required this.title,
+      this.order = 100});
 
   static ActionsCategory defaultCategory = ActionsCategory(
-    icon: Icon(Icons.add),
-    code: 'default',
-    order: 1,
-  );
+      icon: Icon(
+        Icons.add,
+      ),
+      code: 'default',
+      order: 1,
+      title: 'default');
 
   @override
   String toString() {

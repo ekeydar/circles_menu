@@ -64,7 +64,6 @@ class _MenuItemWidgetState extends State<MenuItemWidget> {
                   widget.data,
                   isStart: !widget.data.editInProgress,
                 );
-                widget.onChange();
               },
         child: !widget.data.editInProgress
             ? widget.child

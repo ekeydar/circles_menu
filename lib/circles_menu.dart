@@ -205,34 +205,41 @@ class _CirclesMenuState extends State<CirclesMenu> {
         isRtl,
         [
           if (!curPageData.notEditable) ...[
-            for (var cat in actionsCategories)
               Padding(
                 padding: const EdgeInsets.only(left: 8.0, right: 8.0),
                 child: FloatingActionButton(
-                  heroTag: 'circle_menu_add_${cat.code}',
-                  onPressed: () async {
-                    OpAction? newAction = await pickAction(widget.actions
-                        .where((a) => a.category == cat)
-                        .toList());
-                    if (newAction != null) {
-                      curPageData.actionsStates.add(
-                        ActionMenuItemState(
-                          action: newAction,
-                          x: initialOffset +
-                              100 +
-                              curPageData.actionsStates.length * 10,
-                          y: MediaQuery.of(context).size.height - 350,
-                          radius: 50,
-                          fillColor: Theme.of(context).primaryColor,
-                        ),
-                      );
-                      onChange();
-                    }
-                  },
-                  backgroundColor: Colors.green,
-                  child: cat.icon,
-                ),
+                  heroTag: 'circle_menu_open_add',
+                onPressed: () async {
+                  if (actionsCategories.length == 1) {
+                    await pickAndCreateNew(actionsCategories.first);
+                  }
+                },
+                backgroundColor: Colors.green,
+                child: (actionsCategories.length == 1)
+                    ? Icon(Icons.add)
+                    : PopupMenuButton<ActionsCategory>(
+                        initialValue: null,
+                        child: Icon(Icons.add),
+                        onSelected: (ActionsCategory c) async {
+                          await pickAndCreateNew(c);
+                        },
+                        itemBuilder: (context) {
+                          return actionsCategories
+                              .map(
+                                (cat) => PopupMenuItem<ActionsCategory>(
+                                  child: ListTile(
+                                      dense: true,
+                                      contentPadding: EdgeInsets.zero,
+                                      title: Text(cat.title),
+                                      leading: cat.icon),
+                                  value: cat,
+                                ),
+                              )
+                              .toList();
+                        },
+                      ),
               ),
+            ),
             if (curPageData.actionsStates.length > 1)
               Padding(
                 padding: const EdgeInsets.only(left: 8.0, right: 8),
@@ -280,6 +287,23 @@ class _CirclesMenuState extends State<CirclesMenu> {
         ],
       ),
     );
+  }
+
+  Future<void> pickAndCreateNew(ActionsCategory cat) async {
+    OpAction? newAction = await pickAction(
+        widget.actions.where((a) => a.category == cat).toList());
+    if (newAction != null) {
+      curPageData.actionsStates.add(
+        ActionMenuItemState(
+          action: newAction,
+          x: initialOffset + 100 + curPageData.actionsStates.length * 10,
+          y: MediaQuery.of(context).size.height - 350,
+          radius: 50,
+          fillColor: Theme.of(context).primaryColor,
+        ),
+      );
+      onChange();
+    }
   }
 
   Widget getBottomActions() {
