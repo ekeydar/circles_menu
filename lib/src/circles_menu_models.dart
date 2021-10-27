@@ -320,6 +320,8 @@ class CirclesMenuConfig {
   final String swapWithPrevPageConfirmation;
   final String editPages;
   final String addPage;
+  final String devInfo;
+  final String arrangeInGrid;
   final String defaultPageTitle;
 
   // key to hold the data in shared preferences
@@ -348,6 +350,8 @@ class CirclesMenuConfig {
     this.editPageTitle = 'Edit page title',
     this.addPage = 'add page',
     this.defaultPageTitle = 'shortcuts screen',
+    this.arrangeInGrid = 'arrange in grid',
+    this.devInfo = 'dev info',
     this.spKey = 'circleButtons',
     this.onEditDone,
   });

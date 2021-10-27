@@ -11,15 +11,25 @@ import 'src/circle_menu_page.dart';
 import 'src/circles_menu_item_widget.dart';
 import 'src/circles_menu_models.dart';
 import 'src/circles_menu_pick_action_dialog.dart';
-import 'src/circles_menu_utils.dart';
 import 'src/circles_to_grid.dart';
-import 'src/indicator.dart';
 import 'src/restore_helpers.dart';
 import 'src/screens/pages_screen.dart';
 
 export 'src/circles_menu_models.dart';
 
 const int DUMP_VERSION = 4;
+
+class SettingsItem {
+  final String title;
+  final Widget icon;
+  final AsyncCallback onSelected;
+
+  SettingsItem({
+    required this.title,
+    required this.icon,
+    required this.onSelected,
+  });
+}
 
 class CirclesMenu extends StatefulWidget {
   final CirclesMenuConfig config;
@@ -202,93 +212,88 @@ class _CirclesMenuState extends State<CirclesMenu> {
   MainAxisAlignment get mainAlignmentForBottom =>
       isRtl ? MainAxisAlignment.end : MainAxisAlignment.start;
 
-  Widget _getPageEditRow() {
-    return Row(
-      mainAxisAlignment: mainAlignmentForBottom,
-      children: reverseIfTrue(
-        isRtl,
-        [
-          if (!curPageData.notEditable) ...[
-              Padding(
-                padding: const EdgeInsets.only(left: 8.0, right: 8.0),
-                child: FloatingActionButton(
-                  heroTag: 'circle_menu_open_add',
-                onPressed: () async {
-                  if (actionsCategories.length == 1) {
-                    await pickAndCreateNew(actionsCategories.first);
-                  }
-                },
-                backgroundColor: Colors.green,
-                child: (actionsCategories.length == 1)
-                    ? Icon(Icons.add)
-                    : PopupMenuButton<ActionsCategory>(
-                        initialValue: null,
-                        child: Icon(Icons.add),
-                        onSelected: (ActionsCategory c) async {
-                          await pickAndCreateNew(c);
-                        },
-                        itemBuilder: (context) {
-                          return actionsCategories
-                              .map(
-                                (cat) => PopupMenuItem<ActionsCategory>(
-                                  child: ListTile(
-                                      dense: true,
-                                      contentPadding: EdgeInsets.zero,
-                                      title: Text(cat.title),
-                                      leading: cat.icon),
-                                  value: cat,
-                                ),
-                              )
-                              .toList();
-                        },
-                      ),
-              ),
+  Widget _getSettingsButton() {
+    List<SettingsItem?> items = [];
+    items.add(
+      SettingsItem(
+        title: widget.config.editPages,
+        icon: Icon(Icons.settings),
+        onSelected: () async {
+          await Navigator.of(context).push(MaterialPageRoute(
+            settings: RouteSettings(name: 'TripObsScreen'),
+            builder: (context) => PagesScreen(
+              config: widget.config,
+              pages: pageDataList,
             ),
-            if (curPageData.actionsStates.length > 1)
-              Padding(
-                padding: const EdgeInsets.only(left: 8.0, right: 8),
-                child: FloatingActionButton(
-                  heroTag: 'circle_menu_auto_order',
-                  onPressed: () async {
-                    modifyCirclesToGrid(curPageData.actionsStates);
-                    onChange();
-                  },
-                  backgroundColor: Colors.green,
-                  child: Icon(Icons.grid_on),
-                ),
-              ),
-          ],
-          Padding(
-            padding: const EdgeInsets.only(left: 8.0, right: 8),
-            child: FloatingActionButton(
-              heroTag: 'circles_menu_settings',
-              onPressed: () async {
-                await Navigator.of(context).push(
-                  MaterialPageRoute(
-                    settings: RouteSettings(name: 'TripObsScreen'),
-                    builder: (context) =>
-                        PagesScreen(config: widget.config, pages: pageDataList),
-                  ),
-                );
-                onChange();
-              },
-              backgroundColor: Colors.green,
-              child: Icon(Icons.settings),
-            ),
+          ));
+        },
+      ),
+    );
+    if (!curPageData.notEditable) {
+      items.add(null);
+      for (var ac in actionsCategories) {
+        items.add(
+          SettingsItem(
+            title: ac.title,
+            icon: ac.icon,
+            onSelected: () async {
+              await pickAndCreateNew(ac);
+            },
           ),
-          if (kDebugMode)
-            Padding(
-              padding: const EdgeInsets.only(left: 8.0, right: 8),
-              child: FloatingActionButton(
-                heroTag: 'circle_menu_debug',
-                onPressed: () async {
-                  await _debugStates();
-                },
-                backgroundColor: Colors.green,
-                child: Icon(Icons.bug_report_outlined),
-              ),
-            )
-        ],
+        );
+      }
+      if (curPageData.actionsStates.length > 1) {
+        items.add(null);
+        items.add(
+          SettingsItem(
+            title: widget.config.arrangeInGrid,
+            icon: Icon(Icons.grid_on),
+            onSelected: () async {
+              modifyCirclesToGrid(curPageData.actionsStates);
+            },
+          ),
+        );
+      }
+      if (kDebugMode) {
+        items.add(SettingsItem(
+            icon: Icon(Icons.bug_report_outlined),
+            title: widget.config.devInfo,
+            onSelected: () async {
+              await this._debugStates();
+            }));
+      }
+    }
+    return FloatingActionButton(
+      heroTag: 'settings_button',
+      onPressed: () {},
+      backgroundColor: Colors.green,
+      child: PopupMenuButton<SettingsItem>(
+        initialValue: null,
+        child: Icon(Icons.settings),
+        onSelected: (SettingsItem sa) async {
+          await sa.onSelected();
+          this.onChange();
+        },
+        itemBuilder: (context) {
+          List<PopupMenuEntry<SettingsItem>> menuItems = [];
+          for (var si in items) {
+            if (si != null) {
+              menuItems.add(
+                PopupMenuItem<SettingsItem>(
+                  child: ListTile(
+                      dense: true,
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(si.title),
+                      leading: si.icon),
+                  value: si,
+                ),
+              );
+            } else {
+              menuItems.add(PopupMenuDivider());
+            }
+          }
+          return menuItems;
+        },
       ),
     );
   }
@@ -315,17 +320,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
       alignment: Alignment.bottomCenter,
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            SizedBox(height: 10),
-            _getPageEditRow(),
-            if (curNumPages > 1) ...[
-              PagingIndicator(
-                  activeIndex: currentPageIndex, count: curNumPages),
-            ],
-          ],
-        ),
+        child: _getSettingsButton(),
       ),
     );
   }
