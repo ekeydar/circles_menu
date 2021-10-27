@@ -199,6 +199,7 @@ class ActionMenuItemState extends BaseMenuItemState {
   OpAction action;
   Color fillColor;
   bool editInProgress = false;
+  bool showEditBox = false;
 
   String get title => action.title;
 

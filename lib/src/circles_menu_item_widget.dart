@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 import 'circles_menu_models.dart';
@@ -27,6 +29,8 @@ class MenuItemWidget extends StatefulWidget {
 }
 
 class _MenuItemWidgetState extends State<MenuItemWidget> {
+  Offset? dragOffset;
+
   @override
   Widget build(BuildContext context) {
     double cx = widget.data.x;
@@ -57,35 +61,54 @@ class _MenuItemWidgetState extends State<MenuItemWidget> {
         onTap: () {
           d.action.onPressed();
         },
-        child: LongPressDraggable(
-          feedback: Container(
-            child: widget.child,
-          ),
-          child: widget.child,
-          childWhenDragging: Container(),
-          onDragStarted: () {
-            print('STARTED');
-            widget.data.isDragged = true;
-            widget.onEditChange(widget.data, isStart: true);
-          },
-          onDragEnd: (details) {
-            print('DONE');
-            widget.data.isDragged = false;
-            setState(() {
-              // double w = MediaQuery.of(context).size.width;
-              // debugPrint('w = $w details.offset = ${details.offset} widget.controller.offset = ${widget.controller.offset}');
-              // bool isRtl =
-              //     Directionality.of(context) == TextDirection.rtl;
-              double newX = details.offset.dx; // # + widget.controller.offset;
-              // if (isRtl) {
-              //   newX = w - newX;
-              // }
-              widget.data.x = newX;
-              widget.data.y = details.offset.dy - 80;
-              widget.onChange();
-            });
-          },
-        ),
+        child: widget.isReadonly
+            ? widget.child
+            : LongPressDraggable(
+                feedback: Container(
+                  child: widget.child,
+                ),
+                child: widget.child,
+                childWhenDragging: Container(),
+                onDragStarted: () {
+                  widget.data.isDragged = true;
+                  widget.onEditChange(widget.data, isStart: true);
+                  dragOffset = null;
+                },
+                onDragUpdate: (DragUpdateDetails details) {
+                  if (dragOffset == null) {
+                    dragOffset = details.globalPosition;
+                  } else {
+                    double distX =
+                        pow(details.globalPosition.dx - dragOffset!.dx, 2)
+                            .toDouble();
+                    double distY =
+                        pow(details.globalPosition.dy - dragOffset!.dy, 2)
+                            .toDouble();
+                    double dist = sqrt(distX + distY);
+                    if (dist > 30) {
+                      widget.data.showEditBox = false;
+                      widget.onChange();
+                    }
+                  }
+                },
+                onDragEnd: (DraggableDetails details) {
+                  widget.data.isDragged = false;
+                  setState(() {
+                    // double w = MediaQuery.of(context).size.width;
+                    // debugPrint('w = $w details.offset = ${details.offset} widget.controller.offset = ${widget.controller.offset}');
+                    // bool isRtl =
+                    //     Directionality.of(context) == TextDirection.rtl;
+                    double newX =
+                        details.offset.dx; // # + widget.controller.offset;
+                    // if (isRtl) {
+                    //   newX = w - newX;
+                    // }
+                    widget.data.x = newX;
+                    widget.data.y = details.offset.dy - 80;
+                    widget.onChange();
+                  });
+                },
+              ),
       ),
     );
   }

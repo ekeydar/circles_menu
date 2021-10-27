@@ -120,6 +120,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
     }
     if (isStart) {
       data.editInProgress = true;
+      data.showEditBox = true;
     }
     this.onChange();
   }

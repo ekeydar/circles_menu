@@ -75,6 +75,9 @@ class CircleMenuPage extends StatelessWidget {
     } on StateError {
       return null;
     }
+    if (!data.showEditBox) {
+      return null;
+    }
     List<StateAction> actions = _getStateActions(context, data);
     return Positioned(
       child: EditItemDialog(
