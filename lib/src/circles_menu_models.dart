@@ -33,16 +33,16 @@ class PageData {
 
   factory PageData.fromMap(Map<String, dynamic> m,
       {required Map<String, OpAction> actionsByCode,
-        required String defaultTitle}) {
+      required String defaultTitle}) {
     List<ActionMenuItemState> actionsStates = List<ActionMenuItemState>.from(
       (m['states'] ?? [])
           .where((m) => actionsByCode.containsKey(m['actionCode']))
           .map(
             (m) => ActionMenuItemState.fromMap(
-          m,
-          actionsByCode: actionsByCode,
-        ),
-      ),
+              m,
+              actionsByCode: actionsByCode,
+            ),
+          ),
     );
     String? externalId = m['externalId'];
     bool isOwner = m['isOwner'] ?? false;
@@ -92,7 +92,7 @@ class PageData {
 
   Map<String, dynamic> toMap() {
     List<Map<String, dynamic>> states =
-    actionsStates.map((m) => m.toMap()).toList();
+        actionsStates.map((m) => m.toMap()).toList();
     return {
       'states': states,
       'index': this.index,
@@ -261,27 +261,22 @@ class ActionMenuItemState extends BaseMenuItemState {
 
 class ActionsCategory {
   final Widget icon;
-  final String code;
   final String title;
   final int order;
 
-  ActionsCategory(
-      {required this.icon,
-      required this.code,
-      required this.title,
-      this.order = 100});
+  ActionsCategory({required this.icon, required this.title, this.order = 100});
 
   static ActionsCategory defaultCategory = ActionsCategory(
-      icon: Icon(
-        Icons.add,
-      ),
-      code: 'default',
-      order: 1,
-      title: 'default');
+    icon: Icon(
+      Icons.add,
+    ),
+    order: 1,
+    title: 'default',
+  );
 
   @override
   String toString() {
-    return this.code;
+    return this.title;
   }
 }
 
