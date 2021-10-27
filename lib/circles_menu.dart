@@ -209,9 +209,6 @@ class _CirclesMenuState extends State<CirclesMenu> {
 
   bool get isRtl => Directionality.of(context) == TextDirection.rtl;
 
-  MainAxisAlignment get mainAlignmentForBottom =>
-      isRtl ? MainAxisAlignment.end : MainAxisAlignment.start;
-
   Widget _getSettingsButton() {
     List<SettingsItem?> items = [];
     items.add(
@@ -317,7 +314,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
 
   Widget getBottomActions() {
     return Align(
-      alignment: Alignment.bottomCenter,
+      alignment: Alignment.topRight,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: _getSettingsButton(),
