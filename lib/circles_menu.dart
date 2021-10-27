@@ -98,6 +98,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
                   items: this.getItems(pageIndex: pi),
                   config: widget.config,
                   onChange: this.onChange,
+                  onEditChange: this.onEditChange,
                 ),
             ],
           ),
@@ -111,6 +112,16 @@ class _CirclesMenuState extends State<CirclesMenu> {
         ),
       );
     }
+  }
+
+  void onEditChange(ActionMenuItemState data, {required bool isStart}) {
+    for (var p in this.pageDataList) {
+      p.resetEditInProgress();
+    }
+    if (isStart) {
+      data.editInProgress = true;
+    }
+    this.onChange();
   }
 
   void onChange() {
@@ -138,15 +149,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
               d.action.onPressed();
             }
           },
-          onEditChange: (ActionMenuItemState data, {required bool isStart}) {
-            for (var p in this.pageDataList) {
-              p.resetEditInProgress();
-            }
-            if (isStart) {
-              data.editInProgress = true;
-            }
-            this.onChange();
-          },
+          onEditChange: this.onEditChange,
           child: CircleBox(
             radius: d.radius,
             child: Text(

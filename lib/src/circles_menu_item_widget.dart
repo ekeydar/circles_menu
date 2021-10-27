@@ -57,44 +57,35 @@ class _MenuItemWidgetState extends State<MenuItemWidget> {
         onTap: () {
           d.action.onPressed();
         },
-        onLongPress: widget.isReadonly
-            ? null
-            : () {
-                widget.onEditChange(
-                  widget.data,
-                  isStart: !widget.data.editInProgress,
-                );
-              },
-        child: !widget.data.editInProgress
-            ? widget.child
-            : Draggable(
-                feedback: Container(
-                  child: widget.child,
-                ),
-                child: widget.child,
-                childWhenDragging: Container(),
-                onDragStarted: () {
-                  widget.data.isDragged = true;
-                  setState(() {});
-                },
-                onDragEnd: (details) {
-                  widget.data.isDragged = false;
-                  setState(() {
-                    // double w = MediaQuery.of(context).size.width;
-                    // debugPrint('w = $w details.offset = ${details.offset} widget.controller.offset = ${widget.controller.offset}');
-                    // bool isRtl =
-                    //     Directionality.of(context) == TextDirection.rtl;
-                    double newX =
-                        details.offset.dx; // # + widget.controller.offset;
-                    // if (isRtl) {
-                    //   newX = w - newX;
-                    // }
-                    widget.data.x = newX;
-                    widget.data.y = details.offset.dy - 80;
-                    widget.onChange();
-                  });
-                },
-              ),
+        child: LongPressDraggable(
+          feedback: Container(
+            child: widget.child,
+          ),
+          child: widget.child,
+          childWhenDragging: Container(),
+          onDragStarted: () {
+            print('STARTED');
+            widget.data.isDragged = true;
+            widget.onEditChange(widget.data, isStart: true);
+          },
+          onDragEnd: (details) {
+            print('DONE');
+            widget.data.isDragged = false;
+            setState(() {
+              // double w = MediaQuery.of(context).size.width;
+              // debugPrint('w = $w details.offset = ${details.offset} widget.controller.offset = ${widget.controller.offset}');
+              // bool isRtl =
+              //     Directionality.of(context) == TextDirection.rtl;
+              double newX = details.offset.dx; // # + widget.controller.offset;
+              // if (isRtl) {
+              //   newX = w - newX;
+              // }
+              widget.data.x = newX;
+              widget.data.y = details.offset.dy - 80;
+              widget.onChange();
+            });
+          },
+        ),
       ),
     );
   }

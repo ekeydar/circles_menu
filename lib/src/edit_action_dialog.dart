@@ -3,10 +3,16 @@ import 'package:flutter/material.dart';
 import '../circles_menu.dart';
 
 class EditItemDialog extends StatefulWidget {
-  final BaseMenuItemState data;
+  final ActionMenuItemState data;
   final List<StateAction> actions;
+  final EditChangedCallback onEditChange;
 
-  EditItemDialog({Key? key, required this.data, required this.actions});
+  EditItemDialog({
+    Key? key,
+    required this.data,
+    required this.actions,
+    required this.onEditChange,
+  });
 
   @override
   State<StatefulWidget> createState() {
@@ -20,10 +26,26 @@ class _EditItemDialogState extends State<EditItemDialog> {
     return SimpleDialog(
       contentPadding: EdgeInsets.all(0),
       titlePadding: EdgeInsets.all(8.0),
-      title: Text(
-        widget.data.title,
-        style: TextStyle(fontSize: 16),
-        textAlign: TextAlign.center,
+      title: Row(
+        children: [
+          IconButton(
+            icon: Icon(Icons.close),
+            onPressed: () {
+              widget.onEditChange(
+                widget.data,
+                isStart: false,
+              );
+            },
+          ),
+          Expanded(
+            child: Center(
+              child: Text(
+                widget.data.title,
+                style: TextStyle(fontSize: 16),
+              ),
+            ),
+          ),
+        ],
       ),
       children: [
         Container(
@@ -46,9 +68,6 @@ class _EditItemDialogState extends State<EditItemDialog> {
                   onPressed: () async {
                     await widget.actions[i].callback();
                     setState(() {});
-                    if (widget.actions[i].popAfterPress) {
-                      Navigator.of(context).pop();
-                    }
                   },
                 ),
               ]
@@ -81,29 +100,4 @@ class MenuButton extends StatelessWidget {
       iconSize: 20,
     );
   }
-}
-
-Future<void> showEditItemDialog(
-    {required BuildContext context,
-    required BaseMenuItemState data,
-    required List<StateAction> actions}) async {
-  showGeneralDialog(
-    context: context,
-    barrierDismissible: true,
-    barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
-    barrierColor: Colors.black45,
-    transitionDuration: const Duration(milliseconds: 200),
-    pageBuilder: (BuildContext buildContext, Animation animation,
-        Animation secondaryAnimation) {
-      return Stack(
-        children: [
-          Positioned(
-            child: EditItemDialog(data: data, actions: actions),
-            top: data.y > 60 ? data.y - 30 : data.y + data.height + 60,
-            left: 10,
-          )
-        ],
-      );
-    },
-  );
 }

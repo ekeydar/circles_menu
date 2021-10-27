@@ -13,6 +13,7 @@ class CircleMenuPage extends StatelessWidget {
   final PageData pageData;
   final CirclesMenuConfig config;
   final VoidCallback onChange;
+  final EditChangedCallback onEditChange;
 
   CircleMenuPage({
     required Key key,
@@ -22,6 +23,7 @@ class CircleMenuPage extends StatelessWidget {
     required this.pageData,
     required this.config,
     required this.onChange,
+    required this.onEditChange,
   }) : super(key: key);
 
   List<StateAction> _getStateActions(
@@ -36,7 +38,6 @@ class CircleMenuPage extends StatelessWidget {
           d.isDeleted = true;
           this.onChange();
         },
-        popAfterPress: true,
       ),
       StateAction(
         icon: Icon(Icons.color_lens_outlined),
@@ -76,7 +77,11 @@ class CircleMenuPage extends StatelessWidget {
     }
     List<StateAction> actions = _getStateActions(context, data);
     return Positioned(
-      child: EditItemDialog(data: data, actions: actions),
+      child: EditItemDialog(
+        data: data,
+        actions: actions,
+        onEditChange: this.onEditChange,
+      ),
       top: data.y > 200 ? data.y - 120 : data.y + 120,
       left: 10,
     );

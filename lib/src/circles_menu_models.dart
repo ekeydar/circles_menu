@@ -363,17 +363,17 @@ class CirclesMenuConfig {
 }
 
 typedef bool BoolCallback();
-typedef EditChangedCallback(ActionMenuItemState p, {required bool isStart});
+typedef void EditChangedCallback(ActionMenuItemState p,
+    {required bool isStart});
 
 class StateAction {
   final Icon icon;
   final AsyncCallback callback;
   final BoolCallback? enabledCallback;
-  final bool popAfterPress;
 
-  StateAction(
-      {required this.icon,
-      required this.callback,
-      this.enabledCallback,
-      this.popAfterPress = false});
+  StateAction({
+    required this.icon,
+    required this.callback,
+    this.enabledCallback,
+  });
 }
