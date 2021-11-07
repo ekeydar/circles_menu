@@ -37,12 +37,11 @@ class CirclesMenu extends StatefulWidget {
   final Map<String, dynamic>? extSavedMap;
   final List<Map<String, dynamic>> readonlyPagesMaps;
 
-  CirclesMenu(
-      {Key? key,
-      CirclesMenuConfig? config,
-      required this.actions,
-      this.extSavedMap,
-      required this.readonlyPagesMaps})
+  CirclesMenu({Key? key,
+    CirclesMenuConfig? config,
+    required this.actions,
+    this.extSavedMap,
+    required this.readonlyPagesMaps})
       : this.config = config ?? CirclesMenuConfig();
 
   @override
@@ -166,9 +165,13 @@ class _CirclesMenuState extends State<CirclesMenu> {
             child: Text(
               d.text,
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyText1!.apply(
-                    color: Colors.white,
-                  ),
+              style: Theme
+                  .of(context)
+                  .textTheme
+                  .bodyText1!
+                  .apply(
+                color: Colors.white,
+              ),
             ),
             fillColor: d.actualFillColor,
           ),
@@ -181,7 +184,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
 
   List<ActionsCategory> get actionsCategories {
     List<ActionsCategory> icons =
-        widget.actions.map((a) => a.category).toSet().toList();
+    widget.actions.map((a) => a.category).toSet().toList();
     return icons..sort((c1, c2) => c1.order.compareTo(c2.order));
   }
 
@@ -218,10 +221,11 @@ class _CirclesMenuState extends State<CirclesMenu> {
         onSelected: () async {
           await Navigator.of(context).push(MaterialPageRoute(
             settings: RouteSettings(name: 'TripObsScreen'),
-            builder: (context) => PagesScreen(
-              config: widget.config,
-              pages: pageDataList,
-            ),
+            builder: (context) =>
+                PagesScreen(
+                  config: widget.config,
+                  pages: pageDataList,
+                ),
           ));
         },
       ),
@@ -296,16 +300,35 @@ class _CirclesMenuState extends State<CirclesMenu> {
   }
 
   Future<void> pickAndCreateNew(ActionsCategory cat) async {
+    Set<String> curCodes = pageDataList.fold(
+      <String>{},
+          (curSet, p) =>
+          curSet.union(
+            p.actionsStates.map((s) => s.action.code).toSet(),
+          ),
+    );
+    List<OpAction> catActions = widget.actions.where((a) => a.category == cat)
+        .toList();
     OpAction? newAction = await pickAction(
-        widget.actions.where((a) => a.category == cat).toList());
+      context,
+      category: cat
+      actions: catActions,
+      curCodes: curCodes,
+      config: widget.config,
+    );
     if (newAction != null) {
       curPageData.actionsStates.add(
         ActionMenuItemState(
           action: newAction,
           x: initialOffset + 100 + curPageData.actionsStates.length * 10,
-          y: MediaQuery.of(context).size.height - 350,
+          y: MediaQuery
+              .of(context)
+              .size
+              .height - 350,
           radius: 50,
-          fillColor: Theme.of(context).primaryColor,
+          fillColor: Theme
+              .of(context)
+              .primaryColor,
         ),
       );
       onChange();
@@ -325,7 +348,9 @@ class _CirclesMenuState extends State<CirclesMenu> {
   Map<String, dynamic> toMap() {
     return {
       'pages': [for (var p in this.pageDataList) p.toMap()],
-      'timestampMs': DateTime.now().millisecondsSinceEpoch,
+      'timestampMs': DateTime
+          .now()
+          .millisecondsSinceEpoch,
       'version': DUMP_VERSION,
     };
   }
@@ -365,35 +390,14 @@ class _CirclesMenuState extends State<CirclesMenu> {
     );
     this.pageDataList = pagesMaps
         .map(
-          (m) => PageData.fromMap(
+          (m) =>
+          PageData.fromMap(
             m,
             actionsByCode: actionsByCode,
             defaultTitle: widget.config.defaultPageTitle,
           ),
-        )
+    )
         .toList();
     this.squeezeAndSortPages();
-  }
-
-  Future<OpAction?> pickAction(List<OpAction> actions) async {
-    PageData curPageData = pageDataList[currentPageIndex];
-    Set<String> curCodes = pageDataList.fold(
-      <String>{},
-      (curSet, p) => curSet.union(
-        p.actionsStates.map((s) => s.action.code).toSet(),
-      ),
-    );
-    curPageData.actionsStates.map((d) => d.action.code).toSet();
-    actions.sort((a1, a2) => a1.title.compareTo(a2.title));
-    return await showDialog<OpAction>(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) {
-          return PickActionDialog(
-            actions: actions,
-            config: widget.config,
-            curCodes: curCodes,
-          );
-        });
   }
 }

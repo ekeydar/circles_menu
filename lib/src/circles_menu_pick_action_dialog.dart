@@ -2,6 +2,27 @@ import 'package:flutter/material.dart';
 
 import 'circles_menu_models.dart';
 
+Future<OpAction?> pickAction(
+  BuildContext context, {
+  required ActionsCategory category,
+  required List<OpAction> actions,
+  required Set<String> curCodes,
+  required CirclesMenuConfig config,
+}) async {
+  actions.sort((a1, a2) => a1.title.compareTo(a2.title));
+  return await showDialog<OpAction>(
+    context: context,
+    barrierDismissible: false,
+    builder: (context) {
+      return PickActionDialog(
+        actions: actions,
+        config: config,
+        curCodes: curCodes,
+      );
+    },
+  );
+}
+
 class PickActionDialog extends StatefulWidget {
   final List<OpAction> actions;
   final CirclesMenuConfig config;
