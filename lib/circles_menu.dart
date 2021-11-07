@@ -16,6 +16,7 @@ import 'src/restore_helpers.dart';
 import 'src/screens/pages_screen.dart';
 
 export 'src/circles_menu_models.dart';
+export 'src/circles_menu_pick_action_dialog.dart' show pickActionSimple;
 
 const int DUMP_VERSION = 4;
 
@@ -36,12 +37,15 @@ class CirclesMenu extends StatefulWidget {
   final List<OpAction> actions;
   final Map<String, dynamic>? extSavedMap;
   final List<Map<String, dynamic>> readonlyPagesMaps;
+  final PickActionCallback? pickActionCallback;
 
   CirclesMenu({Key? key,
     CirclesMenuConfig? config,
     required this.actions,
     this.extSavedMap,
-    required this.readonlyPagesMaps})
+    required this.readonlyPagesMaps,
+    this.pickActionCallback
+  })
       : this.config = config ?? CirclesMenuConfig();
 
   @override
@@ -220,7 +224,6 @@ class _CirclesMenuState extends State<CirclesMenu> {
         icon: Icon(Icons.settings),
         onSelected: () async {
           await Navigator.of(context).push(MaterialPageRoute(
-            settings: RouteSettings(name: 'TripObsScreen'),
             builder: (context) =>
                 PagesScreen(
                   config: widget.config,
@@ -309,6 +312,8 @@ class _CirclesMenuState extends State<CirclesMenu> {
     );
     List<OpAction> catActions = widget.actions.where((a) => a.category == cat)
         .toList();
+    PickActionCallback pickAction = widget.pickActionCallback ??
+        pickActionSimple;
     OpAction? newAction = await pickAction(
       context,
       category: cat

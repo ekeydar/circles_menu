@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'circles_menu_models.dart';
 
-Future<OpAction?> pickAction(
+Future<OpAction?> pickActionSimple(
   BuildContext context, {
   required ActionsCategory category,
   required List<OpAction> actions,

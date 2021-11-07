@@ -2,6 +2,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+typedef Future<OpAction?> PickActionCallback(
+  BuildContext context, {
+  required ActionsCategory category,
+  required List<OpAction> actions,
+  required Set<String> curCodes,
+  required CirclesMenuConfig config,
+});
+
 class PageData {
   static Color defaultColor = Colors.white;
   List<ActionMenuItemState> actionsStates;
@@ -151,49 +159,6 @@ abstract class BaseMenuItemState {
   String get title;
 }
 
-// class LabelMenuItemState extends BaseMenuItemState {
-//   double fontSize;
-//   Color color;
-//   String label;
-//
-//   String get title => label;
-//
-//   LabelMenuItemState(
-//       {required double x,
-//       required double y,
-//       required this.fontSize,
-//       required this.color,
-//       required this.label})
-//       : super(x: x, y: y);
-//
-//   LabelMenuItemState.fromMap(Map<String, dynamic> m)
-//       : color = Color(m['colorValue']),
-//         fontSize = m['fontSize'],
-//         label = m['label'],
-//         super(x: m['x'], y: m['y']);
-//
-//   Map<String, dynamic> toMap() {
-//     return super.toMap()
-//       ..addAll({
-//         'fontSize': fontSize,
-//         'label': label,
-//         'colorValue': color.value,
-//       });
-//   }
-//
-//   double get width => max(90, 20 + 0.6 * fontSize * label.length);
-//
-//   double get height => 50 + fontSize;
-//
-//   bool get canIncr => fontSize < 34;
-//
-//   bool get canDecr => fontSize > 16;
-//
-//   void incr() => fontSize += 2;
-//
-//   void decr() => fontSize -= 2;
-// }
-
 class ActionMenuItemState extends BaseMenuItemState {
   double radius;
   OpAction action;
@@ -323,6 +288,9 @@ class CirclesMenuConfig {
   final String devInfo;
   final String arrangeInGrid;
   final String defaultPageTitle;
+
+  // builder for the pick action
+  PickActionCallback? pickActionCallback;
 
   // key to hold the data in shared preferences
   final String spKey;

@@ -65,6 +65,7 @@ class CirclesMenuExampleState extends State<CirclesMenuExample> {
           actions: _getActions(context, disabledIndex: disabledIndex),
           config: config,
           readonlyPagesMaps: [],
+          pickActionCallback: myPickAction,
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerTop,
         floatingActionButton: Padding(
@@ -100,6 +101,31 @@ class CirclesMenuExampleState extends State<CirclesMenuExample> {
   }
 }
 
+Future<OpAction?> myPickAction(
+  BuildContext context, {
+  required ActionsCategory category,
+  required List<OpAction> actions,
+  required Set<String> curCodes,
+  required CirclesMenuConfig config,
+}) async {
+  if (category.title == 'big') {
+    return await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => PickBigActionScreen(
+          category: category,
+        ),
+      ),
+    );
+  }
+  return await pickActionSimple(
+    context,
+    category: category,
+    actions: actions,
+    curCodes: curCodes,
+    config: config,
+  );
+}
+
 List<OpAction> _getActions(context, {required int disabledIndex}) {
   ActionsCategory bigCat = ActionsCategory(
     icon: Icon(Icons.sports_tennis),
@@ -125,4 +151,42 @@ List<OpAction> _getActions(context, {required int disabledIndex}) {
     result.add(oa);
   }
   return result;
+}
+
+class PickBigActionScreen extends StatelessWidget {
+  final ActionsCategory category;
+
+  PickBigActionScreen({Key? key, required this.category}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          title: Text('pick big action'),
+        ),
+        body: Column(
+          children: [
+            for (var i = 10; i < 20; i++)
+              ElevatedButton(
+                  onPressed: () {
+                    String title = 'פעולה מספר ' + i.toString();
+                    Navigator.of(context).pop(OpAction(
+                      code: 'action_$i',
+                      title: title,
+                      enabled: true,
+                      category: category,
+                      onPressed: () {
+                        final snackBar = SnackBar(
+                          content: Text('clicked on $title'),
+                          backgroundColor: Colors.red,
+                          duration: Duration(milliseconds: 500),
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                      },
+                    ));
+                  },
+                  child: Text('פעולה מספר ' + i.toString()))
+          ],
+        ));
+  }
 }
