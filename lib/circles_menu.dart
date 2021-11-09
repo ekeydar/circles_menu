@@ -322,6 +322,9 @@ class _CirclesMenuState extends State<CirclesMenu> {
       config: widget.config,
     );
     if (newAction != null) {
+      if (this.widget.actions.indexWhere((a) => a.code == newAction.code) < 0) {
+        this.widget.actions.add(newAction);
+      }
       curPageData.actionsStates.add(
         ActionMenuItemState(
           action: newAction,

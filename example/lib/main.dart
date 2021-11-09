@@ -126,13 +126,20 @@ Future<OpAction?> myPickAction(
   );
 }
 
+Set<int> extraNumbers = {};
+
 List<OpAction> _getActions(context, {required int disabledIndex}) {
   ActionsCategory bigCat = ActionsCategory(
     icon: Icon(Icons.sports_tennis),
     title: 'big',
   );
   List<OpAction> result = [];
+  Set<int> numbers = {};
   for (int x = 1; x <= 15; x++) {
+    numbers.add(x);
+  }
+  numbers.addAll(extraNumbers);
+  for (var x in numbers.toList()..sort()) {
     String title = 'פעולה מספר ' + x.toString();
     OpAction oa = OpAction(
       code: 'action_$x',
@@ -170,6 +177,7 @@ class PickBigActionScreen extends StatelessWidget {
               ElevatedButton(
                   onPressed: () {
                     String title = 'פעולה מספר ' + i.toString();
+                    extraNumbers.add(i);
                     Navigator.of(context).pop(OpAction(
                       code: 'action_$i',
                       title: title,
