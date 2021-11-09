@@ -92,7 +92,7 @@ class PageData {
   void updateActions(Map<String, OpAction> actionsByCode) {
     this.actionsStates.forEach((st) {
       String c = st.action.code;
-      st.action = actionsByCode[c]!;
+      st._action = actionsByCode[c]!;
     });
   }
 
@@ -163,11 +163,13 @@ abstract class BaseMenuItemState {
 
 class ActionMenuItemState extends BaseMenuItemState {
   double radius;
-  OpAction action;
+  OpAction _action;
   Color fillColor;
   bool editInProgress = false;
   bool showEditBox = false;
   final ActionsProvider actionsProvider;
+
+  OpAction get action => _action;
 
   String get title => action.title;
 
@@ -176,14 +178,15 @@ class ActionMenuItemState extends BaseMenuItemState {
       required double y,
       required this.actionsProvider,
       required this.radius,
-      required this.action,
+      required action,
       required this.fillColor})
-      : super(x: x, y: y);
+      : _action = action,
+        super(x: x, y: y);
 
   ActionMenuItemState.fromMap(Map<String, dynamic> m,
       {required Map<String, OpAction> actionsByCode,
       required this.actionsProvider})
-      : action = actionsByCode[m['actionCode']]!,
+      : _action = actionsByCode[m['actionCode']]!,
         fillColor = Color(m['fillColorValue']),
         radius = m['radius'],
         super(x: m['x'], y: m['y']);
