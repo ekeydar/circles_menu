@@ -41,6 +41,7 @@ class PageData {
 
   factory PageData.fromMap(Map<String, dynamic> m,
       {required Map<String, OpAction> actionsByCode,
+      required ActionsProvider actionsProvider,
       required String defaultTitle}) {
     List<ActionMenuItemState> actionsStates = List<ActionMenuItemState>.from(
       (m['states'] ?? [])
@@ -48,6 +49,7 @@ class PageData {
           .map(
             (m) => ActionMenuItemState.fromMap(
               m,
+              actionsProvider: actionsProvider,
               actionsByCode: actionsByCode,
             ),
           ),
@@ -165,19 +167,22 @@ class ActionMenuItemState extends BaseMenuItemState {
   Color fillColor;
   bool editInProgress = false;
   bool showEditBox = false;
+  final ActionsProvider actionsProvider;
 
   String get title => action.title;
 
   ActionMenuItemState(
       {required double x,
       required double y,
+      required this.actionsProvider,
       required this.radius,
       required this.action,
       required this.fillColor})
       : super(x: x, y: y);
 
   ActionMenuItemState.fromMap(Map<String, dynamic> m,
-      {required Map<String, OpAction> actionsByCode})
+      {required Map<String, OpAction> actionsByCode,
+      required this.actionsProvider})
       : action = actionsByCode[m['actionCode']]!,
         fillColor = Color(m['fillColorValue']),
         radius = m['radius'],

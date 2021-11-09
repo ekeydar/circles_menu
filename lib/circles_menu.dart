@@ -327,6 +327,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
     if (newAction != null) {
       curPageData.actionsStates.add(
         ActionMenuItemState(
+          actionsProvider: widget.actionsProvider,
           action: newAction,
           x: initialOffset + 100 + curPageData.actionsStates.length * 10,
           y: MediaQuery
@@ -402,6 +403,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
           (m) =>
           PageData.fromMap(
             m,
+            actionsProvider: widget.actionsProvider,
             actionsByCode: actionsByCode,
             defaultTitle: widget.config.defaultPageTitle,
           ),
