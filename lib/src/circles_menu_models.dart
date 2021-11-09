@@ -345,3 +345,7 @@ class StateAction {
     this.enabledCallback,
   });
 }
+
+abstract class ActionsProvider {
+  List<OpAction> getActions();
+}

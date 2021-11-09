@@ -34,15 +34,30 @@ class CirclesMenuExample extends StatefulWidget {
   State<StatefulWidget> createState() => CirclesMenuExampleState();
 }
 
+class MyActionsProvider extends ActionsProvider {
+  late List<OpAction> actions;
+
+  MyActionsProvider(BuildContext context) {
+    actions = _getActions(context);
+  }
+
+  @override
+  List<OpAction> getActions() {
+    return actions;
+  }
+}
+
 class CirclesMenuExampleState extends State<CirclesMenuExample> {
   int disabledIndex = 1;
   String? defaultDump;
 
   late CirclesMenuConfig config;
+  late MyActionsProvider myActionsProvider;
 
   @override
   void initState() {
     config = CirclesMenuConfig(onEditDone: this.onEditDone);
+    myActionsProvider = MyActionsProvider(context);
     super.initState();
   }
 
@@ -62,7 +77,7 @@ class CirclesMenuExampleState extends State<CirclesMenuExample> {
           title: Text('demo widget'),
         ),
         body: CirclesMenu(
-          actions: _getActions(context, disabledIndex: disabledIndex),
+          actionsProvider: myActionsProvider,
           config: config,
           readonlyPagesMaps: [],
           pickActionCallback: myPickAction,
@@ -128,7 +143,7 @@ Future<OpAction?> myPickAction(
 
 Set<int> extraNumbers = {};
 
-List<OpAction> _getActions(context, {required int disabledIndex}) {
+List<OpAction> _getActions(context) {
   ActionsCategory bigCat = ActionsCategory(
     icon: Icon(Icons.sports_tennis),
     title: 'big',
@@ -144,7 +159,7 @@ List<OpAction> _getActions(context, {required int disabledIndex}) {
     OpAction oa = OpAction(
       code: 'action_$x',
       title: title,
-      enabled: x != disabledIndex,
+      enabled: true,
       category: x >= 10 ? bigCat : null,
       onPressed: () {
         final snackBar = SnackBar(

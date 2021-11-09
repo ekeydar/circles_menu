@@ -34,14 +34,14 @@ class SettingsItem {
 
 class CirclesMenu extends StatefulWidget {
   final CirclesMenuConfig config;
-  final List<OpAction> actions;
+  final ActionsProvider actionsProvider;
   final Map<String, dynamic>? extSavedMap;
   final List<Map<String, dynamic>> readonlyPagesMaps;
   final PickActionCallback? pickActionCallback;
 
   CirclesMenu({Key? key,
     CirclesMenuConfig? config,
-    required this.actions,
+    required this.actionsProvider,
     this.extSavedMap,
     required this.readonlyPagesMaps,
     this.pickActionCallback
@@ -81,10 +81,11 @@ class _CirclesMenuState extends State<CirclesMenu> {
 
   @override
   Widget build(BuildContext context) {
+    List<OpAction> actions = widget.actionsProvider.getActions();
     if (_ready) {
       // debugPrint('menuWidth = $menuWidth');
       Map<String, OpAction> actionsByCode = {
-        for (var a in widget.actions) a.code: a
+        for (var a in actions) a.code: a
       };
       for (var p in pageDataList) {
         p.removeNotApplicableActions(actionsByCode);
@@ -187,8 +188,9 @@ class _CirclesMenuState extends State<CirclesMenu> {
   }
 
   List<ActionsCategory> get actionsCategories {
+    List<OpAction> actions = widget.actionsProvider.getActions();
     List<ActionsCategory> icons =
-    widget.actions.map((a) => a.category).toSet().toList();
+    actions.map((a) => a.category).toSet().toList();
     return icons..sort((c1, c2) => c1.order.compareTo(c2.order));
   }
 
@@ -310,7 +312,8 @@ class _CirclesMenuState extends State<CirclesMenu> {
             p.actionsStates.map((s) => s.action.code).toSet(),
           ),
     );
-    List<OpAction> catActions = widget.actions.where((a) => a.category == cat)
+    List<OpAction> actions = widget.actionsProvider.getActions();
+    List<OpAction> catActions = actions.where((a) => a.category == cat)
         .toList();
     PickActionCallback pickAction = widget.pickActionCallback ??
         pickActionSimple;
@@ -322,9 +325,6 @@ class _CirclesMenuState extends State<CirclesMenu> {
       config: widget.config,
     );
     if (newAction != null) {
-      if (this.widget.actions.indexWhere((a) => a.code == newAction.code) < 0) {
-        this.widget.actions.add(newAction);
-      }
       curPageData.actionsStates.add(
         ActionMenuItemState(
           action: newAction,
@@ -377,8 +377,9 @@ class _CirclesMenuState extends State<CirclesMenu> {
   }
 
   Future<void> _buildPages() async {
+    List<OpAction> actions = widget.actionsProvider.getActions();
     Map<String, OpAction> actionsByCode = {
-      for (var a in widget.actions) a.code: a
+      for (var a in actions) a.code: a
     };
     SharedPreferences sp = await SharedPreferences.getInstance();
     String? localSavedText = sp.getString(widget.config.spKey);
