@@ -255,15 +255,11 @@ class ActionsCategory {
 class OpAction {
   final String title;
   final String code;
-  final VoidCallback onPressed;
   final ActionsCategory category;
-
-  static IconData defaultIconData = Icons.add;
 
   OpAction({
     required this.title,
     required this.code,
-    required this.onPressed,
     ActionsCategory? category,
   }) : this.category = category ?? ActionsCategory.defaultCategory;
 
@@ -350,8 +346,12 @@ class StateAction {
   });
 }
 
+typedef void ActionPressedCallback(String code);
+
 abstract class ActionsProvider {
   List<OpAction> getActions();
 
   bool isDisabled(String code) => false;
+
+  void actionPressed(String code);
 }

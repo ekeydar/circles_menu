@@ -159,11 +159,6 @@ class _CirclesMenuState extends State<CirclesMenu> {
           config: widget.config,
           data: d,
           isReadonly: curPageData.notEditable,
-          onPressed: () {
-            if (!d.actionsProvider.isDisabled(d.action.code)) {
-              d.action.onPressed();
-            }
-          },
           onEditChange: this.onEditChange,
           child: CircleBox(
             radius: d.radius,

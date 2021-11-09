@@ -37,14 +37,15 @@ class CirclesMenuExample extends StatefulWidget {
 class MyActionsProvider extends ActionsProvider {
   late List<OpAction> actions;
   int disabledIndex = 1;
+  final ActionPressedCallback onActionPressed;
 
   @override
   bool isDisabled(String code) {
     return 'action_$disabledIndex' == code;
   }
 
-  MyActionsProvider(BuildContext context) {
-    actions = _getActions(context);
+  MyActionsProvider({required this.onActionPressed}) {
+    actions = _getActions();
   }
 
   @override
@@ -57,6 +58,11 @@ class MyActionsProvider extends ActionsProvider {
       actions.add(action);
     }
   }
+
+  @override
+  void actionPressed(String code) {
+    this.onActionPressed(code);
+  }
 }
 
 class CirclesMenuExampleState extends State<CirclesMenuExample> {
@@ -68,8 +74,18 @@ class CirclesMenuExampleState extends State<CirclesMenuExample> {
   @override
   void initState() {
     config = CirclesMenuConfig(onEditDone: this.onEditDone);
-    myActionsProvider = MyActionsProvider(context);
+    myActionsProvider =
+        MyActionsProvider(onActionPressed: this.onActionPressed);
     super.initState();
+  }
+
+  void onActionPressed(String code) {
+    final snackBar = SnackBar(
+      content: Text('clicked on $code'),
+      backgroundColor: Colors.red,
+      duration: Duration(milliseconds: 500),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   Future<void> onEditDone() async {
@@ -159,7 +175,7 @@ Future<OpAction?> myPickAction(
 
 Set<int> extraNumbers = {};
 
-List<OpAction> _getActions(context) {
+List<OpAction> _getActions() {
   ActionsCategory bigCat = ActionsCategory(
     icon: Icon(Icons.sports_tennis),
     title: 'big',
@@ -176,14 +192,6 @@ List<OpAction> _getActions(context) {
       code: 'action_$x',
       title: title,
       category: x >= 10 ? bigCat : null,
-      onPressed: () {
-        final snackBar = SnackBar(
-          content: Text('clicked on $title'),
-          backgroundColor: Colors.red,
-          duration: Duration(milliseconds: 500),
-        );
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      },
     );
     result.add(oa);
   }
@@ -208,19 +216,13 @@ class PickBigActionScreen extends StatelessWidget {
                   onPressed: () {
                     String title = 'פעולה מספר ' + i.toString();
                     extraNumbers.add(i);
-                    Navigator.of(context).pop(OpAction(
-                      code: 'action_$i',
-                      title: title,
-                      category: category,
-                      onPressed: () {
-                        final snackBar = SnackBar(
-                          content: Text('clicked on $title'),
-                          backgroundColor: Colors.red,
-                          duration: Duration(milliseconds: 500),
-                        );
-                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                      },
-                    ));
+                    Navigator.of(context).pop(
+                      OpAction(
+                        code: 'action_$i',
+                        title: title,
+                        category: category,
+                      ),
+                    );
                   },
                   child: Text('פעולה מספר ' + i.toString()))
           ],
