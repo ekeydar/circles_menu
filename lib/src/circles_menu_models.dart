@@ -244,12 +244,10 @@ class ActionsCategory {
 class OpAction {
   final String title;
   final String code;
-  final String categoryCode;
 
   OpAction({
     required this.title,
     required this.code,
-    required this.categoryCode,
   });
 
   @override
@@ -349,4 +347,6 @@ abstract class ActionsProvider {
   void actionPressed(String code);
 
   List<ActionsCategory> getCategories();
+
+  String getActionCategoryCode(String code);
 }

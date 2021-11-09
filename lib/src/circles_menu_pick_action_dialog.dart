@@ -11,7 +11,8 @@ Future<OpAction?> pickActionSimple(
 }) async {
   List<OpAction> catActions = actionsProvider
       .getActions()
-      .where((a) => a.categoryCode == category.code)
+      .where(
+          (a) => actionsProvider.getActionCategoryCode(a.code) == category.code)
       .toList()
     ..sort((a1, a2) => a1.title.compareTo(a2.title));
   return await showDialog<OpAction>(

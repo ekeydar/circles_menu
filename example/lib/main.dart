@@ -65,8 +65,12 @@ class MyActionsProvider extends ActionsProvider {
     return OpAction(
       title: title,
       code: code,
-      categoryCode: index < 10 ? 'small' : 'big',
     );
+  }
+
+  String getActionCategoryCode(String code) {
+    int index = int.parse(code.replaceAll('action_', ''), radix: 10);
+    return index < 10 ? 'small' : 'big';
   }
 
   @override
@@ -196,7 +200,6 @@ List<OpAction> _getActions() {
     OpAction oa = OpAction(
       code: 'action_$x',
       title: title,
-      categoryCode: x < 10 ? 'small' : 'big',
     );
     result.add(oa);
   }
@@ -224,7 +227,6 @@ class PickBigActionScreen extends StatelessWidget {
                       OpAction(
                         code: 'action_$i',
                         title: title,
-                        categoryCode: i <= 10 ? 'small' : 'big',
                       ),
                     );
                   },
