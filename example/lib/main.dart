@@ -36,6 +36,12 @@ class CirclesMenuExample extends StatefulWidget {
 
 class MyActionsProvider extends ActionsProvider {
   late List<OpAction> actions;
+  int disabledIndex = 1;
+
+  @override
+  bool isDisabled(String code) {
+    return 'action_$disabledIndex' == code;
+  }
 
   MyActionsProvider(BuildContext context) {
     actions = _getActions(context);
@@ -48,7 +54,6 @@ class MyActionsProvider extends ActionsProvider {
 }
 
 class CirclesMenuExampleState extends State<CirclesMenuExample> {
-  int disabledIndex = 1;
   String? defaultDump;
 
   late CirclesMenuConfig config;
@@ -93,9 +98,9 @@ class CirclesMenuExampleState extends State<CirclesMenuExample> {
                   child: Icon(Icons.add),
                   onPressed: () {
                     setState(() {
-                      disabledIndex++;
-                      if (disabledIndex > 15) {
-                        disabledIndex = 1;
+                      myActionsProvider.disabledIndex++;
+                      if (myActionsProvider.disabledIndex > 15) {
+                        myActionsProvider.disabledIndex = 1;
                       }
                       // debugPrint('disabledIndex = $disabledIndex');
                     });
@@ -159,7 +164,6 @@ List<OpAction> _getActions(context) {
     OpAction oa = OpAction(
       code: 'action_$x',
       title: title,
-      enabled: true,
       category: x >= 10 ? bigCat : null,
       onPressed: () {
         final snackBar = SnackBar(
@@ -196,7 +200,6 @@ class PickBigActionScreen extends StatelessWidget {
                     Navigator.of(context).pop(OpAction(
                       code: 'action_$i',
                       title: title,
-                      enabled: true,
                       category: category,
                       onPressed: () {
                         final snackBar = SnackBar(

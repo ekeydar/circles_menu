@@ -212,8 +212,9 @@ class ActionMenuItemState extends BaseMenuItemState {
 
   String get text => action.title;
 
-  Color get actualFillColor =>
-      action.enabled ? fillColor : fillColor.withAlpha(100);
+  Color get actualFillColor => this.actionsProvider.isDisabled(action.code)
+      ? fillColor.withAlpha(100)
+      : fillColor;
 
   Map<String, dynamic> toMap() {
     return super.toMap()
@@ -255,18 +256,16 @@ class OpAction {
   final String title;
   final String code;
   final VoidCallback onPressed;
-  final bool enabled;
   final ActionsCategory category;
 
   static IconData defaultIconData = Icons.add;
 
-  OpAction(
-      {required this.title,
-      required this.code,
-      required this.onPressed,
-      ActionsCategory? category,
-      this.enabled = true})
-      : this.category = category ?? ActionsCategory.defaultCategory;
+  OpAction({
+    required this.title,
+    required this.code,
+    required this.onPressed,
+    ActionsCategory? category,
+  }) : this.category = category ?? ActionsCategory.defaultCategory;
 
   @override
   String toString() {
@@ -353,4 +352,6 @@ class StateAction {
 
 abstract class ActionsProvider {
   List<OpAction> getActions();
+
+  bool isDisabled(String code) => false;
 }

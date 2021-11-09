@@ -160,7 +160,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
           data: d,
           isReadonly: curPageData.notEditable,
           onPressed: () {
-            if (d.action.enabled) {
+            if (!d.actionsProvider.isDisabled(d.action.code)) {
               d.action.onPressed();
             }
           },
