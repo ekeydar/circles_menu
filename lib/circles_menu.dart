@@ -312,15 +312,12 @@ class _CirclesMenuState extends State<CirclesMenu> {
             p.actionsStates.map((s) => s.action.code).toSet(),
           ),
     );
-    List<OpAction> actions = widget.actionsProvider.getActions();
-    List<OpAction> catActions = actions.where((a) => a.category == cat)
-        .toList();
     PickActionCallback pickAction = widget.pickActionCallback ??
         pickActionSimple;
     OpAction? newAction = await pickAction(
       context,
       category: cat
-      actions: catActions,
+      actionsProvider: widget.actionsProvider,
       curCodes: curCodes,
       config: widget.config,
     );

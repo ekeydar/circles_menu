@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 typedef Future<OpAction?> PickActionCallback(
   BuildContext context, {
   required ActionsCategory category,
-  required List<OpAction> actions,
+  required ActionsProvider actionsProvider,
   required Set<String> curCodes,
   required CirclesMenuConfig config,
 });

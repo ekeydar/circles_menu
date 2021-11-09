@@ -5,17 +5,21 @@ import 'circles_menu_models.dart';
 Future<OpAction?> pickActionSimple(
   BuildContext context, {
   required ActionsCategory category,
-  required List<OpAction> actions,
+  required ActionsProvider actionsProvider,
   required Set<String> curCodes,
   required CirclesMenuConfig config,
 }) async {
-  actions.sort((a1, a2) => a1.title.compareTo(a2.title));
+  List<OpAction> catActions = actionsProvider
+      .getActions()
+      .where((a) => a.category == category)
+      .toList()
+    ..sort((a1, a2) => a1.title.compareTo(a2.title));
   return await showDialog<OpAction>(
     context: context,
     barrierDismissible: false,
     builder: (context) {
       return PickActionDialog(
-        actions: actions,
+        actions: catActions,
         config: config,
         curCodes: curCodes,
       );

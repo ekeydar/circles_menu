@@ -51,6 +51,12 @@ class MyActionsProvider extends ActionsProvider {
   List<OpAction> getActions() {
     return actions;
   }
+
+  void addActionIfNotThere(OpAction action) {
+    if (actions.indexWhere((a) => a.code == action.code) < 0) {
+      actions.add(action);
+    }
+  }
 }
 
 class CirclesMenuExampleState extends State<CirclesMenuExample> {
@@ -124,23 +130,28 @@ class CirclesMenuExampleState extends State<CirclesMenuExample> {
 Future<OpAction?> myPickAction(
   BuildContext context, {
   required ActionsCategory category,
-  required List<OpAction> actions,
+  required ActionsProvider actionsProvider,
   required Set<String> curCodes,
   required CirclesMenuConfig config,
 }) async {
+  MyActionsProvider myActionsProvider = actionsProvider as MyActionsProvider;
   if (category.title == 'big') {
-    return await Navigator.of(context).push(
+    OpAction? a = await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => PickBigActionScreen(
           category: category,
         ),
       ),
     );
+    if (a != null) {
+      myActionsProvider.addActionIfNotThere(a);
+    }
+    return a;
   }
   return await pickActionSimple(
     context,
     category: category,
-    actions: actions,
+    actionsProvider: actionsProvider,
     curCodes: curCodes,
     config: config,
   );
