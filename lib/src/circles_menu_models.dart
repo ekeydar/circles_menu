@@ -229,17 +229,14 @@ class ActionMenuItemState extends BaseMenuItemState {
 class ActionsCategory {
   final Widget icon;
   final String title;
+  final String code;
   final int order;
 
-  ActionsCategory({required this.icon, required this.title, this.order = 100});
-
-  static ActionsCategory defaultCategory = ActionsCategory(
-    icon: Icon(
-      Icons.add,
-    ),
-    order: 1,
-    title: 'default',
-  );
+  ActionsCategory(
+      {required this.icon,
+      required this.title,
+      required this.code,
+      this.order = 100});
 
   @override
   String toString() {
@@ -250,13 +247,13 @@ class ActionsCategory {
 class OpAction {
   final String title;
   final String code;
-  final ActionsCategory category;
+  final String categoryCode;
 
   OpAction({
     required this.title,
     required this.code,
-    ActionsCategory? category,
-  }) : this.category = category ?? ActionsCategory.defaultCategory;
+    required this.categoryCode,
+  });
 
   @override
   String toString() {
@@ -351,4 +348,6 @@ abstract class ActionsProvider {
   OpAction getActionByCode(String code);
 
   void actionPressed(String code);
+
+  List<ActionsCategory> getCategories();
 }

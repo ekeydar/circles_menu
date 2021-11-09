@@ -36,6 +36,7 @@ class CirclesMenuExample extends StatefulWidget {
 
 class MyActionsProvider extends ActionsProvider {
   late List<OpAction> actions;
+  late List<ActionsCategory> categories;
   int disabledIndex = 1;
   final ActionPressedCallback onActionPressed;
 
@@ -46,6 +47,11 @@ class MyActionsProvider extends ActionsProvider {
 
   MyActionsProvider({required this.onActionPressed}) {
     actions = _getActions();
+    categories = [
+      ActionsCategory(icon: Icon(Icons.add), title: 'small', code: 'small'),
+      ActionsCategory(
+          icon: Icon(Icons.sports_tennis), title: 'big', code: 'big')
+    ];
   }
 
   @override
@@ -65,13 +71,18 @@ class MyActionsProvider extends ActionsProvider {
     return OpAction(
       title: title,
       code: code,
-      category: null,
+      categoryCode: index < 10 ? 'small' : 'big',
     );
   }
 
   @override
   void actionPressed(String code) {
     this.onActionPressed(code);
+  }
+
+  @override
+  List<ActionsCategory> getCategories() {
+    return categories;
   }
 }
 
@@ -183,11 +194,6 @@ Future<OpAction?> myPickAction(
   );
 }
 
-ActionsCategory bigCat = ActionsCategory(
-  icon: Icon(Icons.sports_tennis),
-  title: 'big',
-);
-Set<int> extraNumbers = {};
 
 List<OpAction> _getActions() {
   List<OpAction> result = [];
@@ -195,13 +201,12 @@ List<OpAction> _getActions() {
   for (int x = 1; x <= 15; x++) {
     numbers.add(x);
   }
-  numbers.addAll(extraNumbers);
   for (var x in numbers.toList()..sort()) {
     String title = 'פעולה מספר ' + x.toString();
     OpAction oa = OpAction(
       code: 'action_$x',
       title: title,
-      category: x >= 10 ? bigCat : null,
+      categoryCode: x < 10 ? 'small' : 'big',
     );
     result.add(oa);
   }
@@ -225,12 +230,11 @@ class PickBigActionScreen extends StatelessWidget {
               ElevatedButton(
                   onPressed: () {
                     String title = 'פעולה מספר ' + i.toString();
-                    extraNumbers.add(i);
                     Navigator.of(context).pop(
                       OpAction(
                         code: 'action_$i',
                         title: title,
-                        category: i < 10 ? null : bigCat,
+                        categoryCode: i <= 10 ? 'small' : 'big',
                       ),
                     );
                   },

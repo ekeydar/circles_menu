@@ -180,10 +180,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
   }
 
   List<ActionsCategory> get actionsCategories {
-    List<OpAction> actions = widget.actionsProvider.getActions();
-    List<ActionsCategory> icons =
-    actions.map((a) => a.category).toSet().toList();
-    return icons..sort((c1, c2) => c1.order.compareTo(c2.order));
+    return widget.actionsProvider.getCategories();
   }
 
   void squeezeAndSortPages() {
