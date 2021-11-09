@@ -89,13 +89,6 @@ class PageData {
     });
   }
 
-  void updateActions(Map<String, OpAction> actionsByCode) {
-    this.actionsStates.forEach((st) {
-      String c = st.action.code;
-      st._action = actionsByCode[c]!;
-    });
-  }
-
   void empty() {
     this.actionsStates.clear();
   }
@@ -163,13 +156,13 @@ abstract class BaseMenuItemState {
 
 class ActionMenuItemState extends BaseMenuItemState {
   double radius;
-  OpAction _action;
+  final String actionCode;
   Color fillColor;
   bool editInProgress = false;
   bool showEditBox = false;
   final ActionsProvider actionsProvider;
 
-  OpAction get action => _action;
+  OpAction get action => actionsProvider.getActionByCode(actionCode);
 
   String get title => action.title;
 
@@ -178,15 +171,14 @@ class ActionMenuItemState extends BaseMenuItemState {
       required double y,
       required this.actionsProvider,
       required this.radius,
-      required action,
+      required this.actionCode,
       required this.fillColor})
-      : _action = action,
-        super(x: x, y: y);
+      : super(x: x, y: y);
 
   ActionMenuItemState.fromMap(Map<String, dynamic> m,
       {required Map<String, OpAction> actionsByCode,
       required this.actionsProvider})
-      : _action = actionsByCode[m['actionCode']]!,
+      : actionCode = m['actionCode']!,
         fillColor = Color(m['fillColorValue']),
         radius = m['radius'],
         super(x: m['x'], y: m['y']);
@@ -355,6 +347,8 @@ abstract class ActionsProvider {
   List<OpAction> getActions();
 
   bool isDisabled(String code) => false;
+
+  OpAction getActionByCode(String code);
 
   void actionPressed(String code);
 }

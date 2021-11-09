@@ -59,6 +59,16 @@ class MyActionsProvider extends ActionsProvider {
     }
   }
 
+  OpAction getActionByCode(String code) {
+    int index = int.parse(code.replaceAll('action_', ''), radix: 10);
+    String title = 'פעולה מספר ' + index.toString();
+    return OpAction(
+      title: title,
+      code: code,
+      category: null,
+    );
+  }
+
   @override
   void actionPressed(String code) {
     this.onActionPressed(code);
@@ -173,13 +183,13 @@ Future<OpAction?> myPickAction(
   );
 }
 
+ActionsCategory bigCat = ActionsCategory(
+  icon: Icon(Icons.sports_tennis),
+  title: 'big',
+);
 Set<int> extraNumbers = {};
 
 List<OpAction> _getActions() {
-  ActionsCategory bigCat = ActionsCategory(
-    icon: Icon(Icons.sports_tennis),
-    title: 'big',
-  );
   List<OpAction> result = [];
   Set<int> numbers = {};
   for (int x = 1; x <= 15; x++) {
@@ -220,7 +230,7 @@ class PickBigActionScreen extends StatelessWidget {
                       OpAction(
                         code: 'action_$i',
                         title: title,
-                        category: category,
+                        category: i < 10 ? null : bigCat,
                       ),
                     );
                   },

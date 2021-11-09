@@ -90,9 +90,6 @@ class _CirclesMenuState extends State<CirclesMenu> {
       for (var p in pageDataList) {
         p.removeNotApplicableActions(actionsByCode);
       }
-      for (var p in pageDataList) {
-        p.updateActions(actionsByCode);
-      }
       return Stack(
         children: [
           PageView(
@@ -320,7 +317,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
       curPageData.actionsStates.add(
         ActionMenuItemState(
           actionsProvider: widget.actionsProvider,
-          action: newAction,
+          actionCode: newAction.code,
           x: initialOffset + 100 + curPageData.actionsStates.length * 10,
           y: MediaQuery
               .of(context)
