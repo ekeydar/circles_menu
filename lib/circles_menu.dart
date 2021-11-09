@@ -81,14 +81,9 @@ class _CirclesMenuState extends State<CirclesMenu> {
 
   @override
   Widget build(BuildContext context) {
-    List<OpAction> actions = widget.actionsProvider.getActions();
     if (_ready) {
-      // debugPrint('menuWidth = $menuWidth');
-      Map<String, OpAction> actionsByCode = {
-        for (var a in actions) a.code: a
-      };
       for (var p in pageDataList) {
-        p.removeNotApplicableActions(actionsByCode);
+        p.removeNotApplicableActions();
       }
       return Stack(
         children: [
@@ -364,10 +359,6 @@ class _CirclesMenuState extends State<CirclesMenu> {
   }
 
   Future<void> _buildPages() async {
-    List<OpAction> actions = widget.actionsProvider.getActions();
-    Map<String, OpAction> actionsByCode = {
-      for (var a in actions) a.code: a
-    };
     SharedPreferences sp = await SharedPreferences.getInstance();
     String? localSavedText = sp.getString(widget.config.spKey);
     Map<String, dynamic>? savedMap;
@@ -390,7 +381,6 @@ class _CirclesMenuState extends State<CirclesMenu> {
           PageData.fromMap(
             m,
             actionsProvider: widget.actionsProvider,
-            actionsByCode: actionsByCode,
             defaultTitle: widget.config.defaultPageTitle,
           ),
     )

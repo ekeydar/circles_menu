@@ -59,12 +59,6 @@ class MyActionsProvider extends ActionsProvider {
     return actions;
   }
 
-  void addActionIfNotThere(OpAction action) {
-    if (actions.indexWhere((a) => a.code == action.code) < 0) {
-      actions.add(action);
-    }
-  }
-
   OpAction getActionByCode(String code) {
     int index = int.parse(code.replaceAll('action_', ''), radix: 10);
     String title = 'פעולה מספר ' + index.toString();
@@ -171,7 +165,6 @@ Future<OpAction?> myPickAction(
   required Set<String> curCodes,
   required CirclesMenuConfig config,
 }) async {
-  MyActionsProvider myActionsProvider = actionsProvider as MyActionsProvider;
   if (category.title == 'big') {
     OpAction? a = await Navigator.of(context).push(
       MaterialPageRoute(
@@ -180,9 +173,6 @@ Future<OpAction?> myPickAction(
         ),
       ),
     );
-    if (a != null) {
-      myActionsProvider.addActionIfNotThere(a);
-    }
     return a;
   }
   return await pickActionSimple(

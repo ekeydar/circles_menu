@@ -40,17 +40,15 @@ class PageData {
   }
 
   factory PageData.fromMap(Map<String, dynamic> m,
-      {required Map<String, OpAction> actionsByCode,
-      required ActionsProvider actionsProvider,
+      {required ActionsProvider actionsProvider,
       required String defaultTitle}) {
     List<ActionMenuItemState> actionsStates = List<ActionMenuItemState>.from(
       (m['states'] ?? [])
-          .where((m) => actionsByCode.containsKey(m['actionCode']))
+          .where((m) => !actionsProvider.isNotApplicable(m['actionCode']))
           .map(
             (m) => ActionMenuItemState.fromMap(
               m,
               actionsProvider: actionsProvider,
-              actionsByCode: actionsByCode,
             ),
           ),
     );
@@ -73,10 +71,10 @@ class PageData {
 
   bool get canBeSqueezed => false; //actionsStates.isEmpty && !isOwner;
 
-  void removeNotApplicableActions(Map<String, OpAction> actionsByCode) {
+  void removeNotApplicableActions() {
     this
         .actionsStates
-        .removeWhere((st) => !actionsByCode.containsKey(st.action.code));
+        .removeWhere((st) => st.actionsProvider.isNotApplicable(st.actionCode));
   }
 
   void removeDeleted() {
@@ -176,8 +174,7 @@ class ActionMenuItemState extends BaseMenuItemState {
       : super(x: x, y: y);
 
   ActionMenuItemState.fromMap(Map<String, dynamic> m,
-      {required Map<String, OpAction> actionsByCode,
-      required this.actionsProvider})
+      {required this.actionsProvider})
       : actionCode = m['actionCode']!,
         fillColor = Color(m['fillColorValue']),
         radius = m['radius'],
@@ -344,6 +341,8 @@ abstract class ActionsProvider {
   List<OpAction> getActions();
 
   bool isDisabled(String code) => false;
+
+  bool isNotApplicable(String code) => false;
 
   OpAction getActionByCode(String code);
 
