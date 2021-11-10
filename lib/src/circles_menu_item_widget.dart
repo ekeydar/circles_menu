@@ -6,7 +6,6 @@ import 'circles_menu_models.dart';
 
 class MenuItemWidget extends StatefulWidget {
   final ActionMenuItemState data;
-  final VoidCallback? onPressed;
   final VoidCallback onChange;
   final EditChangedCallback onEditChange;
   final CirclesMenuConfig config;
@@ -18,7 +17,6 @@ class MenuItemWidget extends StatefulWidget {
     required this.config,
     required this.isReadonly,
     required this.data,
-    required this.onPressed,
     required this.onChange,
     required this.child,
     required this.onEditChange,
@@ -58,9 +56,12 @@ class _MenuItemWidgetState extends State<MenuItemWidget> {
       top: 0,
       left: 0,
       child: GestureDetector(
-        onTap: () {
-          d.action.onPressed();
-        },
+        onTap: d.actionsProvider.isDisabled(d.action.code)
+            ? null
+            : () {
+                debugPrint('HERE');
+                d.actionsProvider.actionPressed(d.action.code);
+              },
         child: widget.isReadonly
             ? widget.child
             : LongPressDraggable(

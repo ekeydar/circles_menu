@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 typedef Future<OpAction?> PickActionCallback(
   BuildContext context, {
   required ActionsCategory category,
-  required List<OpAction> actions,
+  required ActionsProvider actionsProvider,
   required Set<String> curCodes,
   required CirclesMenuConfig config,
 });
@@ -40,15 +40,15 @@ class PageData {
   }
 
   factory PageData.fromMap(Map<String, dynamic> m,
-      {required Map<String, OpAction> actionsByCode,
+      {required ActionsProvider actionsProvider,
       required String defaultTitle}) {
     List<ActionMenuItemState> actionsStates = List<ActionMenuItemState>.from(
       (m['states'] ?? [])
-          .where((m) => actionsByCode.containsKey(m['actionCode']))
+          .where((m) => !actionsProvider.isNotApplicable(m['actionCode']))
           .map(
             (m) => ActionMenuItemState.fromMap(
               m,
-              actionsByCode: actionsByCode,
+              actionsProvider: actionsProvider,
             ),
           ),
     );
@@ -71,10 +71,10 @@ class PageData {
 
   bool get canBeSqueezed => false; //actionsStates.isEmpty && !isOwner;
 
-  void removeNotApplicableActions(Map<String, OpAction> actionsByCode) {
+  void removeNotApplicableActions() {
     this
         .actionsStates
-        .removeWhere((st) => !actionsByCode.containsKey(st.action.code));
+        .removeWhere((st) => st.actionsProvider.isNotApplicable(st.actionCode));
   }
 
   void removeDeleted() {
@@ -84,13 +84,6 @@ class PageData {
   void resetEditInProgress() {
     actionsStates.forEach((s) {
       s.editInProgress = false;
-    });
-  }
-
-  void updateActions(Map<String, OpAction> actionsByCode) {
-    this.actionsStates.forEach((st) {
-      String c = st.action.code;
-      st.action = actionsByCode[c]!;
     });
   }
 
@@ -161,24 +154,28 @@ abstract class BaseMenuItemState {
 
 class ActionMenuItemState extends BaseMenuItemState {
   double radius;
-  OpAction action;
+  final String actionCode;
   Color fillColor;
   bool editInProgress = false;
   bool showEditBox = false;
+  final ActionsProvider actionsProvider;
+
+  OpAction get action => actionsProvider.getActionByCode(actionCode);
 
   String get title => action.title;
 
   ActionMenuItemState(
       {required double x,
       required double y,
+      required this.actionsProvider,
       required this.radius,
-      required this.action,
+      required this.actionCode,
       required this.fillColor})
       : super(x: x, y: y);
 
   ActionMenuItemState.fromMap(Map<String, dynamic> m,
-      {required Map<String, OpAction> actionsByCode})
-      : action = actionsByCode[m['actionCode']]!,
+      {required this.actionsProvider})
+      : actionCode = m['actionCode']!,
         fillColor = Color(m['fillColorValue']),
         radius = m['radius'],
         super(x: m['x'], y: m['y']);
@@ -207,8 +204,9 @@ class ActionMenuItemState extends BaseMenuItemState {
 
   String get text => action.title;
 
-  Color get actualFillColor =>
-      action.enabled ? fillColor : fillColor.withAlpha(100);
+  Color get actualFillColor => this.actionsProvider.isDisabled(action.code)
+      ? fillColor.withAlpha(100)
+      : fillColor;
 
   Map<String, dynamic> toMap() {
     return super.toMap()
@@ -228,17 +226,14 @@ class ActionMenuItemState extends BaseMenuItemState {
 class ActionsCategory {
   final Widget icon;
   final String title;
+  final String code;
   final int order;
 
-  ActionsCategory({required this.icon, required this.title, this.order = 100});
-
-  static ActionsCategory defaultCategory = ActionsCategory(
-    icon: Icon(
-      Icons.add,
-    ),
-    order: 1,
-    title: 'default',
-  );
+  ActionsCategory(
+      {required this.icon,
+      required this.title,
+      required this.code,
+      this.order = 100});
 
   @override
   String toString() {
@@ -249,19 +244,11 @@ class ActionsCategory {
 class OpAction {
   final String title;
   final String code;
-  final VoidCallback onPressed;
-  final bool enabled;
-  final ActionsCategory category;
 
-  static IconData defaultIconData = Icons.add;
-
-  OpAction(
-      {required this.title,
-      required this.code,
-      required this.onPressed,
-      ActionsCategory? category,
-      this.enabled = true})
-      : this.category = category ?? ActionsCategory.defaultCategory;
+  OpAction({
+    required this.title,
+    required this.code,
+  });
 
   @override
   String toString() {
@@ -344,4 +331,22 @@ class StateAction {
     required this.callback,
     this.enabledCallback,
   });
+}
+
+typedef void ActionPressedCallback(String code);
+
+abstract class ActionsProvider {
+  List<OpAction> getActions();
+
+  bool isDisabled(String code);
+
+  bool isNotApplicable(String code);
+
+  OpAction getActionByCode(String code);
+
+  void actionPressed(String code);
+
+  List<ActionsCategory> getCategories();
+
+  String getActionCategoryCode(String code);
 }

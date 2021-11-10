@@ -34,16 +34,78 @@ class CirclesMenuExample extends StatefulWidget {
   State<StatefulWidget> createState() => CirclesMenuExampleState();
 }
 
-class CirclesMenuExampleState extends State<CirclesMenuExample> {
+class MyActionsProvider extends ActionsProvider {
+  late List<OpAction> actions;
+  late List<ActionsCategory> categories;
   int disabledIndex = 1;
+  final ActionPressedCallback onActionPressed;
+
+  @override
+  bool isDisabled(String code) => 'action_$disabledIndex' == code;
+
+  @override
+  bool isNotApplicable(String code) => false;
+
+  MyActionsProvider({required this.onActionPressed}) {
+    actions = _getActions();
+    categories = [
+      ActionsCategory(icon: Icon(Icons.add), title: 'small', code: 'small'),
+      ActionsCategory(
+          icon: Icon(Icons.sports_tennis), title: 'big', code: 'big')
+    ];
+  }
+
+  @override
+  List<OpAction> getActions() {
+    return actions;
+  }
+
+  OpAction getActionByCode(String code) {
+    int index = int.parse(code.replaceAll('action_', ''), radix: 10);
+    String title = 'פעולה מספר ' + index.toString();
+    return OpAction(
+      title: title,
+      code: code,
+    );
+  }
+
+  String getActionCategoryCode(String code) {
+    int index = int.parse(code.replaceAll('action_', ''), radix: 10);
+    return index < 10 ? 'small' : 'big';
+  }
+
+  @override
+  void actionPressed(String code) {
+    this.onActionPressed(code);
+  }
+
+  @override
+  List<ActionsCategory> getCategories() {
+    return categories;
+  }
+}
+
+class CirclesMenuExampleState extends State<CirclesMenuExample> {
   String? defaultDump;
 
   late CirclesMenuConfig config;
+  late MyActionsProvider myActionsProvider;
 
   @override
   void initState() {
     config = CirclesMenuConfig(onEditDone: this.onEditDone);
+    myActionsProvider =
+        MyActionsProvider(onActionPressed: this.onActionPressed);
     super.initState();
+  }
+
+  void onActionPressed(String code) {
+    final snackBar = SnackBar(
+      content: Text('clicked on $code'),
+      backgroundColor: Colors.red,
+      duration: Duration(milliseconds: 500),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   Future<void> onEditDone() async {
@@ -62,7 +124,7 @@ class CirclesMenuExampleState extends State<CirclesMenuExample> {
           title: Text('demo widget'),
         ),
         body: CirclesMenu(
-          actions: _getActions(context, disabledIndex: disabledIndex),
+          actionsProvider: myActionsProvider,
           config: config,
           readonlyPagesMaps: [],
           pickActionCallback: myPickAction,
@@ -78,9 +140,9 @@ class CirclesMenuExampleState extends State<CirclesMenuExample> {
                   child: Icon(Icons.add),
                   onPressed: () {
                     setState(() {
-                      disabledIndex++;
-                      if (disabledIndex > 15) {
-                        disabledIndex = 1;
+                      myActionsProvider.disabledIndex++;
+                      if (myActionsProvider.disabledIndex > 15) {
+                        myActionsProvider.disabledIndex = 1;
                       }
                       // debugPrint('disabledIndex = $disabledIndex');
                     });
@@ -104,56 +166,41 @@ class CirclesMenuExampleState extends State<CirclesMenuExample> {
 Future<OpAction?> myPickAction(
   BuildContext context, {
   required ActionsCategory category,
-  required List<OpAction> actions,
+  required ActionsProvider actionsProvider,
   required Set<String> curCodes,
   required CirclesMenuConfig config,
 }) async {
   if (category.title == 'big') {
-    return await Navigator.of(context).push(
+    OpAction? a = await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => PickBigActionScreen(
           category: category,
         ),
       ),
     );
+    return a;
   }
   return await pickActionSimple(
     context,
     category: category,
-    actions: actions,
+    actionsProvider: actionsProvider,
     curCodes: curCodes,
     config: config,
   );
 }
 
-Set<int> extraNumbers = {};
 
-List<OpAction> _getActions(context, {required int disabledIndex}) {
-  ActionsCategory bigCat = ActionsCategory(
-    icon: Icon(Icons.sports_tennis),
-    title: 'big',
-  );
+List<OpAction> _getActions() {
   List<OpAction> result = [];
   Set<int> numbers = {};
   for (int x = 1; x <= 15; x++) {
     numbers.add(x);
   }
-  numbers.addAll(extraNumbers);
   for (var x in numbers.toList()..sort()) {
     String title = 'פעולה מספר ' + x.toString();
     OpAction oa = OpAction(
       code: 'action_$x',
       title: title,
-      enabled: x != disabledIndex,
-      category: x >= 10 ? bigCat : null,
-      onPressed: () {
-        final snackBar = SnackBar(
-          content: Text('clicked on $title'),
-          backgroundColor: Colors.red,
-          duration: Duration(milliseconds: 500),
-        );
-        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      },
     );
     result.add(oa);
   }
@@ -177,21 +224,12 @@ class PickBigActionScreen extends StatelessWidget {
               ElevatedButton(
                   onPressed: () {
                     String title = 'פעולה מספר ' + i.toString();
-                    extraNumbers.add(i);
-                    Navigator.of(context).pop(OpAction(
-                      code: 'action_$i',
-                      title: title,
-                      enabled: true,
-                      category: category,
-                      onPressed: () {
-                        final snackBar = SnackBar(
-                          content: Text('clicked on $title'),
-                          backgroundColor: Colors.red,
-                          duration: Duration(milliseconds: 500),
-                        );
-                        ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                      },
-                    ));
+                    Navigator.of(context).pop(
+                      OpAction(
+                        code: 'action_$i',
+                        title: title,
+                      ),
+                    );
                   },
                   child: Text('פעולה מספר ' + i.toString()))
           ],

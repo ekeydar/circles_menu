@@ -34,14 +34,14 @@ class SettingsItem {
 
 class CirclesMenu extends StatefulWidget {
   final CirclesMenuConfig config;
-  final List<OpAction> actions;
+  final ActionsProvider actionsProvider;
   final Map<String, dynamic>? extSavedMap;
   final List<Map<String, dynamic>> readonlyPagesMaps;
   final PickActionCallback? pickActionCallback;
 
   CirclesMenu({Key? key,
     CirclesMenuConfig? config,
-    required this.actions,
+    required this.actionsProvider,
     this.extSavedMap,
     required this.readonlyPagesMaps,
     this.pickActionCallback
@@ -82,15 +82,8 @@ class _CirclesMenuState extends State<CirclesMenu> {
   @override
   Widget build(BuildContext context) {
     if (_ready) {
-      // debugPrint('menuWidth = $menuWidth');
-      Map<String, OpAction> actionsByCode = {
-        for (var a in widget.actions) a.code: a
-      };
       for (var p in pageDataList) {
-        p.removeNotApplicableActions(actionsByCode);
-      }
-      for (var p in pageDataList) {
-        p.updateActions(actionsByCode);
+        p.removeNotApplicableActions();
       }
       return Stack(
         children: [
@@ -158,11 +151,6 @@ class _CirclesMenuState extends State<CirclesMenu> {
           config: widget.config,
           data: d,
           isReadonly: curPageData.notEditable,
-          onPressed: () {
-            if (d.action.enabled) {
-              d.action.onPressed();
-            }
-          },
           onEditChange: this.onEditChange,
           child: CircleBox(
             radius: d.radius,
@@ -187,9 +175,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
   }
 
   List<ActionsCategory> get actionsCategories {
-    List<ActionsCategory> icons =
-    widget.actions.map((a) => a.category).toSet().toList();
-    return icons..sort((c1, c2) => c1.order.compareTo(c2.order));
+    return widget.actionsProvider.getCategories();
   }
 
   void squeezeAndSortPages() {
@@ -310,24 +296,20 @@ class _CirclesMenuState extends State<CirclesMenu> {
             p.actionsStates.map((s) => s.action.code).toSet(),
           ),
     );
-    List<OpAction> catActions = widget.actions.where((a) => a.category == cat)
-        .toList();
     PickActionCallback pickAction = widget.pickActionCallback ??
         pickActionSimple;
     OpAction? newAction = await pickAction(
       context,
       category: cat
-      actions: catActions,
+      actionsProvider: widget.actionsProvider,
       curCodes: curCodes,
       config: widget.config,
     );
     if (newAction != null) {
-      if (this.widget.actions.indexWhere((a) => a.code == newAction.code) < 0) {
-        this.widget.actions.add(newAction);
-      }
       curPageData.actionsStates.add(
         ActionMenuItemState(
-          action: newAction,
+          actionsProvider: widget.actionsProvider,
+          actionCode: newAction.code,
           x: initialOffset + 100 + curPageData.actionsStates.length * 10,
           y: MediaQuery
               .of(context)
@@ -377,9 +359,6 @@ class _CirclesMenuState extends State<CirclesMenu> {
   }
 
   Future<void> _buildPages() async {
-    Map<String, OpAction> actionsByCode = {
-      for (var a in widget.actions) a.code: a
-    };
     SharedPreferences sp = await SharedPreferences.getInstance();
     String? localSavedText = sp.getString(widget.config.spKey);
     Map<String, dynamic>? savedMap;
@@ -401,7 +380,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
           (m) =>
           PageData.fromMap(
             m,
-            actionsByCode: actionsByCode,
+            actionsProvider: widget.actionsProvider,
             defaultTitle: widget.config.defaultPageTitle,
           ),
     )
