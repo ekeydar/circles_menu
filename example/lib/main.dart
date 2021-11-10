@@ -41,9 +41,10 @@ class MyActionsProvider extends ActionsProvider {
   final ActionPressedCallback onActionPressed;
 
   @override
-  bool isDisabled(String code) {
-    return 'action_$disabledIndex' == code;
-  }
+  bool isDisabled(String code) => 'action_$disabledIndex' == code;
+
+  @override
+  bool isNotApplicable(String code) => false;
 
   MyActionsProvider({required this.onActionPressed}) {
     actions = _getActions();

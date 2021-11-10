@@ -338,9 +338,9 @@ typedef void ActionPressedCallback(String code);
 abstract class ActionsProvider {
   List<OpAction> getActions();
 
-  bool isDisabled(String code) => false;
+  bool isDisabled(String code);
 
-  bool isNotApplicable(String code) => false;
+  bool isNotApplicable(String code);
 
   OpAction getActionByCode(String code);
 
