@@ -16,7 +16,6 @@ Future<Color?> pickColor(BuildContext context,
             onColorChanged: (Color c) {
               newColor = c;
             },
-            showLabel: true,
             pickerAreaHeightPercent: 0.8,
           ),
         ),
