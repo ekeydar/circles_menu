@@ -12,7 +12,7 @@ class MenuItemWidget extends StatefulWidget {
   final bool isReadonly;
   final Widget child;
 
-  MenuItemWidget({
+  const MenuItemWidget({
     Key? key,
     required this.config,
     required this.isReadonly,
@@ -36,6 +36,7 @@ class _MenuItemWidgetState extends State<MenuItemWidget> {
     return Positioned(
       left: cx,
       top: cy,
+      // ignore: sized_box_for_whitespace
       child: Container(
         //color: Colors.green,
         width: widget.data.width,

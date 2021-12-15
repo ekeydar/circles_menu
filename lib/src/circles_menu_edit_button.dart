@@ -12,13 +12,14 @@ class CircleMenuActionButton extends StatefulWidget {
   //final double? bottom;
   final double left;
 
-  CircleMenuActionButton(
+  const CircleMenuActionButton(
       {Key? key,
-        required this.icon,
-        required this.top,
-        required this.left,
-        required this.radius,
-        required this.onPressed});
+      required this.icon,
+      required this.top,
+      required this.left,
+      required this.radius,
+      required this.onPressed})
+      : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _CircleMenuActionButtonState();

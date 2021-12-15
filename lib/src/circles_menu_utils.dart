@@ -55,7 +55,7 @@ Future<String?> editText(BuildContext context,
                 onPressed: () {
                   controller.text = '';
                 },
-                icon: Icon(Icons.clear)),
+                icon: const Icon(Icons.clear)),
           ),
         ),
         actions: [

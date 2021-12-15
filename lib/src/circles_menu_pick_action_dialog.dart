@@ -33,8 +33,12 @@ class PickActionDialog extends StatefulWidget {
   final CirclesMenuConfig config;
   final Set<String> curCodes;
 
-  PickActionDialog(
-      {required this.actions, required this.curCodes, required this.config});
+  const PickActionDialog({
+    Key? key,
+    required this.actions,
+    required this.curCodes,
+    required this.config,
+  }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _PickActionDialogState();
@@ -70,6 +74,7 @@ class _PickActionDialogState extends State<PickActionDialog> {
         ),
       ],
       title: Text(widget.config.pickAction),
+      // ignore: sized_box_for_whitespace
       content: Container(
         height: MediaQuery.of(context).size.height * 0.7,
         child: SingleChildScrollView(
@@ -83,18 +88,18 @@ class _PickActionDialogState extends State<PickActionDialog> {
                               _controller.text = '';
                               setState(() {});
                             },
-                            icon: Icon(Icons.clear)),
+                            icon: const Icon(Icons.clear)),
                       ),
                     )
                   ] +
                   widget.actions
                       .where((a) =>
-                          _controller.text.length == 0 ||
+                  _controller.text.isEmpty ||
                           a.title.contains(_controller.text))
                       .map((a) => ListTile(
                             title: Text(a.title),
                             trailing: widget.curCodes.contains(a.code)
-                                ? Icon(
+                                ? const Icon(
                                     Icons.check,
                                     color: Colors.green,
                                   )

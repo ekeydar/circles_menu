@@ -7,12 +7,12 @@ class EditItemDialog extends StatefulWidget {
   final List<StateAction> actions;
   final EditChangedCallback onEditChange;
 
-  EditItemDialog({
+  const EditItemDialog({
     Key? key,
     required this.data,
     required this.actions,
     required this.onEditChange,
-  });
+  }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -24,12 +24,12 @@ class _EditItemDialogState extends State<EditItemDialog> {
   @override
   Widget build(BuildContext context) {
     return SimpleDialog(
-      contentPadding: EdgeInsets.all(0),
-      titlePadding: EdgeInsets.all(8.0),
+      contentPadding: const EdgeInsets.all(0),
+      titlePadding: const EdgeInsets.all(8.0),
       title: Row(
         children: [
           IconButton(
-            icon: Icon(Icons.close),
+            icon: const Icon(Icons.close),
             onPressed: () {
               widget.onEditChange(
                 widget.data,
@@ -41,7 +41,7 @@ class _EditItemDialogState extends State<EditItemDialog> {
             child: Center(
               child: Text(
                 widget.data.title,
-                style: TextStyle(fontSize: 16),
+                style: const TextStyle(fontSize: 16),
               ),
             ),
           ),
@@ -84,17 +84,17 @@ class MenuButton extends StatelessWidget {
   final Icon icon;
   final bool enabled;
 
-  MenuButton({
+  const MenuButton({
     Key? key,
     required this.icon,
     required this.onPressed,
     required this.enabled,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return IconButton(
-      padding: EdgeInsets.all(0),
+      padding: const EdgeInsets.all(0),
       onPressed: enabled ? onPressed : null,
       icon: icon,
       iconSize: 20,

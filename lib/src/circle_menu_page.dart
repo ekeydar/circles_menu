@@ -1,5 +1,3 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'circles_menu_models.dart';
@@ -15,7 +13,7 @@ class CircleMenuPage extends StatelessWidget {
   final VoidCallback onChange;
   final EditChangedCallback onEditChange;
 
-  CircleMenuPage({
+  const CircleMenuPage({
     required Key key,
     required this.items,
     required this.index,
@@ -36,11 +34,11 @@ class CircleMenuPage extends StatelessWidget {
         ),
         callback: () async {
           d.isDeleted = true;
-          this.onChange();
+          onChange();
         },
       ),
       StateAction(
-        icon: Icon(Icons.color_lens_outlined),
+        icon: const Icon(Icons.color_lens_outlined),
         callback: () async {
           Color? newColor =
               await pickColor(context, initialColor: d.color, config: config);
@@ -51,7 +49,7 @@ class CircleMenuPage extends StatelessWidget {
         },
       ),
       StateAction(
-          icon: Icon(Icons.add),
+          icon: const Icon(Icons.add),
           callback: () async {
             d.incr();
             onChange();
@@ -59,7 +57,7 @@ class CircleMenuPage extends StatelessWidget {
           enabledCallback: () => d.canIncr),
       StateAction(
         enabledCallback: () => d.canDecr,
-        icon: Icon(Icons.remove),
+        icon: const Icon(Icons.remove),
         callback: () async {
           d.decr();
           onChange();
@@ -83,7 +81,7 @@ class CircleMenuPage extends StatelessWidget {
       child: EditItemDialog(
         data: data,
         actions: actions,
-        onEditChange: this.onEditChange,
+        onEditChange: onEditChange,
       ),
       top: data.y > 200 ? data.y - 120 : data.y + 120,
       left: 10,
@@ -99,16 +97,16 @@ class CircleMenuPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             if (pageData.readonly)
-              Icon(
+              const Icon(
                 Icons.lock,
                 size: 20,
               ),
-            SizedBox(
+            const SizedBox(
               width: 10,
             ),
             Text(
               pageData.title,
-              style: TextStyle(
+              style: const TextStyle(
                 //fontWeight: FontWeight.bold,
                 fontSize: 20,
               ),
@@ -127,9 +125,8 @@ class CircleMenuPage extends StatelessWidget {
       color: pageData.color.withAlpha(100),
       child: Stack(
         clipBehavior: Clip.none,
-        children: this.items +
-            [titleWidget] +
-            (editWidget != null ? [editWidget] : []),
+        children:
+            items + [titleWidget] + (editWidget != null ? [editWidget] : []),
       ),
     );
   }

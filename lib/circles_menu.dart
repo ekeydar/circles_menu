@@ -2,8 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'src/circle_box.dart';
@@ -18,6 +16,7 @@ import 'src/screens/pages_screen.dart';
 export 'src/circles_menu_models.dart';
 export 'src/circles_menu_pick_action_dialog.dart' show pickActionSimple;
 
+// ignore: constant_identifier_names
 const int DUMP_VERSION = 4;
 
 class SettingsItem {
@@ -46,7 +45,9 @@ class CirclesMenu extends StatefulWidget {
     required this.readonlyPagesMaps,
     this.pickActionCallback
   })
-      : this.config = config ?? CirclesMenuConfig();
+  // ignore: unnecessary_this
+      : this.config = config ?? CirclesMenuConfig(),
+        super(key: key);
 
   @override
   State<StatefulWidget> createState() => _CirclesMenuState();
@@ -59,7 +60,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
   // late List<ActionMenuItemState> actionStatesList;
   //late List<LabelMenuItemState> labelStatesList;
   double initialOffset = 0;
-  PageController _pageController = PageController();
+  final PageController _pageController = PageController();
   int currentPageIndex = 0;
 
   @override
@@ -71,7 +72,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
   int get curNumPages => pageDataList.length;
 
   Future<void> _prepare() async {
-    await Future.delayed(Duration(milliseconds: 2));
+    await Future.delayed(const Duration(milliseconds: 2));
     initialOffset = 0;
     await _buildPages();
     setState(() {
@@ -98,13 +99,13 @@ class _CirclesMenuState extends State<CirclesMenu> {
               for (var pi = 0; pi < curNumPages; pi++)
                 CircleMenuPage(
                   key: Key('$pi/$curNumPages'),
-                  pageData: this.pageDataList[pi],
+                  pageData: pageDataList[pi],
                   index: pi,
                   numPages: curNumPages,
-                  items: this.getItems(pageIndex: pi),
+                  items: getItems(pageIndex: pi),
                   config: widget.config,
-                  onChange: this.onChange,
-                  onEditChange: this.onEditChange,
+                  onChange: onChange,
+                  onEditChange: onEditChange,
                 ),
             ],
           ),
@@ -121,22 +122,22 @@ class _CirclesMenuState extends State<CirclesMenu> {
   }
 
   void onEditChange(ActionMenuItemState data, {required bool isStart}) {
-    for (var p in this.pageDataList) {
+    for (var p in pageDataList) {
       p.resetEditInProgress();
     }
     if (isStart) {
       data.editInProgress = true;
       data.showEditBox = true;
     }
-    this.onChange();
+    onChange();
   }
 
   void onChange() {
     for (var p in pageDataList) {
       p.removeDeleted();
     }
-    if (this.currentPageIndex >= pageDataList.length) {
-      this.currentPageIndex = pageDataList.length - 1;
+    if (currentPageIndex >= pageDataList.length) {
+      currentPageIndex = pageDataList.length - 1;
     }
     _dumpStates();
     setState(() {});
@@ -144,14 +145,14 @@ class _CirclesMenuState extends State<CirclesMenu> {
 
   List<Widget> getItems({required int pageIndex}) {
     List<Widget> result = [];
-    PageData curPageData = this.pageDataList[pageIndex];
+    PageData curPageData = pageDataList[pageIndex];
     for (var d in curPageData.actionsStates) {
       result.add(
         MenuItemWidget(
           config: widget.config,
           data: d,
           isReadonly: curPageData.notEditable,
-          onEditChange: this.onEditChange,
+          onEditChange: onEditChange,
           child: CircleBox(
             radius: d.radius,
             child: Text(
@@ -167,7 +168,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
             ),
             fillColor: d.actualFillColor,
           ),
-          onChange: this.onChange,
+          onChange: onChange,
         ),
       );
     }
@@ -180,7 +181,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
 
   void squeezeAndSortPages() {
     pageDataList.removeWhere((p) => p.canBeSqueezed);
-    if (pageDataList.length == 0) {
+    if (pageDataList.isEmpty) {
       pageDataList.add(
         PageData.empty(
           title: widget.config.defaultPageTitle,
@@ -191,13 +192,13 @@ class _CirclesMenuState extends State<CirclesMenu> {
     for (int i = 0; i < pageDataList.length; i++) {
       pageDataList[i].index = i;
     }
-    if (this.currentPageIndex >= pageDataList.length) {
-      this.currentPageIndex = pageDataList.length - 1;
+    if (currentPageIndex >= pageDataList.length) {
+      currentPageIndex = pageDataList.length - 1;
     }
   }
 
   PageData get curPageData {
-    return this.pageDataList[currentPageIndex];
+    return pageDataList[currentPageIndex];
   }
 
   bool get isRtl => Directionality.of(context) == TextDirection.rtl;
@@ -207,7 +208,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
     items.add(
       SettingsItem(
         title: widget.config.editPages,
-        icon: Icon(Icons.settings),
+        icon: const Icon(Icons.settings),
         onSelected: () async {
           await Navigator.of(context).push(MaterialPageRoute(
             builder: (context) =>
@@ -237,7 +238,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
         items.add(
           SettingsItem(
             title: widget.config.arrangeInGrid,
-            icon: Icon(Icons.grid_on),
+            icon: const Icon(Icons.grid_on),
             onSelected: () async {
               modifyCirclesToGrid(curPageData.actionsStates);
             },
@@ -246,10 +247,10 @@ class _CirclesMenuState extends State<CirclesMenu> {
       }
       if (kDebugMode) {
         items.add(SettingsItem(
-            icon: Icon(Icons.bug_report_outlined),
+            icon: const Icon(Icons.bug_report_outlined),
             title: widget.config.devInfo,
             onSelected: () async {
-              await this._debugStates();
+              await _debugStates();
             }));
       }
     }
@@ -259,10 +260,10 @@ class _CirclesMenuState extends State<CirclesMenu> {
       backgroundColor: Colors.green,
       child: PopupMenuButton<SettingsItem>(
         initialValue: null,
-        child: Icon(Icons.settings),
+        child: const Icon(Icons.settings),
         onSelected: (SettingsItem sa) async {
           await sa.onSelected();
-          this.onChange();
+          onChange();
         },
         itemBuilder: (context) {
           List<PopupMenuEntry<SettingsItem>> menuItems = [];
@@ -279,7 +280,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
                 ),
               );
             } else {
-              menuItems.add(PopupMenuDivider());
+              menuItems.add(const PopupMenuDivider());
             }
           }
           return menuItems;
@@ -337,7 +338,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
 
   Map<String, dynamic> toMap() {
     return {
-      'pages': [for (var p in this.pageDataList) p.toMap()],
+      'pages': [for (var p in pageDataList) p.toMap()],
       'timestampMs': DateTime
           .now()
           .millisecondsSinceEpoch,
@@ -346,14 +347,14 @@ class _CirclesMenuState extends State<CirclesMenu> {
   }
 
   Future<void> _debugStates() async {
-    Map<String, dynamic> data = this.toMap();
-    String debugData = JsonEncoder.withIndent('    ').convert(data);
+    Map<String, dynamic> data = toMap();
+    String debugData = const JsonEncoder.withIndent('    ').convert(data);
     debugPrint('data = $debugData');
   }
 
   Future<void> _dumpStates() async {
     SharedPreferences sp = await SharedPreferences.getInstance();
-    Map<String, dynamic> data = this.toMap();
+    Map<String, dynamic> data = toMap();
     String value = jsonEncode(data);
     await sp.setString(widget.config.spKey, value);
   }
@@ -375,7 +376,7 @@ class _CirclesMenuState extends State<CirclesMenu> {
       savedMap,
       widget.readonlyPagesMaps,
     );
-    this.pageDataList = pagesMaps
+    pageDataList = pagesMaps
         .map(
           (m) =>
           PageData.fromMap(
@@ -385,6 +386,6 @@ class _CirclesMenuState extends State<CirclesMenu> {
           ),
     )
         .toList();
-    this.squeezeAndSortPages();
+    squeezeAndSortPages();
   }
 }

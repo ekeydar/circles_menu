@@ -10,7 +10,7 @@ class PagesScreen extends StatefulWidget {
   final CirclesMenuConfig config;
   final List<PageData> pages;
 
-  PagesScreen({
+  const PagesScreen({
     Key? key,
     required this.config,
     required this.pages,
@@ -69,7 +69,7 @@ class _PagesScreenState extends State<PagesScreen> {
                   }
                 },
                 title: Text(widget.config.addPage),
-                leading: Icon(
+                leading: const Icon(
                   Icons.add,
                   color: Colors.green,
                 ),
@@ -105,7 +105,7 @@ class _PagesScreenState extends State<PagesScreen> {
             child: CircleBox(
               borderColor: Colors.grey,
               fillColor: page.color,
-              child: SizedBox.shrink(),
+              child: const SizedBox.shrink(),
               radius: 14,
             ),
           ),
@@ -127,7 +127,7 @@ class _PagesScreenState extends State<PagesScreen> {
                         });
                       }
                     },
-                    icon: Icon(
+                    icon: const Icon(
                       Icons.edit,
                       size: 18,
                     )),
@@ -136,7 +136,7 @@ class _PagesScreenState extends State<PagesScreen> {
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (page.readonly) Icon(Icons.lock),
+              if (page.readonly) const Icon(Icons.lock),
               Text('${page.actionsStates.length}'),
             ],
           ),
@@ -157,10 +157,12 @@ class _PagesScreenState extends State<PagesScreen> {
       direction: DismissDirection.startToEnd,
       background: Container(
         color: Colors.red,
-        child: Align(
+        child: const Align(
           alignment: Alignment.centerRight,
           child: Padding(
-            padding: const EdgeInsets.only(left: 32.0, right: 32.0),
+            padding: EdgeInsets.symmetric(
+              horizontal: 32,
+            ),
             child: Icon(Icons.delete),
           ),
         ),

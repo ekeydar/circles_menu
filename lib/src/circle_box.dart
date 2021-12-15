@@ -6,11 +6,13 @@ class CircleBox extends StatelessWidget {
   final Color fillColor;
   final Color? borderColor;
 
-  CircleBox(
-      {required this.radius,
+  const CircleBox(
+      {Key? key,
+      required this.radius,
       required this.child,
       required this.fillColor,
-      this.borderColor});
+      this.borderColor})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {

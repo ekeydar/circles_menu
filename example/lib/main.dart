@@ -3,33 +3,37 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      localizationsDelegates: [
+      localizationsDelegates: const [
         GlobalCupertinoLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
       ],
-      supportedLocales: [
+      supportedLocales: const [
         Locale('he', 'IL'), // OR Locale('ar', 'AE') OR Other RTL locales
       ],
-      locale: Locale('he', 'IL'),
+      locale: const Locale('he', 'IL'),
       // OR Loc
       title: 'Circles Menu Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: CirclesMenuExample(),
+      home: const CirclesMenuExample(),
     );
   }
 }
 
 class CirclesMenuExample extends StatefulWidget {
+  const CirclesMenuExample({Key? key}) : super(key: key);
+
   @override
   State<StatefulWidget> createState() => CirclesMenuExampleState();
 }
@@ -49,9 +53,10 @@ class MyActionsProvider extends ActionsProvider {
   MyActionsProvider({required this.onActionPressed}) {
     actions = _getActions();
     categories = [
-      ActionsCategory(icon: Icon(Icons.add), title: 'small', code: 'small'),
       ActionsCategory(
-          icon: Icon(Icons.sports_tennis), title: 'big', code: 'big')
+          icon: const Icon(Icons.add), title: 'small', code: 'small'),
+      ActionsCategory(
+          icon: const Icon(Icons.sports_tennis), title: 'big', code: 'big')
     ];
   }
 
@@ -60,6 +65,7 @@ class MyActionsProvider extends ActionsProvider {
     return actions;
   }
 
+  @override
   OpAction getActionByCode(String code) {
     int index = int.parse(code.replaceAll('action_', ''), radix: 10);
     String title = 'פעולה מספר ' + index.toString();
@@ -69,6 +75,7 @@ class MyActionsProvider extends ActionsProvider {
     );
   }
 
+  @override
   String getActionCategoryCode(String code) {
     int index = int.parse(code.replaceAll('action_', ''), radix: 10);
     return index < 10 ? 'small' : 'big';
@@ -76,7 +83,7 @@ class MyActionsProvider extends ActionsProvider {
 
   @override
   void actionPressed(String code) {
-    this.onActionPressed(code);
+    onActionPressed(code);
   }
 
   @override
@@ -93,9 +100,8 @@ class CirclesMenuExampleState extends State<CirclesMenuExample> {
 
   @override
   void initState() {
-    config = CirclesMenuConfig(onEditDone: this.onEditDone);
-    myActionsProvider =
-        MyActionsProvider(onActionPressed: this.onActionPressed);
+    config = CirclesMenuConfig(onEditDone: onEditDone);
+    myActionsProvider = MyActionsProvider(onActionPressed: onActionPressed);
     super.initState();
   }
 
@@ -103,13 +109,13 @@ class CirclesMenuExampleState extends State<CirclesMenuExample> {
     final snackBar = SnackBar(
       content: Text('clicked on $code'),
       backgroundColor: Colors.red,
-      duration: Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 500),
     );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   Future<void> onEditDone() async {
-    final snackBar = SnackBar(
+    const snackBar = SnackBar(
       content: Text('In edit done callback'),
       backgroundColor: Colors.red,
       duration: Duration(milliseconds: 500),
@@ -121,12 +127,12 @@ class CirclesMenuExampleState extends State<CirclesMenuExample> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('demo widget'),
+          title: const Text('demo widget'),
         ),
         body: CirclesMenu(
           actionsProvider: myActionsProvider,
           config: config,
-          readonlyPagesMaps: [],
+          readonlyPagesMaps: const [],
           pickActionCallback: myPickAction,
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerTop,
@@ -137,7 +143,7 @@ class CirclesMenuExampleState extends State<CirclesMenuExample> {
             children: [
               FloatingActionButton(
                   heroTag: 'main',
-                  child: Icon(Icons.add),
+                  child: const Icon(Icons.add),
                   onPressed: () {
                     setState(() {
                       myActionsProvider.disabledIndex++;
@@ -147,12 +153,12 @@ class CirclesMenuExampleState extends State<CirclesMenuExample> {
                       // debugPrint('disabledIndex = $disabledIndex');
                     });
                   }),
-              SizedBox(
+              const SizedBox(
                 width: 10,
               ),
               FloatingActionButton(
                   heroTag: 'main_save',
-                  child: Icon(Icons.save_alt),
+                  child: const Icon(Icons.save_alt),
                   onPressed: () async {
                     defaultDump = await config.getCurrent();
                     setState(() {});
@@ -210,13 +216,14 @@ List<OpAction> _getActions() {
 class PickBigActionScreen extends StatelessWidget {
   final ActionsCategory category;
 
-  PickBigActionScreen({Key? key, required this.category}) : super(key: key);
+  const PickBigActionScreen({Key? key, required this.category})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('pick big action'),
+          title: const Text('pick big action'),
         ),
         body: Column(
           children: [

@@ -4,7 +4,9 @@ import 'package:collection/collection.dart';
 
 import 'circles_menu_models.dart';
 
+// ignore: constant_identifier_names
 const double PAD_Y = 10;
+// ignore: constant_identifier_names
 const double PAD_X = 10;
 
 void modifyCirclesToGrid(List<ActionMenuItemState> states) {

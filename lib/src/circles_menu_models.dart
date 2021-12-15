@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+// ignore: prefer_generic_function_type_aliases
 typedef Future<OpAction?> PickActionCallback(
   BuildContext context, {
   required ActionsCategory category,
@@ -72,9 +73,9 @@ class PageData {
   bool get canBeSqueezed => false; //actionsStates.isEmpty && !isOwner;
 
   void removeNotApplicableActions() {
-    this
-        .actionsStates
-        .removeWhere((st) => st.actionsProvider.isNotApplicable(st.actionCode));
+    actionsStates.removeWhere(
+      (st) => st.actionsProvider.isNotApplicable(st.actionCode),
+    );
   }
 
   void removeDeleted() {
@@ -82,13 +83,13 @@ class PageData {
   }
 
   void resetEditInProgress() {
-    actionsStates.forEach((s) {
+    for (var s in actionsStates) {
       s.editInProgress = false;
-    });
+    }
   }
 
   void empty() {
-    this.actionsStates.clear();
+    actionsStates.clear();
   }
 
   Map<String, dynamic> toMap() {
@@ -96,11 +97,11 @@ class PageData {
         actionsStates.map((m) => m.toMap()).toList();
     return {
       'states': states,
-      'index': this.index,
-      'externalId': this.externalId,
-      'isOwner': this.isOwner,
-      'title': this.title,
-      'colorValue': this.color.value,
+      'index': index,
+      'externalId': externalId,
+      'isOwner': isOwner,
+      'title': title,
+      'colorValue': color.value,
     };
   }
 
@@ -162,6 +163,7 @@ class ActionMenuItemState extends BaseMenuItemState {
 
   OpAction get action => actionsProvider.getActionByCode(actionCode);
 
+  @override
   String get title => action.title;
 
   ActionMenuItemState(
@@ -180,34 +182,43 @@ class ActionMenuItemState extends BaseMenuItemState {
         radius = m['radius'],
         super(x: m['x'], y: m['y']);
 
+  @override
   Color get color => fillColor;
 
+  @override
   set color(Color c) {
     fillColor = c;
   }
 
+  @override
   double get width => radius * 2;
 
+  @override
   double get height => width;
 
+  @override
   bool get canIncr => radius < 100;
 
+  @override
   bool get canDecr => radius > 35;
 
+  @override
   void incr() {
     radius += 5;
   }
 
+  @override
   void decr() {
     radius -= 5;
   }
 
   String get text => action.title;
 
-  Color get actualFillColor => this.actionsProvider.isDisabled(action.code)
+  Color get actualFillColor => actionsProvider.isDisabled(action.code)
       ? fillColor.withAlpha(100)
       : fillColor;
 
+  @override
   Map<String, dynamic> toMap() {
     return super.toMap()
       ..addAll({
@@ -219,7 +230,7 @@ class ActionMenuItemState extends BaseMenuItemState {
 
   @override
   String toString() {
-    return this.text;
+    return text;
   }
 }
 
@@ -237,7 +248,7 @@ class ActionsCategory {
 
   @override
   String toString() {
-    return this.title;
+    return title;
   }
 }
 
@@ -313,11 +324,13 @@ class CirclesMenuConfig {
 
   Future<String?> getCurrent() async {
     SharedPreferences sp = await SharedPreferences.getInstance();
-    return sp.getString(this.spKey);
+    return sp.getString(spKey);
   }
 }
 
+// ignore: prefer_generic_function_type_aliases
 typedef bool BoolCallback();
+// ignore: prefer_generic_function_type_aliases
 typedef void EditChangedCallback(ActionMenuItemState p,
     {required bool isStart});
 
@@ -333,6 +346,7 @@ class StateAction {
   });
 }
 
+// ignore: prefer_generic_function_type_aliases
 typedef void ActionPressedCallback(String code);
 
 abstract class ActionsProvider {
